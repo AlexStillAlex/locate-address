@@ -33,7 +33,7 @@ map.on("style.load", function () {
     // Duplicate 'OS/TopographicArea_1/Building/1' layer to extrude the buildings
     // in 3D using the Building Height Attribute (RelHMax) value.
     map.addLayer({
-        "id": "OS/TopographicArea_1/Building/1_3D",
+        "id": "OS/Foreshore/1",
         "type": "fill-extrusion",
         "source": "esri",
         "source-layer": "TopographicArea_1",
