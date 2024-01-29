@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LCP Address location</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- <link rel="stylesheet" href="logo.js" /> -->
+    <link href="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.5/alasql.min.js" integrity="sha512-LuljkOQKcaogetQCtJCXiXK++nbzCQiXw7lOBBKCQk+yIRXjafpl8SFU0ogFOck13XbQ04TN/96pWNSvzSkTkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <!-- SQL editing on CSV -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .map-overlay {
+            font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            padding: 25px;
+        }
+
+        .map-overlay-inner {
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 10px 25px;
+            max-width: 300px;
+
+        }
+
+        .map-overlay-inner div {
+            display: block;
+            margin-top: 8px;
+        }
+
+        .map-overlay-inner span {
+            /* font-weight: 600; */
+            margin-left: 15px;
+        }
+
+        .map-overlay-inner .message {
+            color: #c00;
+            display: none;
+        }
+
+        @keyframes c-inline-spinner-kf {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #spinner {
+            visibility: hidden;
+        }
+
+        .c-inline-spinner,
+        .c-inline-spinner:before {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            transform-origin: 50%;
+            border: 2px solid transparent;
+            border-color: #74a8d0 #74a8d0 transparent transparent;
+            border-radius: 50%;
+            content: "";
+            animation: linear c-inline-spinner-kf 900ms infinite;
+            position: relative;
+            vertical-align: inherit;
+            line-height: inherit;
+        }
+
+        .c-inline-spinner {
+            top: 3px;
+            margin: 0 15px;
+        }
+
+        .c-inline-spinner:before {
+            border-color: #74a8d0 #74a8d0 transparent transparent;
+            position: absolute;
+            left: -2px;
+            top: -2px;
+            border-style: solid;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr td:first-child {
+            font-weight: 800;
+            width: 30%;
+            vertical-align: top;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="map-overlay">
+        <div class="map-overlay-inner">
+            <h1>Locate multiple Addresses</h1>
+            <p>Currently in development, will need to connect data sources from OS, EPC etc and run our own tables. Current query allows for multiple address selection and highlights.</p>
+            <form id="the-form">
+                <textarea id="address-text" placeholder="Enter addresses here, one per line..."></textarea>
+                <input id="address-field" type="submit">
+                <i id="spinner" class="c-inline-spinner"></i>
+            </form>
+            <!-- CSV -->
+            <input type="file" id="csvFileInput" accept=".csv">
+            <select id="csvDataDropdown"></select>
+
+            <div id="address-info"><!-- Address information will be displayed here --></div>
+        </div>
+    </div>
+
+    <script src="https://labs.os.uk/public/os-api-branding/v0.3.1/os-api-branding.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.js"></script>
+    <script src="./js/main.js"></script>
+
+</body>
+
+</html>
