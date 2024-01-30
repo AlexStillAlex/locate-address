@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../Downloads/OS-Data-Hub-API-Demos-master"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "OS-Data-Hub-API-Demos-master"
+	}
+}

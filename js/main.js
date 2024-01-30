@@ -1,3 +1,4 @@
+
 // API Key in config object 
 var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh'
 var config = {
@@ -29,11 +30,10 @@ var map = new maplibregl.Map({
 map.addControl(new maplibregl.NavigationControl());
 
 map.on("style.load", function () {
-
     // Duplicate 'OS/TopographicArea_1/Building/1' layer to extrude the buildings
     // in 3D using the Building Height Attribute (RelHMax) value.
     map.addLayer({
-        "id": "OS/Foreshore/1",
+        "id": "OS/TopographicArea_1/Building/1_3D",
         "type": "fill-extrusion",
         "source": "esri",
         "source-layer": "TopographicArea_1",
@@ -42,7 +42,7 @@ map.on("style.load", function () {
             "_symbol",
             33
         ],
-        "minzoom": 13,
+        "minzoom": 16,
         "layout": {},
         "paint": {
             "fill-extrusion-color": "#DCD7C6",
@@ -51,14 +51,13 @@ map.on("style.load", function () {
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                13,
+                16,
                 0,
                 16.05,
                 ["get", "RelHMax"]
             ]
         }
     });
-
     // Here we add the highlighted layer, with all buildings filtered out. 
     // We'll set the filter to our searched buildings when we actually
     // call the OS Places API and  have a TOID to highlight.
@@ -86,163 +85,8 @@ map.on("style.load", function () {
     });
 });
 
-// Option to upload a CSV file
-document.getElementById('csvFileInput').addEventListener('change', function(event) {
-    let file = event.target.files[0];
-    let reader = new FileReader();
 
-    reader.onload = function(e) {
-        let text = e.target.result;
-        populateDropdown(text, 0); // 0 for the first column
-    };
 
-    reader.readAsText(file);
-});
-// Populates a dropdown with unique values from a CSV column
-function populateDropdown(csvText, columnIndex) {
-    let rows = csvText.split('\n');
-    let dropdown = document.getElementById('csvDataDropdown');
-    let uniqueValues = new Set(); // Use a Set to store unique values
-
-    rows.forEach((row, index) => {
-        if (index === 0) return; // Skip header row if present
-        let columns = row.split(','); // Assuming comma-separated values
-        if (columns.length > columnIndex) {
-            uniqueValues.add(columns[columnIndex].trim()); // Add value to the Set
-        }
-    });
-
-    uniqueValues.forEach(value => {
-        let option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        dropdown.appendChild(option);
-    });
-}
-// Event listener for the drowdown
-document.getElementById('csvDataDropdown').addEventListener('change', function(event) {
-    let selectedValue = event.target.value;
-    filterAndProcessCSV(selectedValue);
-});
-
-var globalCSVText;  // Global variable to store the CSV text
-document.getElementById('csvFileInput').addEventListener('change', function(event) {
-    let file = event.target.files[0];
-    let reader = new FileReader();
-
-    reader.onload = function(e) {
-        globalCSVText = e.target.result; // Store CSV text in the global variable
-        populateDropdown(globalCSVText, 0); // 0 for the first column
-    };
-    reader.readAsText(file);
-});
-
-async function filterAndProcessCSV(selectedValue) {
-    let rows = globalCSVText.split('\n');
-    let groupedRows = [];
-
-    rows.forEach((row, index) => {
-        if (index === 0) return; // Skip header row if present
-        let columns = row.split(','); // Assuming comma-separated values
-        if (columns[0].trim() === selectedValue) {  // Assuming the first column is the one to match
-            groupedRows.push(row);
-        }
-    });
-
-    // Process grouped rows
-    await lookUpAddresses(groupedRows);
-}
-// Querying the OS Places API
-var form = document.getElementById("the-form");
-form.addEventListener('submit', lookUpAddressesOld);
-
-// Determined addresses from a new line separated string. Functionality is for testing.
-async function lookUpAddressesOld(e) {
-    e.preventDefault();
-
-    clearInfoBox();
-    showSpinner();
-
-    let queryAddresses = document.getElementById('address-text').value.split('\n');
-    let validAddresses = queryAddresses.filter(address => address.trim() !== "");
-
-    if (validAddresses.length === 0) {
-        alert('Please input at least one address!');
-        hideSpinner();
-        return;
-    }
-
-    let allAddresses = [];
-    let totalLat = 0, totalLng = 0;
-    let toids = []; // Array to store TOIDs
-
-    for (let address of validAddresses) {
-        let addresses = await fetchAddressFromPlaces(address);
-        if (addresses.header.totalresults > 0) {
-            allAddresses.push(...addresses.results);
-            totalLat += addresses.results[0].DPA.LAT;
-            totalLng += addresses.results[0].DPA.LNG;
-            toids.push(addresses.results[0].DPA.TOPOGRAPHY_LAYER_TOID); // Add TOID to array
-        }
-    }
-
-    hideSpinner();
-
-    if (allAddresses.length < 1) {
-        alert("No valid addresses found - please try again.")
-        return;
-    }
-
-    let avgLat = totalLat / allAddresses.length;
-    let avgLng = totalLng / allAddresses.length;
-
-    flyToCoords([avgLng, avgLat]);
-    updateInfoBoxMultiple(allAddresses);
-
-    highlightTOIDs(toids); // Call the modified highlight function with the array of TOIDs
-}
-
-async function lookUpAddresses(addresses) {
-    clearInfoBox();
-    showSpinner();
-
-    let validAddresses = addresses.filter(address => address.trim() !== "");
-
-    if (validAddresses.length === 0) {
-        alert('Please input at least one address!');
-        hideSpinner();
-        return;
-    }
-
-    let allAddresses = [];
-    let totalLat = 0, totalLng = 0;
-    let toids = []; // Array to store TOIDs
-
-    for (let address of validAddresses) {
-        let addresses = await fetchAddressFromPlaces(address);
-        if (addresses.header.totalresults > 0) {
-            allAddresses.push(...addresses.results);
-            totalLat += addresses.results[0].DPA.LAT;
-            totalLng += addresses.results[0].DPA.LNG;
-            toids.push(addresses.results[0].DPA.TOPOGRAPHY_LAYER_TOID); // Add TOID to array
-        }
-    }
-
-    hideSpinner();
-
-    if (allAddresses.length < 1) {
-        alert("No valid addresses found - please try again.")
-        return;
-    }
-
-    let avgLat = totalLat / allAddresses.length;
-    let avgLng = totalLng / allAddresses.length;
-
-    flyToCoords([avgLng, avgLat]);
-    updateInfoBoxMultiple(allAddresses);
-
-    highlightTOIDs(toids); // Call the modified highlight function with the array of TOIDs
-}
 function highlightTOIDs(toids) {
     if (toids.length > 0) {
         let filter = ["in", "TOID"].concat(toids);
@@ -277,8 +121,8 @@ map.on('load', function() {
         },
         "layout": {},
         "paint": {
-            "fill-color": "#38f",
-            "fill-opacity": 0.5
+            "fill-color": "#38f", //BLUE
+            "fill-opacity": 0.7
         }
     });
 
@@ -310,22 +154,49 @@ function updateInfoBox(placesResponse) {
 
 function updateInfoBoxMultiple(addresses) {
     let infoContent = addresses.map(address => {
-        return `Address: ${address.DPA.ADDRESS}<br>UPRN: ${address.DPA.UPRN}<br>TOID: ${address.DPA.TOPOGRAPHY_LAYER_TOID}<br>Longitude: ${address.DPA.LNG}<br>Latitude: ${address.DPA.LAT}<br><br>`;
+        return `Address: ${address.DPA.ADDRESS}
+        <br>UPRN: ${address.DPA.UPRN}
+         <br>TOID: ${address.DPA.TOPOGRAPHY_LAYER_TOID}
+         <br>Longitude: ${address.DPA.LNG}
+         <br>Latitude: ${address.DPA.LAT}
+         <br><br>`;
     }).join('');
 
     document.getElementById('address-info').innerHTML = infoContent; // Make sure this is in the HTML holy hell
 }
+// Deal with this shit tomorrow using the circle greenspaces API
+// async function highlightBuildings() {
+//     // Code to perform the property search...
 
+//     // After the search is completed, get the map bounds and fetch the features
+//     var bounds = map.getBounds();
+//     //Set bounds
+//     var topLeft = bounds.getNorthWest();
+//     var bottomRight = bounds.getSouthEast();
+//         //Rounding
+//     var topLeftLat = topLeft.lat.toFixed(6);
+//     var topLeftLng = topLeft.lng.toFixed(6);
+//     var bottomRightLat = bottomRight.lat.toFixed(6);
+//     var bottomRightLng = bottomRight.lng.toFixed(6);
+// //Construct BBOX
+//     var bbox = topLeftLng + "," + topLeftLat + "," + bottomRightLng + "," + bottomRightLat;
+//     bbox = 3.545148 +',' + 50.727083+','+3.538470+','+50.728095
+//     console.log(bbox)
+//     const features = await fetch(`https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?bbox=${bbox}&key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=description%20=%20'Building'`, {
+//         headers: {
+//             'Accept': 'application/geo+json',
+//             'key': apikey
+//         }
+//     }).then((response) => response.json());
+
+//     // Do something with features...
+// }
 function clearInfoBox() {
     document.getElementById('address-info').innerHTML = ""; // Updated to clear the correct element
-    // document.getElementById('address').innerText = "";
-    // document.getElementById('uprn').innerText = "";
-    //document.getElementById('toid').innerText = "";
-    // document.getElementById('longitude').innerHTML = "";
-    // document.getElementById('latitude').innerHTML = "";
 }
 
 // Animated fly to coords, and rotate camera on arrival
+//TODO: Only rotate once within postcode?
 async function flyToCoords(coords) {
     map.once('moveend', function () {
         map.rotateTo(0.0, { duration: 4000 });
@@ -333,7 +204,7 @@ async function flyToCoords(coords) {
 
     map.flyTo({
         center: coords,
-        zoom: 17.5,
+        zoom: 18.5,
         pitch: 0,
         bearing: 180
     });
@@ -347,7 +218,6 @@ function highlightTOID(toid) {
 }
 // Function to get features of the clicked point
 function getFeatures(coord) {
-    console.log(coord)
     // Create an OGC XML filter parameter value which will select the TopographicArea
     // features containing the coordinates of the clicked point.
     let xml = '<ogc:Filter>';
@@ -360,13 +230,16 @@ function getFeatures(coord) {
     xml += '</ogc:Filter>';
 
     // Define (WFS) parameters object.
+    // This queries the headers under the 'TopographicArea' layer, found in 
+    //https://api.os.uk/features/v1/wfs?service=wfs&request=getcapabilities&key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh
+    //If you want to make a request for a different layer, you must define a new set of constants and append them to the div later.
     const wfsParams = {
         key: apikey,
         service: 'WFS',
         request: 'GetFeature',
         version: '2.0.0',
         typeNames: 'Topography_TopographicArea',
-        propertyName: 'TOID,DescriptiveGroup,SHAPE',
+        propertyName: 'TOID,DescriptiveGroup,SHAPE,Shape_Area',
         outputFormat: 'GEOJSON',
         filter: xml,
         count: 1
@@ -381,10 +254,14 @@ function getFeatures(coord) {
             if(! data.features.length )
                 return;
 
-            map.getSource('topographic-areas').setData(data);
 
+            map.getSource('topographic-areas').setData(data);
+            
             let properties = data.features[0].properties;
             properties = (({ GmlID, OBJECTID, ...o }) => o)(properties);
+            // console.log(properties) //So the properties are determined before this GET request.
+            // Hold on
+
 
             let content = '<div class="grid-container">';
             for( let i in properties ) {
@@ -408,10 +285,13 @@ function getFeatures(coord) {
  * @param {object} params - The parameters object to be encoded.
  */
 function getUrl(params) {
+    console.log(params)
     const encodedParameters = Object.keys(params)
         .map(paramName => paramName + '=' + encodeURI(params[paramName]))
         .join('&');
 
+        
+        console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
     return 'https://api.os.uk/features/v1/wfs?' + encodedParameters;
 }
 
