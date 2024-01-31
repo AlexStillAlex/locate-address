@@ -11,6 +11,24 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 
+
+//Creating a mapstyle. I DO NOT USE THIS.
+const style = {
+    "version": 8,
+    "sources": {
+        "raster-tiles": {
+            "type": "raster",
+            "tiles": [ "https://api.os.uk/maps/raster/v1/zxy/Light_3857/{z}/{x}/{y}.png?key=" + apikey ],
+            "tileSize": 256
+        }
+    },
+    "layers": [{
+        "id": "os-maps-zxy",
+        "type": "raster",
+        "source": "raster-tiles"
+    }]
+};
+
 // Initialise the map object.
 var map = new maplibregl.Map({
     container: 'map',
@@ -25,6 +43,8 @@ var map = new maplibregl.Map({
         }
     }
 });
+
+
 
 // Add navigation control (excluding compass button) to the map.
 map.addControl(new maplibregl.NavigationControl());
@@ -216,6 +236,48 @@ function highlightTOID(toid) {
     let filter = ["in", "TOID", string(toid)];
     map.setFilter("OS/TopographicArea_1/Building/1_3D-highlighted", filter);
 }
+
+
+// Define the features and their colors
+var features = [
+    { name: 'Airports', color: '#088' },
+    // Add more features here
+];
+//Adds a DIV badly.
+
+// //Checks when the DIV has loaded and appends the legend to the div
+// document.addEventListener('DOMContentLoaded', (event) => {
+//     // Get the legend div
+//     var legend = document.getElementById('legend');
+
+//     // Define the features and their colors
+//     var features = [
+//         { name: 'Airports', color: '#088' },
+//         // Add more features here
+//     ];
+
+//     // Add a legend item for each feature
+//     features.forEach(function(feature) {
+//         // Create the color indicator
+//         var colorIndicator = document.createElement('span');
+//         colorIndicator.style.display = 'inline-block';
+//         colorIndicator.style.width = '20px';
+//         colorIndicator.style.height = '20px';
+//         colorIndicator.style.backgroundColor = feature.color;
+
+//         // Create the label
+//         var label = document.createElement('span');
+//         label.textContent = feature.name;
+
+//         // Create the legend item
+//         var item = document.createElement('div');
+//         item.appendChild(colorIndicator);
+//         item.appendChild(label);
+
+//         // Add the legend item to the legend
+//         legend.appendChild(item);
+//     });
+// });
 // Function to get features of the clicked point
 function getFeatures(coord) {
     // Create an OGC XML filter parameter value which will select the TopographicArea
@@ -294,7 +356,6 @@ function getUrl(params) {
         console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
     return 'https://api.os.uk/features/v1/wfs?' + encodedParameters;
 }
-
 
 // Helper functions for the spinner element
 function showSpinner() {

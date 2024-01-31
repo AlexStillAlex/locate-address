@@ -7,7 +7,6 @@ document.getElementById('csvFileInput').addEventListener('change', function(even
         let text = e.target.result;
         populateDropdown(text, 0); // 0 for the first column
     };
-
     reader.readAsText(file);
 });
 // Populates a dropdown with unique values from a CSV column
