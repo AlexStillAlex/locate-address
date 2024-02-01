@@ -2,35 +2,14 @@ const baseUrl = 'https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-build
 const filter = "oslandusetiera eq 'Residential Accommodation'";
 const key = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh';
 const ostierusageValues = [
-    { value: "Residential Accommodation", color: "#157CBD" },
-    { value: "Commercial Activity: Industrial Or Manufacturing", color: "#FFC300" },
-    { value: "Commercial Activity: Other", color: "#FF5733" },
-    { value: "Commercial Activity: Retail", color: "#C70039" },
-    { value: "Construction", color: "#900C3F" },
-    { value: "Education", color: "#900C3F" },
-    { value: "Government Services", color: "#3E061C" },
+    { value: "Residential Accommodation", color: "#000" },
+    { value: "Commercial Activity: Industrial Or Manufacturing", color: "#f00" },
+    { value: "Commercial Activity: Other", color: "#0f0" },
+    { value: "Commercial Activity: Retail", color: "#00f" },
+    { value: "Construction", color: "#ff0" },
+    { value: "Education", color: "#f0f" },
+    { value: "Government Services", color: "#0ff" },
 ];
-
-// Add an item to the legend for each ostierusageValue.
-for (let item of ostierusageValues) {
-    let legendItem = document.createElement('div');
-
-    // Create a color box.
-    let colorBox = document.createElement('span');
-    colorBox.style.display = 'inline-block';
-    colorBox.style.width = '20px';
-    colorBox.style.height = '20px';
-    colorBox.style.marginRight = '8px';
-    colorBox.style.backgroundColor = item.color;
-    legendItem.appendChild(colorBox);
-
-    // Create a label.
-    let label = document.createTextNode(item.value);
-    legendItem.appendChild(label);
-
-    // Add the legend item to the legend.
-    legend.appendChild(legendItem);
-}
 // Get the visible map bounds (BBOX).
 let bounds = map.getBounds();
 

@@ -244,7 +244,6 @@ var features = [
     // Add more features here
 ];
 //Adds a DIV badly.
-
 // //Checks when the DIV has loaded and appends the legend to the div
 // document.addEventListener('DOMContentLoaded', (event) => {
 //     // Get the legend div
