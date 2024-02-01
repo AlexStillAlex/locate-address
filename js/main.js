@@ -2,7 +2,7 @@
 // API Key in config object 
 var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh'
 var config = {
-    apikey: apikey // a project on a Premium plan with OS Places API and OS Vector Tile API added
+    apikey: apikey 
 };
 
 // Endpoints
@@ -11,33 +11,23 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 
-
-//Creating a mapstyle. I DO NOT USE THIS.
-const style = {
-    "version": 8,
-    "sources": {
-        "raster-tiles": {
-            "type": "raster",
-            "tiles": [ "https://api.os.uk/maps/raster/v1/zxy/Light_3857/{z}/{x}/{y}.png?key=" + apikey ],
-            "tileSize": 256
-        }
-    },
-    "layers": [{
-        "id": "os-maps-zxy",
-        "type": "raster",
-        "source": "raster-tiles"
-    }]
-};
+//Definining custom map styles
+const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 
 // Initialise the map object.
-var map = new maplibregl.Map({
+const map = new maplibregl.Map({
     container: 'map',
     minZoom: 6,
-    // maxZoom: 18,
-    style: endpoints.vectorTile + '/resources/styles?key=' + config.apikey,
-    center: [-2.968, 54.425],
+    maxZoom: 18,
+    style: customStyleJson,
+    maxBounds: [
+        [ -10.76418, 49.528423 ],
+        [ 1.9134116, 61.331151 ]
+    ],
+    center: [ -2.968, 54.425 ],
     zoom: 13,
     transformRequest: url => {
+        if(! /[?&]key=/.test(url) ) url += '?key=' + apikey
         return {
             url: url + '&srs=3857'
         }
@@ -45,75 +35,76 @@ var map = new maplibregl.Map({
 });
 
 
-
 // Add navigation control (excluding compass button) to the map.
 map.addControl(new maplibregl.NavigationControl());
 
-map.on("style.load", function () {
-    // Duplicate 'OS/TopographicArea_1/Building/1' layer to extrude the buildings
-    // in 3D using the Building Height Attribute (RelHMax) value.
-    map.addLayer({
-        "id": "OS/TopographicArea_1/Building/1_3D",
-        "type": "fill-extrusion",
-        "source": "esri",
-        "source-layer": "TopographicArea_1",
-        "filter": [
-            "==",
-            "_symbol",
-            33
-        ],
-        "minzoom": 16,
-        "layout": {},
-        "paint": {
-            "fill-extrusion-color": "#DCD7C6",
-            "fill-extrusion-opacity": 0.5,
-            "fill-extrusion-height": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                16,
-                0,
-                16.05,
-                ["get", "RelHMax"]
-            ]
-        }
-    });
-    // Here we add the highlighted layer, with all buildings filtered out. 
-    // We'll set the filter to our searched buildings when we actually
-    // call the OS Places API and  have a TOID to highlight.
-    map.addLayer({
-        "id": "OS/TopographicArea_1/Building/1_3D-highlighted",
-        "type": "fill-extrusion",
-        "source": "esri",
-        "source-layer": "TopographicArea_1",
-        "filter": ["in", "TOID", ""],
-        "minzoom": 16,
-        "layout": {},
-        "paint": {
-            "fill-extrusion-color": "#FF1F5B",
-            "fill-extrusion-opacity": 1,
-            "fill-extrusion-height": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                16,
-                0,
-                16.05,
-                ["get", "RelHMax"]
-            ],
-        }
-    });
-});
+//Removed logic to create a 3D layer. Reduces the number of API calls.
+
+// map.on("style.load", function () {
+//     // Duplicate 'OS/TopographicArea_1/Building/1' layer to extrude the buildings
+//     // in 3D using the Building Height Attribute (RelHMax) value.
+//     map.addLayer({
+//         "id": "OS/TopographicArea_1/Building/1_3D",
+//         "type": "fill-extrusion",
+//         "source": "esri",
+//         "source-layer": "TopographicArea_1",
+//         "filter": [
+//             "==",
+//             "_symbol",
+//             33
+//         ],
+//         "minzoom": 16,
+//         "layout": {},
+//         "paint": {
+//             "fill-extrusion-color": "#DCD7C6",
+//             "fill-extrusion-opacity": 0.5,
+//             "fill-extrusion-height": [
+//                 "interpolate",
+//                 ["linear"],
+//                 ["zoom"],
+//                 16,
+//                 0,
+//                 16.05,
+//                 ["get", "RelHMax"]
+//             ]
+//         }
+//     });
+//     // Here we add the highlighted layer, with all buildings filtered out. 
+//     // We'll set the filter to our searched buildings when we actually
+//     // call the OS Places API and  have a TOID to highlight.
+//     map.addLayer({
+//         "id": "OS/TopographicArea_1/Building/1_3D-highlighted",
+//         "type": "fill-extrusion",
+//         "source": "esri",
+//         "source-layer": "TopographicArea_1",
+//         "filter": ["in", "TOID", ""],
+//         "minzoom": 16,
+//         "layout": {},
+//         "paint": {
+//             "fill-extrusion-color": "#FF1F5B",
+//             "fill-extrusion-opacity": 1,
+//             "fill-extrusion-height": [
+//                 "interpolate",
+//                 ["linear"],
+//                 ["zoom"],
+//                 16,
+//                 0,
+//                 16.05,
+//                 ["get", "RelHMax"]
+//             ],
+//         }
+//     });
+// });
 
 
-
+//This function is redundant if we don't have to highlight buildings that have been searched.
+// 3D extrusion is stupid I've decided.
 function highlightTOIDs(toids) {
     if (toids.length > 0) {
         let filter = ["in", "TOID"].concat(toids);
         map.setFilter("OS/TopographicArea_1/Building/1_3D-highlighted", filter);
     }
 }
-
 async function fetchAddressFromPlaces(address) {
 
     let url = endpoints.places + `/find?query=${encodeURIComponent(address)}&maxresults=1&output_srs=EPSG:4326&key=${config.apikey}`;
@@ -153,7 +144,6 @@ map.on('load', function() {
     });
 });
 
-
 // Input relevant information to the map overlay div
 function updateInfoBox(placesResponse) {
 
@@ -184,33 +174,6 @@ function updateInfoBoxMultiple(addresses) {
 
     document.getElementById('address-info').innerHTML = infoContent; // Make sure this is in the HTML holy hell
 }
-// Deal with this shit tomorrow using the circle greenspaces API
-// async function highlightBuildings() {
-//     // Code to perform the property search...
-
-//     // After the search is completed, get the map bounds and fetch the features
-//     var bounds = map.getBounds();
-//     //Set bounds
-//     var topLeft = bounds.getNorthWest();
-//     var bottomRight = bounds.getSouthEast();
-//         //Rounding
-//     var topLeftLat = topLeft.lat.toFixed(6);
-//     var topLeftLng = topLeft.lng.toFixed(6);
-//     var bottomRightLat = bottomRight.lat.toFixed(6);
-//     var bottomRightLng = bottomRight.lng.toFixed(6);
-// //Construct BBOX
-//     var bbox = topLeftLng + "," + topLeftLat + "," + bottomRightLng + "," + bottomRightLat;
-//     bbox = 3.545148 +',' + 50.727083+','+3.538470+','+50.728095
-//     console.log(bbox)
-//     const features = await fetch(`https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?bbox=${bbox}&key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=description%20=%20'Building'`, {
-//         headers: {
-//             'Accept': 'application/geo+json',
-//             'key': apikey
-//         }
-//     }).then((response) => response.json());
-
-//     // Do something with features...
-// }
 function clearInfoBox() {
     document.getElementById('address-info').innerHTML = ""; // Updated to clear the correct element
 }
@@ -237,46 +200,6 @@ function highlightTOID(toid) {
     map.setFilter("OS/TopographicArea_1/Building/1_3D-highlighted", filter);
 }
 
-
-// Define the features and their colors
-var features = [
-    { name: 'Airports', color: '#088' },
-    // Add more features here
-];
-//Adds a DIV badly.
-// //Checks when the DIV has loaded and appends the legend to the div
-// document.addEventListener('DOMContentLoaded', (event) => {
-//     // Get the legend div
-//     var legend = document.getElementById('legend');
-
-//     // Define the features and their colors
-//     var features = [
-//         { name: 'Airports', color: '#088' },
-//         // Add more features here
-//     ];
-
-//     // Add a legend item for each feature
-//     features.forEach(function(feature) {
-//         // Create the color indicator
-//         var colorIndicator = document.createElement('span');
-//         colorIndicator.style.display = 'inline-block';
-//         colorIndicator.style.width = '20px';
-//         colorIndicator.style.height = '20px';
-//         colorIndicator.style.backgroundColor = feature.color;
-
-//         // Create the label
-//         var label = document.createElement('span');
-//         label.textContent = feature.name;
-
-//         // Create the legend item
-//         var item = document.createElement('div');
-//         item.appendChild(colorIndicator);
-//         item.appendChild(label);
-
-//         // Add the legend item to the legend
-//         legend.appendChild(item);
-//     });
-// });
 // Function to get features of the clicked point
 function getFeatures(coord) {
     // Create an OGC XML filter parameter value which will select the TopographicArea
@@ -322,19 +245,15 @@ function getFeatures(coord) {
             properties = (({ GmlID, OBJECTID, ...o }) => o)(properties);
             // console.log(properties) //So the properties are determined before this GET request.
             // Hold on
-
-
             let content = '<div class="grid-container">';
             for( let i in properties ) {
                 content += `<div>${i}</div><div>${properties[i]}</div>`;
             }
             content += '</div>';
-
             let popup = new maplibregl.Popup({ maxWidth: 'none' })
                 .setLngLat(coord)
                 .setHTML(content)
                 .addTo(map);
-
             popup.on('close', function() {
                 map.getSource('topographic-areas').setData(geoJson);
             });

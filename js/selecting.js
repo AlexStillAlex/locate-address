@@ -105,7 +105,6 @@ map.on('dragend', async function() {
             map.removeSource(layerId);
         }
     }
-
     // Fetch and highlight new buildings.
     for (let item of ostierusageValues) {
         await getFeaturesHighlighted(item.value, item.color);

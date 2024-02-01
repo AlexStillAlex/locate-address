@@ -110,7 +110,8 @@ async function lookUpAddressesOld(e) {
     flyToCoords([avgLng, avgLat]);
     updateInfoBoxMultiple(allAddresses);
 
-    highlightTOIDs(toids); // Call the modified highlight function with the array of TOIDs
+    //Not calling this as it's got stupid layers.
+    // highlightTOIDs(toids); // Call the modified highlight function with the array of TOIDs
 }
 
 async function lookUpAddresses(addresses) {
