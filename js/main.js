@@ -11,6 +11,10 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 
+// Dirty CORS fix
+// let cors = require("cors");
+// app.use(cors());
+
 //Definining custom map styles
 const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 
@@ -34,10 +38,8 @@ const map = new maplibregl.Map({
     }
 });
 
-
 // Add navigation control (excluding compass button) to the map.
 map.addControl(new maplibregl.NavigationControl());
-
 //Removed logic to create a 3D layer. Reduces the number of API calls.
 
 // map.on("style.load", function () {
@@ -223,12 +225,10 @@ function getFeatures(coord) {
         request: 'GetFeature',
         version: '2.0.0',
         typeNames: 'Topography_TopographicArea',
-        propertyName: 'TOID,DescriptiveGroup,SHAPE,Shape_Area',
+         propertyName: 'TOID,Theme,SHAPE,CalculatedAreaValue,RelH2,RelHMax,DescriptiveTerm', // I'm asking for all the features now.
         outputFormat: 'GEOJSON',
         filter: xml,
-        count: 1
     };
-
     // Use fetch() method to request GeoJSON data from the OS Features API.
     // If successful - set the GeoJSON data for the 'topographic-areas' layer and
     // re-render the map.
@@ -237,8 +237,6 @@ function getFeatures(coord) {
         .then(data => {
             if(! data.features.length )
                 return;
-
-
             map.getSource('topographic-areas').setData(data);
             
             let properties = data.features[0].properties;

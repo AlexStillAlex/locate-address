@@ -83,7 +83,7 @@ async function getFeaturesHighlighted(filterValue, color) {
         "layout": {},
         "paint": {
             "fill-color": color,
-            "fill-opacity": 0.8
+            "fill-opacity": 0.1 //CHANGE TO 0.8 WHEN NOT TESTING
         }
     });
 }
