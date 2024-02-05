@@ -1,92 +1,92 @@
-const baseUrl = 'https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items';
-const filter = "oslandusetiera eq 'Residential Accommodation'";
-const key = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh';
-const ostierusageValues = [
-    { value: "Residential Accommodation", color: "#000" },
-    { value: "Commercial Activity: Industrial Or Manufacturing", color: "#f00" },
-    { value: "Commercial Activity: Other", color: "#0f0" },
-    { value: "Commercial Activity: Retail", color: "#00f" },
-    { value: "Construction", color: "#ff0" },
-    { value: "Education", color: "#f0f" },
-    { value: "Government Services", color: "#0ff" },
-];
-// Get the visible map bounds (BBOX).
-let bounds = map.getBounds();
+// // const axios = require('axios');
 
-//Get a circular bounding box based off a map centre. 
-function getCircleBoundingBox(center, radiusInDegrees) {
-    let Circlebbox = [
-        center.lng - radiusInDegrees,
-        center.lat - radiusInDegrees,
-        center.lng + radiusInDegrees,
-        center.lat + radiusInDegrees
-    ].join(',');
-    return Circlebbox;
-}
+// // Databricks domain, token and notebook path
 
-async function getFeaturesHighlighted(filterValue, color) {
-    let Circlebbox = getCircleBoundingBox(map.getCenter(), 200 / 1000 / 111.325);
-    let offset = 0;
-    let allFeatures = [];
-    let limit = 100;
-    let filter = `oslandusetiera eq '${filterValue}'`;
+// // Submit the run
+// axios.post(`${databricksDomain}/api/2.0/jobs/runs/submit`, {
+//     run_name: 'My Notebook Run',
+//     new_cluster: {
+//         "cluster_name": "Alex's Cluster",
+//         "spark_version": "13.3.x-scala2.12",
+//         "spark_conf": {},
+//         "aws_attributes": {
+//             "first_on_demand": 1,
+//             "availability": "SPOT_WITH_FALLBACK",
+//             "zone_id": "auto",
+//             "spot_bid_price_percent": 100,
+//             "ebs_volume_count": 0
+//         }},
+//     notebook_task: {
+//         notebook_path: notebookPath,
+//     },
+// }, {
+//     headers: {
+//         'Authorization': `Bearer ${token}`,
+//     },
+// }).then(response => {
+//     // Get the run ID
+//     const runId = response.data.run_id;
 
-    while (true) {
-        let url = `${baseUrl}?filter=${encodeURIComponent(filter)}&bbox=${Circlebbox}&key=${key}&limit=${limit}&offset=${offset}`;
+//     // Poll the get endpoint until the job status is terminated
+//     const intervalId = setInterval(() => {
+//         axios.get(`${databricksDomain}/api/2.0/jobs/runs/get?run_id=${runId}`, {
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//             },
+//         }).then(response => {
+//             if (response.data.state.life_cycle_state === 'TERMINATED') {
+//                 clearInterval(intervalId);
 
-        // Fetch the features.
-        const response = await fetch(url);
-        const data = await response.json();
-        allFeatures.push(...data.features);
+//                 // Get the output of the notebook
+//                 axios.get(`${databricksDomain}/api/2.0/jobs/runs/get-output?run_id=${runId}`, {
+//                     headers: {
+//                         'Authorization': `Bearer ${token}`,
+//                     },
+//                 }).then(response => {
+//                     // Log the output of the notebook. This is where I would do stuff with the data.
+//                     console.log(response.data);
+//                 }).catch(error => {
+//                     console.error(error);
+//                 });
+//             }
+//         }).catch(error => {
+//             console.error(error);
+//         });
+//     }, 5000);
+// }).catch(error => {
+//     console.error(error);
+// });
 
-        // If the number of features in the response is less than the limit, we've reached the last page.
-        if (data.features.length < limit) {
-            break;
-        }
+const express = require('express');
+const { DBSQLClient } = require('@databricks/sql');
 
-        // Otherwise, increment the offset by the limit to fetch the next page of results.
-        offset += limit;
-    }
+const app = express();
 
-    // Add a new layer with all fetched features.
-    map.addLayer({
-        "id": `highlighted-buildings-${filterValue}`,
-        "type": "fill",
-        "source": {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": allFeatures
-            }
-        },
-        "layout": {},
-        "paint": {
-            "fill-color": color,
-            "fill-opacity": 0.8
-        }
+app.get('/databricks', async (req, res) => {
+  const databricksDomain = 'https://dbc-73a55ff5-934c.cloud.databricks.com';
+  const token = 'dapic2cf91c196a44779c222f3469a47ffd6';
+  const notebookPath = '/Users/achudasama@lcpproperties.co.uk/webapptesting';
+
+  const client = new DBSQLClient();
+
+  try {
+    await client.connect({
+      host: databricksDomain,
+      path: notebookPath,
+      token: token,
     });
-}
 
-// Add event listener which waits for the map to be loaded.
-map.on('load', async function() {
-    for (let item of ostierusageValues) {
-        await getFeaturesHighlighted(item.value, item.color);
-    }
+    const session = await client.openSession();
+
+    // Do something with the session...
+
+    res.json({ message: 'Success' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
 });
 
-// Add event listener which waits for the map to be dragged.
-map.on('dragend', async function() {
-    // Remove the existing highlighted buildings layers if they exist.
-    for (let item of ostierusageValues) {
-        let layerId = `highlighted-buildings-${item.value}`;
-        if (map.getLayer(layerId)) {
-            map.removeLayer(layerId);
-            map.removeSource(layerId);
-        }
-    }
-
-    // Fetch and highlight new buildings.
-    for (let item of ostierusageValues) {
-        await getFeaturesHighlighted(item.value, item.color);
-    }
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
 });

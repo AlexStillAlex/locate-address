@@ -34,7 +34,7 @@ for (let item of ostierusageValues) {
 // Get the visible map bounds (BBOX).
 let bounds = map.getBounds();
 
-//Get a circular bounding box based off a map centre. 
+//Get a circular bounding box based off a map centre. It isn't actually circular.
 function getCircleBoundingBox(center, radiusInDegrees) {
     let Circlebbox = [
         center.lng - radiusInDegrees,
@@ -83,7 +83,7 @@ async function getFeaturesHighlighted(filterValue, color) {
         "layout": {},
         "paint": {
             "fill-color": color,
-            "fill-opacity": 0.1 //CHANGE TO 0.8 WHEN NOT TESTING
+            "fill-opacity": 0.3 //CHANGE TO 0.8 WHEN NOT TESTING
         }
     });
 }

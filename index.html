@@ -10,13 +10,15 @@
     <script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.0/proj4.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> <!-- Leaflet mapping API -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> <!-- Axios api -->
+
    <style>
 
         body {
             margin: 0;
             padding: 0;
         }
-
+        /* Map fills screen */
         #map {
             position: absolute;
             top: 0;
@@ -53,6 +55,15 @@
             color: #c00;
             display: none;
         }
+        /* Test for Marker Styling */
+        .marker {
+        background-image: url('js/genetic-data-svgrepo-com.svg');
+        background-size: cover;
+        width: 30px;
+        height: 30px;
+        border-radius: 30%;
+        cursor: pointer;
+    }
 
         @keyframes c-inline-spinner-kf {
             0% {
@@ -136,6 +147,7 @@
     <script src="./js/searching.js"></script>
     <script src="./js/selecting.js"></script>
     <script src = js/features.js></script>
+    <script src = js/test.js></script>
 </body>
 </div>
 </html>

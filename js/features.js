@@ -1,4 +1,4 @@
-// Fills an image of something on my House.
+// Fills an image of something on my Milbank. This can be generalised to any polygon on a GET request. I.e. ONCLICK, GET request, fill image.
 map.on('load', () => {
     // Add the GeoJSON data.
     map.addSource('source', {
@@ -172,7 +172,7 @@ map.on('load', () => {
 // 21-24 Millbank, London SW1P 4DU
     // Load an image to use as the pattern from an external URL.
     map.loadImage(
-        'https://svgshare.com/s/12dH',
+        'https://static.standard.co.uk/s3fs-public/thumbnails/image/2015/07/27/12/ecsImgmillbanktower3-178295.jpg?width=1200&height=900&fit=crop',
         (err, image) => {
             // Throw an error if something goes wrong.
             if (err) throw err;
@@ -193,3 +193,12 @@ map.on('load', () => {
     );
 });
 
+// // Script to add markers to the MAP
+// for (const feature of geojson.features) {
+//     // create a HTML element for each feature
+//     const el = document.createElement('div');
+//     el.className = 'marker';
+  
+//     // make a marker for each feature and add to the map
+//     new mapboxgl.Marker(el).setLngLat(feature.geometry.coordinates).addTo(map);
+//   }

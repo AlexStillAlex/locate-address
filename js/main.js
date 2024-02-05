@@ -28,8 +28,8 @@ const map = new maplibregl.Map({
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
-    center: [ -2.968, 54.425 ],
-    zoom: 13,
+    center: [ -0.1259071, 51.4919827 ],
+    zoom: 16,
     transformRequest: url => {
         if(! /[?&]key=/.test(url) ) url += '?key=' + apikey
         return {
@@ -42,65 +42,7 @@ const map = new maplibregl.Map({
 map.addControl(new maplibregl.NavigationControl());
 //Removed logic to create a 3D layer. Reduces the number of API calls.
 
-// map.on("style.load", function () {
-//     // Duplicate 'OS/TopographicArea_1/Building/1' layer to extrude the buildings
-//     // in 3D using the Building Height Attribute (RelHMax) value.
-//     map.addLayer({
-//         "id": "OS/TopographicArea_1/Building/1_3D",
-//         "type": "fill-extrusion",
-//         "source": "esri",
-//         "source-layer": "TopographicArea_1",
-//         "filter": [
-//             "==",
-//             "_symbol",
-//             33
-//         ],
-//         "minzoom": 16,
-//         "layout": {},
-//         "paint": {
-//             "fill-extrusion-color": "#DCD7C6",
-//             "fill-extrusion-opacity": 0.5,
-//             "fill-extrusion-height": [
-//                 "interpolate",
-//                 ["linear"],
-//                 ["zoom"],
-//                 16,
-//                 0,
-//                 16.05,
-//                 ["get", "RelHMax"]
-//             ]
-//         }
-//     });
-//     // Here we add the highlighted layer, with all buildings filtered out. 
-//     // We'll set the filter to our searched buildings when we actually
-//     // call the OS Places API and  have a TOID to highlight.
-//     map.addLayer({
-//         "id": "OS/TopographicArea_1/Building/1_3D-highlighted",
-//         "type": "fill-extrusion",
-//         "source": "esri",
-//         "source-layer": "TopographicArea_1",
-//         "filter": ["in", "TOID", ""],
-//         "minzoom": 16,
-//         "layout": {},
-//         "paint": {
-//             "fill-extrusion-color": "#FF1F5B",
-//             "fill-extrusion-opacity": 1,
-//             "fill-extrusion-height": [
-//                 "interpolate",
-//                 ["linear"],
-//                 ["zoom"],
-//                 16,
-//                 0,
-//                 16.05,
-//                 ["get", "RelHMax"]
-//             ],
-//         }
-//     });
-// });
-
-
 //This function is redundant if we don't have to highlight buildings that have been searched.
-// 3D extrusion is stupid I've decided.
 function highlightTOIDs(toids) {
     if (toids.length > 0) {
         let filter = ["in", "TOID"].concat(toids);
@@ -135,17 +77,44 @@ map.on('load', function() {
         "layout": {},
         "paint": {
             "fill-color": "#38f", //BLUE
-            "fill-opacity": 0.7
+            "fill-opacity": 0.1 //Don't even need to highlight htis
         }
     });
 
     // Add click event handler.
     map.on('click', function(e) {
         let coord = e.lngLat;
+
+        // SetMarkerLocation(coord);
         getFeatures(coord);
+
     });
 });
 
+// function SetMarkerLocation(coord) {
+//     // Get the TOID of the feature
+//     let properties =  getFeatures(coord);
+//     let toid = properties.TOID; // Unique topographical identifier.
+
+//     // Check if a marker already exists for the TOID
+//     if (markers[toid]) {
+//         //If a marker already exists, remove it
+//         markers[toid].remove();
+//         delete markers[toid];
+//         return;
+//     }
+//     // Create a HTML element for the marker
+//     let el = document.createElement('div');
+//     el.className = 'marker';
+
+//     // Create a new marker and add it to the map
+//     let marker = new maplibregl.Marker(el)
+//         .setLngLat(coord)
+//         .addTo(map);
+
+//     // Add the new marker to the object with the TOID as the key
+//     markers[toid] = marker;
+// }
 // Input relevant information to the map overlay div
 function updateInfoBox(placesResponse) {
 
@@ -203,6 +172,9 @@ function highlightTOID(toid) {
 }
 
 // Function to get features of the clicked point
+
+// Declare an object to store the markers outside of the fetch function
+let markers = {};
 function getFeatures(coord) {
     // Create an OGC XML filter parameter value which will select the TopographicArea
     // features containing the coordinates of the clicked point.
@@ -232,21 +204,20 @@ function getFeatures(coord) {
     // Use fetch() method to request GeoJSON data from the OS Features API.
     // If successful - set the GeoJSON data for the 'topographic-areas' layer and
     // re-render the map.
-    fetch(getUrl(wfsParams))
+     fetch(getUrl(wfsParams))
         .then(response => response.json())
         .then(data => {
             if(! data.features.length )
                 return;
             map.getSource('topographic-areas').setData(data);
-            
             let properties = data.features[0].properties;
             properties = (({ GmlID, OBJECTID, ...o }) => o)(properties);
-            // console.log(properties) //So the properties are determined before this GET request.
-            // Hold on
+
             let content = '<div class="grid-container">';
+
             for( let i in properties ) {
                 content += `<div>${i}</div><div>${properties[i]}</div>`;
-            }
+            }   
             content += '</div>';
             let popup = new maplibregl.Popup({ maxWidth: 'none' })
                 .setLngLat(coord)
@@ -257,6 +228,9 @@ function getFeatures(coord) {
             });
         });
 }
+
+
+
 // Function to get features of the clicked point
 /**
  * Return URL with encoded parameters.
@@ -266,18 +240,14 @@ function getUrl(params) {
     console.log(params)
     const encodedParameters = Object.keys(params)
         .map(paramName => paramName + '=' + encodeURI(params[paramName]))
-        .join('&');
-
-        
-        console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
+        .join('&');  
+        // console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
     return 'https://api.os.uk/features/v1/wfs?' + encodedParameters;
 }
-
 // Helper functions for the spinner element
 function showSpinner() {
     document.getElementById('spinner').style.visibility = 'visible';
 }
-
 function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
