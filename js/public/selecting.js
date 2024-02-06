@@ -10,7 +10,23 @@ const ostierusageValues = [
     { value: "Education", color: "#900C3F" },
     { value: "Government Services", color: "#3E061C" },
 ];
-
+//add a layer for the
+map.on('load', function() {
+    // Add an empty GeoJSON layer for the box.
+    map.addLayer({
+        "id": "circle",
+        "type": "fill",
+        "source": {
+            "type": "geojson",
+            "data": geoJson
+        },
+        "layout": {},
+        "paint": {
+            "fill-color": "#f80",
+            "fill-opacity": 0.5
+        }
+    });
+});
 // Add an item to the legend for each ostierusageValue.
 for (let item of ostierusageValues) {
     let legendItem = document.createElement('div');
@@ -33,6 +49,7 @@ for (let item of ostierusageValues) {
 }
 // Get the visible map bounds (BBOX).
 let bounds = map.getBounds();
+
 
 //Get a circular bounding box based off a map centre. It isn't actually circular.
 function getCircleBoundingBox(center, radiusInDegrees) {

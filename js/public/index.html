@@ -11,9 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.0/proj4.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> <!-- Leaflet mapping API -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script> <!-- Axios api -->
-
+    <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script> <!-- Turf JS for spatial analysis -->
    <style>
-
         body {
             margin: 0;
             padding: 0;
@@ -55,6 +54,14 @@
             color: #c00;
             display: none;
         }
+
+        .big-red-button {
+        background-color: red;
+        color: white;
+        font-size: 20px;
+        padding: 10px 20px;
+        }
+
         /* Test for Marker Styling */
         .marker {
         background-image: url('js/genetic-data-svgrepo-com.svg');
@@ -127,7 +134,9 @@
     <div class="map-overlay">
         <div class="map-overlay-inner">
             <h1>Locate multiple Addresses</h1>
-            <p>Currently in development, will need to connect data sources from OS, EPC etc and run our own tables. Current query allows for multiple address selection and highlights.</p>
+            <!-- <p>BIG BUTTON</p> -->
+            <button id="testButton" class = "big-red-button">Test Query</button>
+            <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select 1'>
             <form id="the-form">
                 <textarea id="address-text" placeholder="Enter addresses here, one per line..."></textarea>
                 <input id="address-field" type="submit">

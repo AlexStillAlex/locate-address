@@ -11,10 +11,6 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 
-// Dirty CORS fix
-// let cors = require("cors");
-// app.use(cors());
-
 //Definining custom map styles
 const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 
@@ -77,7 +73,7 @@ map.on('load', function() {
         "layout": {},
         "paint": {
             "fill-color": "#38f", //BLUE
-            "fill-opacity": 0.1 //Don't even need to highlight htis
+            "fill-opacity": 0.3 //Don't even need to highlight htis
         }
     });
 
@@ -91,31 +87,6 @@ map.on('load', function() {
     });
 });
 
-// function SetMarkerLocation(coord) {
-//     // Get the TOID of the feature
-//     let properties =  getFeatures(coord);
-//     let toid = properties.TOID; // Unique topographical identifier.
-
-//     // Check if a marker already exists for the TOID
-//     if (markers[toid]) {
-//         //If a marker already exists, remove it
-//         markers[toid].remove();
-//         delete markers[toid];
-//         return;
-//     }
-//     // Create a HTML element for the marker
-//     let el = document.createElement('div');
-//     el.className = 'marker';
-
-//     // Create a new marker and add it to the map
-//     let marker = new maplibregl.Marker(el)
-//         .setLngLat(coord)
-//         .addTo(map);
-
-//     // Add the new marker to the object with the TOID as the key
-//     markers[toid] = marker;
-// }
-// Input relevant information to the map overlay div
 function updateInfoBox(placesResponse) {
 
     let addressString, UPRN, TOID, longitude, latitude;
@@ -229,8 +200,6 @@ function getFeatures(coord) {
         });
 }
 
-
-
 // Function to get features of the clicked point
 /**
  * Return URL with encoded parameters.
@@ -251,3 +220,27 @@ function showSpinner() {
 function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
+
+//Function to handle the Test query button.
+document.getElementById('testButton').addEventListener('click', function() {
+    const query = document.getElementById('queryInput').value;
+    fetch('/run-query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: query // Send the user's input as the query
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  });
+
+  
