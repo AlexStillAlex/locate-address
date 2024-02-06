@@ -221,7 +221,7 @@ function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
 
-//Function to handle the Test query button.
+//Get the Databricks query on Client side
 document.getElementById('testButton').addEventListener('click', function() {
     const query = document.getElementById('queryInput').value;
     fetch('/run-query', {
@@ -242,7 +242,22 @@ document.getElementById('testButton').addEventListener('click', function() {
       console.error('Error:', error);
     });
   });
-
+//Get the HM land registry stuff on client side.
+document.getElementById('testButton').addEventListener('click', function() {
+    fetch('/get-data', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  });
   //best commit:
   console.log(`All you need is
   ⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
