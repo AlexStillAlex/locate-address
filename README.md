@@ -12,7 +12,8 @@ Functionality:
 * Topographical properties on click
 
 ## Usage
-Will provide rapid visualisations regarding every UK and international company that owns land and the 
+Will provide rapid interactive visualisations regarding every company that owns a lease/freehold in the UK. See below for example functionality.
+![Screenshot](Example.png)
 ### TODO
 * Backend transformations
 * Reducing API calls
