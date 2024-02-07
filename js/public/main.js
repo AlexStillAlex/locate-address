@@ -220,7 +220,56 @@ function showSpinner() {
 function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//In the HTML file this searches references when the user types in the search bar.
+function searchReferences() {
+    var input, ul, li, a, i, visibleCount;
+    input = document.getElementById("mySearch"); //Gets the search bar
+    ul = document.getElementById("myMenu");
+    li = ul.getElementsByTagName("li"); 
+    visibleCount = 0; //Counter to keep track of how many items are visible
 
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
+        if (a.innerHTML.toUpperCase().indexOf() > -1) {
+            if (visibleCount < 3) { //Only show 3 items at a time
+                li[i].style.display = "block"; //Show vertically
+                visibleCount++;
+            } else {
+                li[i].style.display = "none";
+            }
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
+window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
+    fetch('/dropdown-data')
+        .then(response => response.json())
+        .then(data => {
+            populateDropdown(data);
+        });
+}
+function populateDropdown(data) {
+    var menu = document.getElementById('myMenu'); //Gets the menu. Initially blank
+    data.forEach(function(item) { 
+        //For each item in my data JSON containing property references, it will happend a hidden list item to the menu.
+        //then has onclick functionality to fly to the coordinates of the property.
+        var li = document.createElement('li');
+        li.className = 'searchable';
+        var a = document.createElement('a');
+        a.href = '#';
+        a.textContent = item.prop_ref; // Use the prop_ref property as the text
+        a.onclick = function() {
+            flyToCoords([item.prop_longitude, item.prop_latitude]); // fsr longitude and latitude are the wrong way round in theses systems.
+        };
+        li.appendChild(a);
+        menu.appendChild(li);
+    });
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BACKEND INTERACTIONS
 //Get the Databricks query on Client side
 document.getElementById('testButton').addEventListener('click', function() {
     const query = document.getElementById('queryInput').value;

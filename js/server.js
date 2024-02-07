@@ -26,7 +26,6 @@ app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api 
 // and sends the results back to the client.
 app.post('/run-query', async (req, res) => {
     const query = req.body.query; // Extract the query from the request body
-
     client.connect({
       token: token,
       host: server_hostname,
@@ -55,7 +54,7 @@ app.post('/run-query', async (req, res) => {
 
 //endpoint called /get-data for the backend.
 app.get('/get-data', (req, res) => {
-    const url = 'https://use-land-property-data.service.gov.uk/api/v1/datasets/ccod';
+    const url = 'https://use-land-property-data.service.gov.uk/api/v1/datasets/history/ccod';
   
     fetch(url, {
         headers: {
@@ -74,6 +73,31 @@ app.get('/get-data', (req, res) => {
       });
   });
 
+//when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
+  app.get('/dropdown-data', async (req, res) => {
+    const query = 'select prop_ref, prop_latitude, prop_longitude from main.offies.property_table order by prop_ref'; // Replace with your query
+    client.connect({
+        token: token,
+        host: server_hostname,
+        path: http_path
+    }).then(async client => {
+        const session = await client.openSession();
+    
+        const queryOperation = await session.executeStatement(
+            query,
+            { runAsync: true }
+        );
+    
+        await queryOperation.waitUntilReady();
+        const result = await queryOperation.fetchAll();
+        console.log(result);
+        await queryOperation.close();
+        res.json(result); // Send the result back to the client
+    }).catch(error => {
+        console.log(error);
+        res.status(500).send(error);
+    });
+});
 // runs the 'static' pages. I.e. the HTML and scripts that only depend on the client.
 app.use(express.static('js/public'));
 //puts a link in the console for me to copy
