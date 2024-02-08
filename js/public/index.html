@@ -18,30 +18,42 @@
     <link rel="stylesheet" href="layout.css">
 </head>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<!-- Map Layer options template. -->
+
 
 <body>
     <div id="map"></div>
     <div class="map-overlay">
-        <div class="map-overlay-inner">
+        <div id="mapSelect"></div>
+        <div id="mapOverlay">
+        <!-- Let's hope this isn't confusing -->
+        <input id="Standard" type="radio" name="toggle" value="Standard" checked="checked">
+        <label for="Standard">Standard</label>
+        <input id="Images" type="radio" name="toggle" value="Images">
+        <label for="Images">Images</label> 
+        <input id="Chloropleth" type="radio" name="toggle" value="Chloropleth">
+        <label for="Chloropleth">Chloropleth</label> <!-- Corrected here -->
+        </div>
+        <!-- The stuff that we see -->
+        <div class="map-overlay-inner"> 
             <h1>Locate multiple Addresses</h1>
-            <!-- <p>BIG BUTTON</p> -->
             <button id="testButton" class = "big-red-button">Test Query</button>
-            <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select 1'>
+            <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select count(*) from main.intermediate.int_unit_table_decoded'>
             <form id="the-form">
                 <textarea id="address-text" placeholder="Enter addresses here, one per line..."></textarea>
                 <input id="address-field" type="submit">
                 <i id="spinner" class="c-inline-spinner"></i>
             </form>
-            <!-- Drop down menu -->
+            <!-- Drop down menu --> 
             <div class="row">
                 <div class="left" >
-                  <h2>Menu</h2>
-                  <input type="text" id="mySearch" onkeyup="searchReferences()" placeholder="SEARCH A PROPERTY REFERENCE" title="Type in a category">
+                  <h2>Search for a property ref</h2>
+                  <input type="text" id="mySearch" onkeyup="searchReferences()" placeholder="Type a number" title="Type in a category">
                   <ul id="myMenu">
                   </ul>
                 </div>
-
-            <div id="address-info"><!-- Address information will be displayed here --></div>
+            <div id="address-info"><!-- Address information will be displayed here --></div> 
+            <button class ="big-red-button" id="exportMap">Image Export TODO</button>
             <div id="legend"></div> <!--  Legend Container -->
         </div>
     </div>

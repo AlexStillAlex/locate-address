@@ -14,6 +14,8 @@ body {
             font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
             position: absolute;
             padding: 25px;
+            top: 20px; /* Move the overlay down by 20px */
+            z-index: 1; /* Make the div appear above other elements */
         }
 
         .map-overlay-inner {
@@ -112,4 +114,21 @@ body {
         /* thhe list elements. */
         .searchable {
             display: none;
+        }
+/* Map Layer Options */
+        #mapOverlay {
+            font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            background: #fff;
+            padding: 0px;
+            top: 0px; /* Position from the top of the map */
+    left: 30px; /* Position from the right of the map */
+    
+        }
+        #mapOverlay input[type="radio"] {
+            margin-top: -1px;
+            vertical-align: middle;
+        }
+        #mapOverlay label {
+            margin-right: 8px;
         }

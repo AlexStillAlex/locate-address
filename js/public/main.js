@@ -1,6 +1,6 @@
 
 // API Key in config object 
-var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh'
+var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled so I don't care if this is exposed.
 var config = {
     apikey: apikey 
 };
@@ -24,10 +24,10 @@ const map = new maplibregl.Map({
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
-    center: [ -0.1259071, 51.4919827 ],
+    center: [ -0.1145886,51.4649944 ],
     zoom: 16,
     transformRequest: url => {
-        if(! /[?&]key=/.test(url) ) url += '?key=' + apikey
+        if(! /[?&]key=/.test(url) ) url += '?key=' + apikey //stipid regex
         return {
             url: url + '&srs=3857'
         }
@@ -223,15 +223,16 @@ function hideSpinner() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //In the HTML file this searches references when the user types in the search bar.
 function searchReferences() {
-    var input, ul, li, a, i, visibleCount;
+    var input, ul,filter, li, a, i, visibleCount;
     input = document.getElementById("mySearch"); //Gets the search bar
     ul = document.getElementById("myMenu");
+    var filter = input.value.toUpperCase(); // shouldnt matter cos we're dealing with numvers
     li = ul.getElementsByTagName("li"); 
     visibleCount = 0; //Counter to keep track of how many items are visible
 
     for (i = 0; i < li.length; i++) {
         a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
-        if (a.innerHTML.toUpperCase().indexOf() > -1) {
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
             if (visibleCount < 3) { //Only show 3 items at a time
                 li[i].style.display = "block"; //Show vertically
                 visibleCount++;
@@ -307,6 +308,39 @@ document.getElementById('testButton').addEventListener('click', function() {
       console.error('Error:', error);
     });
   });
+/////////////////////////////////////////////////////////////////////
+//Radio Logic
+// var radios = document.querySelectorAll('#mapOverlay [type="radio"]');
+// console.log(radios)
+// // Add an event listener to each radio button
+// for (var i = 0; i < radios.length; i++) {
+//     radios[i].addEventListener('change', function() {
+//         // Check if the "Images" radio button is selected
+//         if (document.getElementById('Images').checked) {
+//             // The "Images" radio button is selected, load features.js
+//             addImageLayer(true);
+//         } else {
+//                 addImageLayer(false);
+//             }
+//     });
+// }
+// When Export map is clicked, the map will download.
+document.getElementById('exportMap').addEventListener('click', function() { 
+    console.log('clicked')
+    tic = Date.now() //tic
+    map.once('render', function() { // Wait for the map to render! Important otherwise you get a blank image!
+        var imgURL = map.getCanvas().toDataURL('image/png'); // Get the data URL of the map
+        var link = document.createElement('a'); 
+        link.href = imgURL; 
+        link.download = 'what_a_gift.png'; // Set the download attribute to the desired file name
+        link.click(); // Click the link to start the download
+        toc =  Date.now()
+        console.log('time taken:')
+        console.log((toc - tic) / 1000)
+    });
+    map.triggerRepaint(); // Force a map rerender
+});
+
   //best commit:
   console.log(`All you need is
   ⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
