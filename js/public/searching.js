@@ -11,7 +11,7 @@ async function lookUpAddressesOld(e) {
     showSpinner();
 
     let queryAddresses = document.getElementById('address-text').value.split('\n');
-    let validAddresses = queryAddresses.filter(address => address.trim() !== "");
+    let validAddresses = queryAddresses.filter(address => address.trim() !== ""); //check if address is blank
 
     if (validAddresses.length === 0) {
         alert('Please input at least one address!');

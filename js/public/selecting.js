@@ -75,6 +75,7 @@ async function getFeaturesHighlighted(filterValue, color) {
         // Fetch the features.
         const response = await fetch(url);
         const data = await response.json();
+        console.log(url);
         allFeatures.push(...data.features);
 
         // If the number of features in the response is less than the limit, we've reached the last page.

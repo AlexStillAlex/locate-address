@@ -26,6 +26,7 @@ const map = new maplibregl.Map({
     ],
     center: [ -0.1145886,51.4649944 ],
     zoom: 16,
+    preserveDrawingBuffer: true, //Allows me to export a higher resolution map. Thank Stackoverflow.
     transformRequest: url => {
         if(! /[?&]key=/.test(url) ) url += '?key=' + apikey //stipid regex
         return {
@@ -46,11 +47,9 @@ function highlightTOIDs(toids) {
     }
 }
 async function fetchAddressFromPlaces(address) {
-
     let url = endpoints.places + `/find?query=${encodeURIComponent(address)}&maxresults=1&output_srs=EPSG:4326&key=${config.apikey}`;
     let res = await fetch(url);
     let json = await res.json()
-
     return json;
 }
 
@@ -326,20 +325,30 @@ document.getElementById('testButton').addEventListener('click', function() {
 // }
 // When Export map is clicked, the map will download.
 document.getElementById('exportMap').addEventListener('click', function() { 
-    console.log('clicked')
-    tic = Date.now() //tic
+    //I was having some ittisues with the map not rendering before the download so I measured the time it took to render.
+    // console.log('clicked')
+    // tic = Date.now() //tic
+    //Logic to IMPROVE resolution of Map. Should be easier for exports.
+    var dpi = 900;
+    Object.defineProperty(window, 'devicePixelRatio', {
+        get: function() {return dpi / 96} //Standard ratio suppposedly.
+    });
     map.once('render', function() { // Wait for the map to render! Important otherwise you get a blank image!
         var imgURL = map.getCanvas().toDataURL('image/png'); // Get the data URL of the map
         var link = document.createElement('a'); 
         link.href = imgURL; 
         link.download = 'what_a_gift.png'; // Set the download attribute to the desired file name
         link.click(); // Click the link to start the download
-        toc =  Date.now()
-        console.log('time taken:')
-        console.log((toc - tic) / 1000)
+
+        // toc =  Date.now()
+        // console.log('time taken:')
+        // console.log((toc - tic) / 1000)
     });
     map.triggerRepaint(); // Force a map rerender
 });
+
+
+
 
   //best commit:
   console.log(`All you need is
