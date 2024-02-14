@@ -74,7 +74,12 @@ app.get('/get-data', (req, res) => {
   });
 //when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
   app.get('/dropdown-data', async (req, res) => {
-    const query = 'select prop_ref, prop_latitude, prop_longitude from main.offies.property_table order by prop_ref'; // Replace with your query
+    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
+    from main.offies.property_table 
+    left join main.intermediate.int_demise_table_decoded 
+    on dmse_prop_ref = prop_ref
+    where dmse_area is not null
+     group by 1,2,3 order by prop_ref`; // Yikes!
     client.connect({
         token: token,
         host: server_hostname,
@@ -89,7 +94,7 @@ app.get('/get-data', (req, res) => {
     
         await queryOperation.waitUntilReady();
         const result = await queryOperation.fetchAll();
-        // console.log(result);
+        console.log(result);
         await queryOperation.close();
         res.json(result); // Send the result back to the client
     }).catch(error => {

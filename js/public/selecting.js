@@ -71,7 +71,7 @@ async function getFeaturesHighlighted(filterValue, color,bbox = getCircleBoundin
 
     while (true) {
         let url = `${baseUrl}?filter=${encodeURIComponent(filter)}&bbox=${bbox}&key=${key}&limit=${limit}&offset=${offset}`;
-
+ 
         // Fetch the features.
         const response = await fetch(url);
         const data = await response.json();

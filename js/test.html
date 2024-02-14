@@ -240,20 +240,18 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd">
             <wfs:Query typeNames="Topography_TopographicArea">
-    <Filter xmlns="http://www.opengis.net/fes/2.0">
-   
-            <Intersects>
-                <PropertyName>SHAPE</PropertyName>
-                <gml:Polygon srsName="EPSG:4326">
-                    <gml:outerBoundaryIs>
-                        <gml:LinearRing>
-                            <gml:coordinates>${coords}</gml:coordinates>
-                        </gml:LinearRing>
-                    </gml:outerBoundaryIs>
-                </gml:Polygon>
-            </Intersects>
-   
-    </Filter>
+    <ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
+        <ogc:Intersects>
+            <ogc:PropertyName>SHAPE</ogc:PropertyName>
+            <gml:Polygon srsName="EPSG:4326">
+                <gml:outerBoundaryIs>
+                    <gml:LinearRing>
+                        <gml:coordinates>${coords}</gml:coordinates>
+                    </gml:LinearRing>
+                </gml:outerBoundaryIs>
+            </gml:Polygon>
+        </ogc:Intersects>
+    </ogc:Filter>
 </wfs:Query>
         </wfs:GetFeature>`
         if( resultsRemain ) {
