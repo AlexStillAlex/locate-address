@@ -1,5 +1,4 @@
 // Fills an image of something on my Milbank. This can be generalised to any polygon on a GET request. I.e. ONCLICK, GET request, fill image.
-
 map.on('load', () => {
     // Add the GeoJSON data.
     map.addSource('source', {

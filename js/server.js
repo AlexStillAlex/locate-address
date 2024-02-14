@@ -60,7 +60,7 @@ app.get('/get-data', (req, res) => {
         headers: {
           'Authorization': `${HMapikey}`,
           'Cache-Control': 'no-cache' // Sometimes the server will load an old response. Have it on when testing.
-        }
+         }
       })
       .then(response => response.json())
       .then(data => {
@@ -72,7 +72,6 @@ app.get('/get-data', (req, res) => {
         res.status(500).json({ message: 'An error occurred' });
       });
   });
-
 //when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
   app.get('/dropdown-data', async (req, res) => {
     const query = 'select prop_ref, prop_latitude, prop_longitude from main.offies.property_table order by prop_ref'; // Replace with your query
@@ -90,7 +89,7 @@ app.get('/get-data', (req, res) => {
     
         await queryOperation.waitUntilReady();
         const result = await queryOperation.fetchAll();
-        console.log(result);
+        // console.log(result);
         await queryOperation.close();
         res.json(result); // Send the result back to the client
     }).catch(error => {
@@ -98,6 +97,56 @@ app.get('/get-data', (req, res) => {
         res.status(500).send(error);
     });
 });
+
+app.post('/run-query', async (req, res) => {
+    const query = req.body.query; // Extract the query from the request body
+    client.connect({
+      token: token,
+      host: server_hostname,
+      path: http_path
+    }).then(async client => {
+      const session = await client.openSession();
+    
+      const queryOperation = await session.executeStatement(
+        query, // Use the query from the request body
+        { runAsync: true }
+      );
+    
+      await queryOperation.waitUntilReady();
+      const result = await queryOperation.fetchAll();
+      console.log(result);
+      await queryOperation.close();
+      res.json(result); // Send the result back to the client
+        
+      await session.close();
+      client.close();
+    }).catch(error => {
+      console.log(error);
+      res.status(500).json({ message: 'An error occurred' });
+    });
+});
+
+//endpoint called /wfsproxy for the backend.
+app.post('/wfs-proxy', (req, res) => {
+    const url = 'https://api.os.uk/features/v1/wfs' //?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&service=wfs&request=GetFeature&version=2.0.0&typeNames=Topography_TopographicArea'
+  console.log(req.body);
+  fetch(url, { // Pass the URL as the first argument to fetch
+    method: 'POST',
+    headers: {
+      'Authorization': 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: req.body // Pass the request body as the second argument to fetch
+  })
+  .then(res => res.json())
+  .then(data => {
+      console.log(data);
+  })
+  .catch(error => {
+      console.log(error);
+  });
+});
+
 // runs the 'static' pages. I.e. the HTML and scripts that only depend on the client.
 app.use(express.static('js/public'));
 //puts a link in the console for me to copy

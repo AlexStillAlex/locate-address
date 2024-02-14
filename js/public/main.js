@@ -10,10 +10,8 @@ const endpoints = {
     places: 'https://api.os.uk/search/places/v1',
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
-
 //Definining custom map styles
 const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
-
 // Initialise the map object.
 const map = new maplibregl.Map({
     container: 'map',
@@ -24,7 +22,9 @@ const map = new maplibregl.Map({
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
-    center: [ -0.1145886,51.4649944 ],
+    //Pensnett: 
+    //Brixton road: -0.1145886,51.4649944 
+    center: [ -2.158607182943474, 52.504686972808571 ],
     zoom: 16,
     preserveDrawingBuffer: true, //Allows me to export a higher resolution map. Thank Stackoverflow.
     transformRequest: url => {
@@ -167,7 +167,7 @@ function getFeatures(coord) {
         request: 'GetFeature',
         version: '2.0.0',
         typeNames: 'Topography_TopographicArea',
-         propertyName: 'TOID,Theme,SHAPE,CalculatedAreaValue,RelH2,RelHMax,DescriptiveTerm', // I'm asking for all the features now.
+        propertyName: 'TOID,Theme,SHAPE,CalculatedAreaValue,RelH2,RelHMax,DescriptiveTerm', // I'm asking for all the features now.
         outputFormat: 'GEOJSON',
         filter: xml,
     };
@@ -205,11 +205,11 @@ function getFeatures(coord) {
  * @param {object} params - The parameters object to be encoded.
  */
 function getUrl(params) {
-    console.log(params)
+
     const encodedParameters = Object.keys(params)
         .map(paramName => paramName + '=' + encodeURI(params[paramName]))
         .join('&');  
-        // console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
+         console.log('https://api.os.uk/features/v1/wfs?' + encodedParameters)
     return 'https://api.os.uk/features/v1/wfs?' + encodedParameters;
 }
 // Helper functions for the spinner element

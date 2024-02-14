@@ -62,15 +62,15 @@ function getCircleBoundingBox(center, radiusInDegrees) {
     return Circlebbox;
 }
 
-async function getFeaturesHighlighted(filterValue, color) {
-    let Circlebbox = getCircleBoundingBox(map.getCenter(), 200 / 1000 / 111.325);
+//highlights features with box defined by coords. Initially the 'circular' box.
+async function getFeaturesHighlighted(filterValue, color,bbox = getCircleBoundingBox(map.getCenter(), 200 / 1000 / 111.325)) {
     let offset = 0;
     let allFeatures = [];
     let limit = 100;
     let filter = `oslandusetiera eq '${filterValue}'`;
 
     while (true) {
-        let url = `${baseUrl}?filter=${encodeURIComponent(filter)}&bbox=${Circlebbox}&key=${key}&limit=${limit}&offset=${offset}`;
+        let url = `${baseUrl}?filter=${encodeURIComponent(filter)}&bbox=${bbox}&key=${key}&limit=${limit}&offset=${offset}`;
 
         // Fetch the features.
         const response = await fetch(url);
@@ -106,25 +106,20 @@ async function getFeaturesHighlighted(filterValue, color) {
     });
 }
 
-// Add event listener which waits for the map to be loaded.
-map.on('load', async function() {
-    for (let item of ostierusageValues) {
-        await getFeaturesHighlighted(item.value, item.color);
-    }
-});
 
-// Add event listener which waits for the map to be dragged.
-map.on('dragend', async function() {
-    // Remove the existing highlighted buildings layers if they exist.
-    for (let item of ostierusageValues) {
-        let layerId = `highlighted-buildings-${item.value}`;
-        if (map.getLayer(layerId)) {
-            map.removeLayer(layerId);
-            map.removeSource(layerId);
-        }
+//variable for the BIGRED HIGHLIGHT BUILDINGS button
+let highlightFeaturesButton = document.getElementById('highlightFeatures');
+
+// When button is pressed, highlight buildings with the selected land use.
+highlightFeaturesButton.addEventListener('click', async function() {for (let item of ostierusageValues) {
+    let layerId = `highlighted-buildings-${item.value}`;
+    if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+        map.removeSource(layerId);
     }
-    // Fetch and highlight new buildings.
-    for (let item of ostierusageValues) {
-        await getFeaturesHighlighted(item.value, item.color);
-    }
+}
+// Fetch and highlight new buildings.
+for (let item of ostierusageValues) {
+    await getFeaturesHighlighted(item.value, item.color);
+};
 });
