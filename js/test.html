@@ -58,11 +58,11 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/gh/OrdnanceSurvey/os-api-branding@0.3.1/os-api-branding.js"></script>
-<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+
+<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script> <!--MapLibre GL JS; based o MapBox GL JS (ex: used for creating Map object)-->
 <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script> <!-- Proj4js library -->
-<script src='xml2json.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script> <!-- Proj4js library; used for converting longitude/latitude encodings -->
+
 <script>
 
 coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.158576906476549, 52.504869512130924 ], [ -2.15855175682769, 52.505043953471315 ], [ -2.158525143496913, 52.505221093793317 ], [ -2.158502128417647, 52.505374855064751 ], [ -2.158473374818836, 52.505571326907457 ], [ -2.158464712698071, 52.505620334472134 ], [ -2.158485799494025, 52.505747515682529 ], [ -2.158593150067706, 52.505895707480683 ], [ -2.158673395042721, 52.506003929849832 ], 
@@ -116,16 +116,16 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
 
     // Initialize the map object.
     const map = new maplibregl.Map({
-        container: 'map',
-        minZoom: 11,
-        maxZoom: 16,
-        style: style,
+        container: 'map', //define the HTML div where the map should be displayed
+        minZoom: 11, //sets the minimum zoom level for the map (users will not be able to go beyond these levels)
+        maxZoom: 16, //sets the maximum zoom level for the map
+        style: style, //defines the styling of the map from the 'style' variable above
         maxBounds: [
-            [ -10.76418, 49.528423 ],
+            [ -10.76418, 49.528423 ], //defines the maximum bounds and restricts panning (to move the map by clicking and holding the left mouse button and draging the map to a new place) the map
             [ 1.9134116, 61.331151 ]
         ],
-        center:[ -2.158607182943474, 52.504686972808571 ],
-        zoom: 16
+        center:[ -2.158607182943474, 52.504686972808571 ], //sets the inital center point of the map
+        zoom: 16 //sets the inital zoom level of the map
     });
 
     map.dragRotate.disable(); // Disable map rotation using right click + drag.
@@ -135,6 +135,7 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
     map.addControl(new maplibregl.NavigationControl({
         showCompass: false
     }));
+
 
     // Create an empty GeoJSON FeatureCollection.
     const geoJson = {
@@ -148,11 +149,12 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
         'type': 'Polygon',
         'coordinates': coordinates
     }
-};
+    };
 
 
     // Add event which waits for the map to be loaded.
     map.on('load', function() {
+        //not currently showing on the map
         // Add an empty GeoJSON layer for the 1km circle polygon (buffered centroid).
         map.addLayer({
             "id": "circle",
@@ -201,6 +203,7 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
         }
     });
     });
+
 //GLOBAL VARIABLE FOR TESTING.
     // Add an event listener to handle when the user clicks the 'Find Greenspace' button.
     document.getElementById('request').addEventListener('click', function() {
@@ -240,18 +243,20 @@ coordinates =[ [ [ -2.158607182943474, 52.504686972808571 ], [ -2.15857690647654
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd">
             <wfs:Query typeNames="Topography_TopographicArea">
-    <ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">
-        <ogc:Intersects>
-            <ogc:PropertyName>SHAPE</ogc:PropertyName>
-            <gml:Polygon srsName="EPSG:4326">
-                <gml:outerBoundaryIs>
-                    <gml:LinearRing>
-                        <gml:coordinates>${coords}</gml:coordinates>
-                    </gml:LinearRing>
-                </gml:outerBoundaryIs>
-            </gml:Polygon>
-        </ogc:Intersects>
-    </ogc:Filter>
+    <Filter xmlns="http://www.opengis.net/fes/2.0">
+   
+            <Intersects>
+                <PropertyName>SHAPE</PropertyName>
+                <gml:Polygon srsName="EPSG:4326">
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>${coords}</gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Intersects>
+   
+    </Filter>
 </wfs:Query>
         </wfs:GetFeature>`
         if( resultsRemain ) {
