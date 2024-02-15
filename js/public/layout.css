@@ -48,7 +48,13 @@ body {
         font-size: 20px;
         padding: 10px 20px;
         }
+/* This is mostly a joke styling. */
+        .marquee-style {
+            font-size: 2em;
+            font-weight: bold;
+            color: rgb(20, 20, 120)
 
+        }
         /* Test for Marker Styling */
         .marker {
         background-image: url('js/genetic-data-svgrepo-com.svg');

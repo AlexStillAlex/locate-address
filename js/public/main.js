@@ -1,4 +1,4 @@
-
+//Test if this works
 // API Key in config object 
 var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled so I don't care if this is exposed.
 var config = {
@@ -258,11 +258,24 @@ function populateDropdown(data) {
         //then has onclick functionality to fly to the coordinates of the property.
         var li = document.createElement('li');
         li.className = 'searchable';
-        var a = document.createElement('a');
-        a.href = '#';
+        var a = document.createElement('a'); //these are called ANCHOR tags. 
+        a.href = '#'; //Link is blank. good for now.
         a.textContent = item.prop_ref; // Use the prop_ref property as the text
+
         a.onclick = function() {
             flyToCoords([item.prop_longitude, item.prop_latitude]); // fsr longitude and latitude are the wrong way round in theses systems.
+ 
+
+       //Creating a MARQUEE element (funny.)
+        var marquee = document.createElement('marquee');
+        marquee.className = 'marquee-style'; // Set the class name
+        let totalArea= turf.area(turf.polygon(coordinates)); //Calculate the total area of the property
+        externalArea = totalArea - item.prop_area/10.764;
+        marquee.textContent =  `Your external area is: ${externalArea.toFixed(2)} m²`;  // Set the text content
+        // Append the marquee to the body of the document
+        console.log(totalArea,item.prop_area/10)
+        document.body.appendChild(marquee);
+            
         };
         li.appendChild(a);
         menu.appendChild(li);
@@ -279,7 +292,7 @@ document.getElementById('testButton').addEventListener('click', function() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query: query // Send the user's input as the query
+        query: query // Send the user's input as a JSON'd query
       })
     })
     .then(response => response.json())

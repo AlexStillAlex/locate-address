@@ -66,7 +66,7 @@ map.on('load', function () {
         },
         "layout": {},
         "paint": {
-            "line-color": "0000FF"
+            "line-color": " #0FF"
         }
     });
 });
@@ -87,129 +87,64 @@ document.getElementById('testPensnett').addEventListener('click', function() {
 
     // Get the circle geometry coordinates and return a new space-delimited string.
     let coords = circle.geometry.coordinates[0].join(' ');
+    let coords2 = coordinates[0].join(' ');
+
+    // Create an OGC XML filter parameter value which will select the Greenspace
+    // features intersecting the circle polygon coordinates.
+    let xml = '<ogc:Filter>';
+    xml += '<ogc:Contains>';
+    xml += '<ogc:PropertyName>SHAPE</ogc:PropertyName>';
+    xml += '<gml:Polygon srsName="EPSG:4326">';
+    xml += '<gml:outerBoundaryIs>';
+    xml += '<gml:LinearRing>';
+    xml += '<gml:coordinates>' + coords + '</gml:coordinates>';
+    xml += '</gml:LinearRing>';
+    xml += '</gml:outerBoundaryIs>';
+    xml += '</gml:Polygon>';
+    xml += '</ogc:Contains>';
+    xml += '</ogc:Filter>';
+
+
     let resultsRemain = true;
-        geoJson.features.length = 0;
 
-        map.getSource('greenspace').setData(geoJson);
-        // Use fetch() method to request GeoJSON data from the OS Features API.
-        //
-        // If successful - set the GeoJSON data for the 'greenspace' layer and re-render
-        // the map.
-        //
-        // Calls will be made until the number of features returned is less than the
-        // requested count, at which point it can be assumed that all features for
-        // the query have been returned, and there is no need to request further pages.
-        function fetchWhile(resultsRemain,startIndex = 0,count=100) {
-            body = `<wfs:GetFeature service="WFS" version="2.0.0"  startIndex = "${startIndex}"
-            xmlns:wfs="http://www.opengis.net/wfs/2.0"
-            xmlns:fes="http://www.opengis.net/fes/2.0"
-            xmlns:gml="http://www.opengis.net/gml/3.2"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd">
-            <wfs:Query typeNames="Zoomstack_Greenspace">
-                <Filter xmlns="http://www.opengis.net/fes/2.0">
-                    <Intersects>
-                        <PropertyName>SHAPE</PropertyName>
-                        <gml:Polygon srsName="EPSG:4326">
-                            <gml:outerBoundaryIs>
-                                <gml:LinearRing>
-                                    <gml:coordinates>${coords}</gml:coordinates>
-                                </gml:LinearRing>
-                            </gml:outerBoundaryIs>
-                        </gml:Polygon>
-                    </Intersects>
-                </Filter>
-            </wfs:Query>
-        </wfs:GetFeature>`
-        if( resultsRemain ) {
-            let xml = body; //Payload
-            fetch('https://api.os.uk/features/v1/wfs', { //Endpoint
-                method: 'POST',
-                headers: {
-                    'key': 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh'
-                },
-                body: xml
-            })
-            .then(response => response.text())
-            .then(data => {
-                let parser = new DOMParser(); 
-                let xmlDoc = parser.parseFromString(data,"text/xml");//Read output as text
-                // Get the 'member' elements
-        let members = xmlDoc.getElementsByTagNameNS('http://www.opengis.net/wfs/2.0', 'member');
-             console.log((xmlDoc));
-        // TODO: Take the Coordinates and push it into the JSON object.
-        // Log the number of 'member' elements
-        console.log(`Number of 'member' elements: ${members.length}`); 
-        console.log( xmlDoc.getElementsByTagNameNS('http://www.opengis.net/gml/3.2', 'posList'));
-        // Define the projections
-        let sourceProjection = '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs'; // British National Grid
-        let destProjection = 'EPSG:4326'; // WGS84 (latitude and longitude)
-        
-        // Iterate over each 'member' element
-        for (let i = 0; i < members.length; i++) {
-        let member = members[i];
+    geoJson.features.length = 0;
 
-        // Create a new GeoJSON feature
-        let feature = {
-            type: "Feature",
-            geometry: {
-                type: 'MultiPolygon',
-                coordinates: [] // Initialize as an empty array
-            },
-            properties: {}
-        };
+    map.getSource('greenspace').setData(geoJson);
 
-        // Get the 'posList' elements from the 'member' element
-        let posLists = member.getElementsByTagNameNS('http://www.opengis.net/gml/3.2', 'posList');
+    fetchWhile(resultsRemain,wfsParams);
+    // Use fetch() method to request GeoJSON data from the OS Features API.
+    //
+    // If successful - set the GeoJSON data for the 'greenspace' layer and re-render
+    // the map.
+    //
+    // Calls will be made until the number of features returned is less than the
+    // requested count, at which point it can be assumed that all features for
+    // the query have been returned, and there is no need to request further pages.
+});
 
-        // Iterate over each 'posList' element and add the coordinates to the GeoJSON feature
-        for (let j = 0; j < posLists.length; j++) {
-            let posList = posLists[j];
-            let coordinates = posList.textContent.split(' ').map(Number);
+function fetchWhile(resultsRemain, wfsParams) {
+    if (resultsRemain) {
 
-            // Create an array to hold the pairs for this posList
-            let pairs = [];
+        fetch('/wfs-proxy', {
+            method: 'POST',
+            body:  JSON.stringify(wfsParams)
+        })//Pagination
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            wfsParams.startIndex += wfsParams.count;
 
-    // Assuming the coordinates are in pairs, group them into pairs
-        for (let k = 0; k < coordinates.length; k += 2) {
-            let x = coordinates[k];
-            let y = coordinates[k + 1];
+            geoJson.features.push.apply(geoJson.features, data.features);
 
-            // Convert the coordinates to latitude and longitude
-            let [lon, lat] = proj4(sourceProjection, destProjection, [x, y]);
+            resultsRemain = data.features.length < wfsParams.count ? false : true;
 
-            // Add the converted coordinates to the pairs array
-            pairs.push([lon, lat]);
+            fetchWhile(resultsRemain, wfsParams);
+        });
     }
-    feature.geometry.coordinates.push([pairs]);
-        }
-        console.log(feature.geometry.coordinates);
-        // Push the GeoJSON feature into the GeoJSON
-        geoJson.features.push(feature);
-    }
-        //This is a BEAUTIFUL implementation of Pagination if I do say so myself. (I do.)
-        //ChatGPT got nothing on this. Holy moly.
-            if (members.length === count) {
-            }
-                else {
-                    resultsRemain = false;
-                }
-            startIndex += count;
-            fetchWhile(resultsRemain,startIndex); //Cheeky recursive function.
- 
-                });
-            }
     else {
-        console.log('No more results'); 
-        //Originally this gave the greenspace layer the data from the GeoJSON object which contained all the coordinates. 
-        //Will need to change.
         map.getSource('greenspace').setData(geoJson);
-        console.log(geoJson);
-        document.getElementById('feature-count').innerHTML = geoJson.features.length;
-            }
-        }
-        fetchWhile(resultsRemain);
-    });
-
-
+    }
 }
+
+var polygon = turf.polygon(coordinates);
+console.log(turf.area(polygon));
