@@ -91,3 +91,27 @@ async function lookUpAddresses(addresses) {
 
     highlightTOIDs(toids); // Call the modified highlight function with the array of TOIDs
 }
+
+//In the HTML file this searches references when the user types in the search bar.
+function searchReferences() {
+    var input, ul,filter, li, a, i, visibleCount;
+    input = document.getElementById("mySearch"); //Gets the search bar
+    ul = document.getElementById("myMenu");
+    var filter = input.value.toUpperCase(); // shouldnt matter cos we're dealing with numvers
+    li = ul.getElementsByTagName("li"); 
+    visibleCount = 0; //Counter to keep track of how many items are visible
+
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            if (visibleCount < 3) { //Only show 3 items at a time
+                li[i].style.display = "block"; //Show vertically
+                visibleCount++;
+            } else {
+                li[i].style.display = "none";
+            }
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}

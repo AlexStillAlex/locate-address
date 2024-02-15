@@ -1,14 +1,115 @@
-  const apiKey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh';
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>OS Places API | Polygon (GeoSearch) Example | MapLibre GL JS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/OrdnanceSurvey/os-api-branding@0.3.1/os-api-branding.css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<style>
+    .map-overlay {
+        font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 10px;
+        z-index: 9999;
+    }
+    .map-overlay-inner {
+        background-color: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        padding: 10px;
+    }
+    .map-overlay-inner label {
+        margin-right: 12px;
+    }
+    .maplibregl-popup-content {
+        font: 12.5px/18px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        width: max-content;
+        max-width: 260px;
+    }
+    #popup-nav a {
+        margin: 0 4px;
+        color: #000;
+        text-decoration: none;
+        float: right;
+    }
+</style>
+
+<div id="map"></div>
+<div class="map-overlay">
+    <div class="map-overlay-inner">
+        <input id="both" type="radio" name="dataset" value="DPA,LPI" checked="checked">
+        <label for="both">DPA + LPI</label>
+        <input id="dpa" type="radio" name="dataset" value="DPA">
+        <label for="dpa">DPA</label>
+        <input id="lpi" type="radio" name="dataset" value="LPI">
+        <label for="lpi">LPI</label>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/OrdnanceSurvey/os-api-branding@0.3.1/os-api-branding.js"></script>
+<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+<script src=""></script>
+<script>
+
+    const apiKey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh';
 
     // Set initial 'dataset' value.
-    let dataset = 'LPI';
+    let dataset = 'DPA,LPI';
 
+    // Create a map style object using the ZXY service.
+    const style = {
+        "version": 8,
+        "glyphs": "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+        "sources": {
+            "raster-tiles": {
+                "type": "raster",
+                "tiles": [ "https://api.os.uk/maps/raster/v1/zxy/Road_3857/{z}/{x}/{y}.png?key=" + apiKey ],
+                "tileSize": 256
+            }
+        },
+        "layers": [{
+            "id": "os-maps-zxy",
+            "type": "raster",
+            "source": "raster-tiles"
+        }]
+    };
 
+    // Initialize the map object.
+    const map = new maplibregl.Map({
+        container: 'map',
+        minZoom: 6,
+        maxZoom: 19,
+        style: style,
+        maxBounds: [
+            [ -10.76418, 49.528423 ],
+            [ 1.9134116, 61.331151 ]
+        ],
+        center: [ -2.158607182943474, 52.504686972808571 ],
+        zoom: 17
+    });
+
+    map.dragRotate.disable(); // Disable map rotation using right click + drag.
+    map.touchZoomRotate.disableRotation(); // Disable map rotation using touch rotation gesture.
+
+    // Add navigation control (excluding compass button) to the map.
+    map.addControl(new maplibregl.NavigationControl({
+        showCompass: false
+    }));
 
     let popup = new maplibregl.Popup();
 
     // Create an empty GeoJSON FeatureCollection.
-    const polygonFeature = {
+    const geoJson = {
         "type": "FeatureCollection",
         "features": []
     };
@@ -43,7 +144,7 @@
  [ -2.158159487555376, 52.504734772552503 ], [ -2.15823650900737, 52.504726578063533 ], [ -2.158348432659333, 52.504714560788258 ], [ -2.15841499791441, 52.504707459045029 ], [ -2.158439738974352, 52.504704818653899 ], [ -2.158607182943474, 52.504686972808571 ] ], [ [ -2.151462008225976, 52.504220189530393 ], [ -2.151413461667152, 52.504219191113712 ], [ -2.151411305234606, 52.504268630315686 ], [ -2.151458732098846, 52.504269603202772 ],
  [ -2.15146025791291, 52.50424651472472 ], [ -2.151462008225976, 52.504220189530393 ] ], [ [ -2.154737543182503, 52.508058811607043 ], [ -2.154736479375823, 52.508049643131464 ], [ -2.154735114216174, 52.508038587136646 ], [ -2.154734467341489, 52.508026496340214 ], [ -2.154731785550034, 52.508026418951765 ], [ -2.154672919092166, 52.508024815106417 ], [ -2.154670474385779, 52.508058432192797 ], [ -2.154671429802133, 52.50806195504645 ], [ -2.154692613538193, 52.508061046206592 ], [ -2.154719719430874, 52.508059922814141 ], [ -2.154731002375033, 52.508059071919597 ], [ -2.154737248288651, 52.508058749063871 ], [ -2.154737543182503, 52.508058811607043 ] ] ] 
 
- let outerRing = coordinates[0];
+ outerRing = coordinates[0];
     // Define a GeoJSON polygon feature.
     let geoJsonPoly = {
         "type": "Feature",
@@ -62,12 +163,11 @@
 
         map.addLayer({
             id: "polygon",
-            type: "line",
+            type: "fill",
             source: "polygon",
             paint: {
-                "line-color": "#38f",
-                "line-opacity": 0.9,
-                "line-width": 3
+                "fill-color": "#38f",
+                "fill-opacity": 0.2
             }
         });
 
@@ -122,6 +222,11 @@
         });
 
         // Add click event handler.
+        // map.on('zoom', function(e) {
+        //     popup.remove();
+        // });
+
+        // Add click event handler.
         map.on('click', function(e) {
             let features = map.queryRenderedFeatures(e.point, { layers: [ 'clusters', 'unclustered-point' ] });
 
@@ -156,6 +261,17 @@
         getFeatures();
     });
 
+    // Add an 'onclick' handler for the radio buttons.
+    const radios = document.getElementsByName('dataset');
+    for( let i in radios ) {
+        radios[i].onclick = function() {
+            dataset = this.value;
+            geoJson.features.length = 0;
+            map.getSource('addresses').setData(geoJson);
+            popup.remove();
+            getFeatures();
+        }
+    }
 
     /**
      * Get features from the API.
@@ -177,7 +293,6 @@
         // Calls will be made until the number of features returned is less than the
         // requested count, at which point it can be assumed that all features for
         // the query have been returned, and there is no need to request further pages.
-    document.getElementById('testPensnett').addEventListener('click', function() {
         function fetchWhile(resultsRemain) {
             if( resultsRemain ) {
                 const queryString = Object.keys(params).map(function(key) {
@@ -232,7 +347,6 @@
         }
 
         fetchWhile(resultsRemain);
-    });
     }
 
     /**
@@ -285,3 +399,8 @@
         });
         return obj;
     };
+
+</script>
+
+</body>
+</html>

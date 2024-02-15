@@ -11,33 +11,43 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 //Definining custom map styles
-const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+// const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 // Initialise the map object.
+const style = {
+    "version": 8,
+    "glyphs": "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+    "sources": {
+        "raster-tiles": {
+            "type": "raster",
+            "tiles": [ "https://api.os.uk/maps/raster/v1/zxy/Road_3857/{z}/{x}/{y}.png?key=" + apikey ],
+            "tileSize": 256
+        }
+    },
+    "layers": [{
+        "id": "os-maps-zxy",
+        "type": "raster",
+        "source": "raster-tiles"
+    }]
+};
+
+// Initialize the map object.
 const map = new maplibregl.Map({
     container: 'map',
     minZoom: 6,
-    maxZoom: 18,
-    style: customStyleJson,
+    maxZoom: 19,
+    style: style,
     maxBounds: [
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
-    //Pensnett: 
-    //Brixton road: -0.1145886,51.4649944 
     center: [ -2.158607182943474, 52.504686972808571 ],
-    zoom: 16,
-    preserveDrawingBuffer: true, //Allows me to export a higher resolution map. Thank Stackoverflow.
-    transformRequest: url => {
-        if(! /[?&]key=/.test(url) ) url += '?key=' + apikey //stipid regex
-        return {
-            url: url + '&srs=3857'
-        }
-    }
+    zoom: 17
 });
-
 // Add navigation control (excluding compass button) to the map.
-map.addControl(new maplibregl.NavigationControl());
-//Removed logic to create a 3D layer. Reduces the number of API calls.
+
+    map.addControl(new maplibregl.NavigationControl({
+        showCompass: true
+    }));
 
 //This function is redundant if we don't have to highlight buildings that have been searched.
 function highlightTOIDs(toids) {
@@ -220,107 +230,6 @@ function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-//In the HTML file this searches references when the user types in the search bar.
-function searchReferences() {
-    var input, ul,filter, li, a, i, visibleCount;
-    input = document.getElementById("mySearch"); //Gets the search bar
-    ul = document.getElementById("myMenu");
-    var filter = input.value.toUpperCase(); // shouldnt matter cos we're dealing with numvers
-    li = ul.getElementsByTagName("li"); 
-    visibleCount = 0; //Counter to keep track of how many items are visible
-
-    for (i = 0; i < li.length; i++) {
-        a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
-        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            if (visibleCount < 3) { //Only show 3 items at a time
-                li[i].style.display = "block"; //Show vertically
-                visibleCount++;
-            } else {
-                li[i].style.display = "none";
-            }
-        } else {
-            li[i].style.display = "none";
-        }
-    }
-}
-
-window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
-    fetch('/dropdown-data')
-        .then(response => response.json())
-        .then(data => {
-            populateDropdown(data);
-        });
-}
-function populateDropdown(data) {
-    var menu = document.getElementById('myMenu'); //Gets the menu. Initially blank
-    data.forEach(function(item) { 
-        //For each item in my data JSON containing property references, it will happend a hidden list item to the menu.
-        //then has onclick functionality to fly to the coordinates of the property.
-        var li = document.createElement('li');
-        li.className = 'searchable';
-        var a = document.createElement('a'); //these are called ANCHOR tags. 
-        a.href = '#'; //Link is blank. good for now.
-        a.textContent = item.prop_ref; // Use the prop_ref property as the text
-
-        a.onclick = function() {
-            flyToCoords([item.prop_longitude, item.prop_latitude]); // fsr longitude and latitude are the wrong way round in theses systems.
- 
-
-       //Creating a MARQUEE element (funny.)
-        var marquee = document.createElement('marquee');
-        marquee.className = 'marquee-style'; // Set the class name
-        let totalArea= turf.area(turf.polygon(coordinates)); //Calculate the total area of the property
-        externalArea = totalArea - item.prop_area/10.764;
-        marquee.textContent =  `Your external area is: ${externalArea.toFixed(2)} m²`;  // Set the text content
-        // Append the marquee to the body of the document
-        console.log(totalArea,item.prop_area/10)
-        document.body.appendChild(marquee);
-            
-        };
-        li.appendChild(a);
-        menu.appendChild(li);
-    });
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BACKEND INTERACTIONS
-//Get the Databricks query on Client side
-document.getElementById('testButton').addEventListener('click', function() {
-    const query = document.getElementById('queryInput').value;
-    fetch('/run-query', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: query // Send the user's input as a JSON'd query
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-    
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  });
-//Get the HM land registry stuff on client side.
-document.getElementById('testButton').addEventListener('click', function() {
-    fetch('/get-data', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  });
-/////////////////////////////////////////////////////////////////////
 //Radio Logic
 // var radios = document.querySelectorAll('#mapOverlay [type="radio"]');
 // console.log(radios)
@@ -359,8 +268,6 @@ document.getElementById('exportMap').addEventListener('click', function() {
     });
     map.triggerRepaint(); // Force a map rerender
 });
-
-
 
 
   //best commit:

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- Imports -->
     <link href="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.5/alasql.min.js" integrity="sha512-LuljkOQKcaogetQCtJCXiXK++nbzCQiXw7lOBBKCQk+yIRXjafpl8SFU0ogFOck13XbQ04TN/96pWNSvzSkTkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <!-- SQL editing on CSV -->
     <script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script> <!-- OpenLayers mapping API -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> <!-- Leaflet mapping API -->
@@ -32,6 +33,7 @@
         <input id="Chloropleth" type="radio" name="toggle" value="Chloropleth">
         <label for="Chloropleth">Chloropleth</label> <!-- Corrected here -->
         </div>
+
         <!-- The stuff that we see -->
         <div class="map-overlay-inner"> 
             <h1>Locate multiple Addresses</h1>
@@ -63,6 +65,7 @@
     <script src="/selecting.js"></script>
     <script src = /features.js></script>
     <script src = /test.js></script>
+    <script src = /callingEndpoints.js></script>
 </body>
 
 </div>
