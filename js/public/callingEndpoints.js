@@ -20,7 +20,6 @@ function populateDropdown(data) {
 
         a.onclick = function() {
             flyToCoords([item.prop_longitude, item.prop_latitude]); // fsr longitude and latitude are the wrong way round in theses systems.
- 
 
        //Creating a MARQUEE element (funny.)
         var marquee = document.createElement('marquee');
