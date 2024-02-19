@@ -73,7 +73,7 @@
         });
 
         geoJsonPoly = flipCoords(map.getSource('polygon').serialize().data);
-
+        console.log(geoJsonPoly);
         // Add an empty GeoJSON layer for the addresses and set the 'cluster' option to true.
         map.addSource("addresses", {
             type: "geojson",
@@ -188,7 +188,7 @@
                     return key + '=' + params[key];
                 }).join('&');
 
-                fetch('https://api.os.uk/search/places/v1/polygon?' + queryString, {
+                fetch('https://api.os.uk/search/places/v1/polygon?' + queryString, { // Inputs OUR Polygon
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -198,14 +198,14 @@
                 .then(response => response.ok ? response.json() : Promise.reject({ err: response.status }))
                 .then(data => {
                     if( data.header.totalresults === 0 ) {
-                        document.getElementsByClassName('message')[0].style.display = 'inline-block';
+                        document.getElementsByClassName('message')[0].style.display = 'inline-block'; //Creates a popup 
                         return;
                     }
 
                     data.results.forEach(function(val, i) {
-                        let type = val.hasOwnProperty('DPA') ? 'DPA' : 'LPI';
+                        let type = val.hasOwnProperty('DPA') ? 'DPA' : 'LPI'; //Can ignore this. To do with which UPRN datasets we used. Hardcoded to LPI
                         let result = val[ type ];
-
+                        //Empty map layer as uesual.
                         let feature = {
                             "type": "Feature",
                             "properties": {
@@ -221,7 +221,7 @@
 
                         geoJson.features.push(feature);
                     });
-
+                        //Pagination
                     params.offset += data.results.length;
 
                     resultsRemain = data.results.length < 100 ? false : true;
@@ -285,11 +285,23 @@
     function flipCoords(obj) {
         const coords = obj.geometry.coordinates[0];
         coords.forEach(function(val, i) {
-            coords[i] = [ val[1], val[0] ];
+            coords[i] = [val[1], val[0]];
         });
         return obj;
-    };
+    }
+    //Takes in an OUTERring
+    function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default projection system.
+        //using the geodesic library to calculate the area of the polygon
+        //Used this tutorial:
+        //https://geographiclib.sourceforge.io/JavaScript/doc/tutorial-3-examples.html
+        var p = geod.Polygon(false);
+        for (i = 0; i < array.length; ++i)
+            p.AddPoint(array[i][0], array[i][1]);
+            p = p.Compute(false, true);
 
+        var area = Math.abs(p.area.toFixed(2));
+        return area;
+    }
 
 ///Highlighting Features
 document.getElementById('highlightFeaturesWithinPensnett').addEventListener('click', function() {

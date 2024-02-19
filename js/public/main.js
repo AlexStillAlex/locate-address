@@ -230,21 +230,7 @@ function hideSpinner() {
     document.getElementById('spinner').style.visibility = 'hidden';
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Radio Logic
-// var radios = document.querySelectorAll('#mapOverlay [type="radio"]');
-// console.log(radios)
-// // Add an event listener to each radio button
-// for (var i = 0; i < radios.length; i++) {
-//     radios[i].addEventListener('change', function() {
-//         // Check if the "Images" radio button is selected
-//         if (document.getElementById('Images').checked) {
-//             // The "Images" radio button is selected, load features.js
-//             addImageLayer(true);
-//         } else {
-//                 addImageLayer(false);
-//             }
-//     });
-// }
+
 // When Export map is clicked, the map will download.
 document.getElementById('exportMap').addEventListener('click', function() { 
     //I was having some ittisues with the map not rendering before the download so I measured the time it took to render.
@@ -269,6 +255,18 @@ document.getElementById('exportMap').addEventListener('click', function() {
     map.triggerRepaint(); // Force a map rerender
 });
 
+    //Toggles the Collapsible menu when clicked. Does this by taking the Button ID.
+function toggleCollapsible(event) {
+    var buttonId = event.target.id; 
+    var coll = document.getElementById(buttonId); 
+    coll.classList.toggle("active");
+    var sections = coll.nextElementSibling;//Logic to show/hide
+    if (sections.style.display == "block") {
+        sections.style.display = "none";
+    } else {
+        sections.style.display = "block";
+    }
+}
 
   //best commit:
   console.log(`All you need is

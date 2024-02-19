@@ -21,17 +21,18 @@ function populateDropdown(data) {
         a.onclick = function() {
             flyToCoords([item.prop_longitude, item.prop_latitude]); // fsr longitude and latitude are the wrong way round in theses systems.
 
-       //Creating a MARQUEE element (funny.)
-        var marquee = document.createElement('marquee');
-        marquee.className = 'marquee-style'; // Set the class name
-        console.log(coordinates)
-        let totalArea= turf.area(turf.polygon(coordinates)); //Calculate the total area of the property
-        externalArea = totalArea - item.prop_area/10.764;
-        console.log(turf.polygon(coordinates));
-        marquee.textContent =  `Your external area is: ${externalArea.toFixed(2)} m²`;  // Set the text content
-        // Append the marquee to the body of the document
-        console.log(totalArea,item.prop_area/10)
-        document.body.appendChild(marquee);
+        // Since I'm repeating something like this 3 times, I should probably make a function for it.
+        let totalArea = getArea(coordinates[0]); //Most accurate: Ellipsoidal projection
+        let internalArea = item.prop_area/10.764; //Convert from ft² to m²
+        let externalArea = totalArea - item.prop_area/10.764;
+          // Select the div elements
+        let totalAreaDiv = document.getElementById('totalArea');
+        let internalAreaDiv = document.getElementById('internalArea');
+        let externalAreaDiv = document.getElementById('externalArea');
+        // Update the div elements
+        totalAreaDiv.innerText = 'Total Area: ' + totalArea.toFixed(2) + ' m²';
+        internalAreaDiv.innerText = 'Internal Area: ' + internalArea.toFixed(2)+ ' m²';
+        externalAreaDiv.innerText = 'External Area: ' + externalArea.toFixed(2)+ ' m²';
             
         };
         li.appendChild(a);
