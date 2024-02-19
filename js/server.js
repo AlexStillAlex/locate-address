@@ -155,6 +155,6 @@ app.post('/wfs-proxy', (req, res) => {
 // runs the 'static' pages. I.e. the HTML and scripts that only depend on the client.
 app.use(express.static('js/public'));
 //puts a link in the console for me to copy
-app.listen(3000, () => {
+app.listen(3001, () => { //Changing this TEMPORARILY so I don't crash Mark's server
     console.log('Server running on http://localhost:3000');
   });

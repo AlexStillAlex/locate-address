@@ -72,7 +72,7 @@
         });
 
         geoJsonPoly = flipCoords(map.getSource('polygon').serialize().data);
-
+        console.log(geoJsonPoly);
         // Add an empty GeoJSON layer for the addresses and set the 'cluster' option to true.
         map.addSource("addresses", {
             type: "geojson",
@@ -281,7 +281,20 @@
     function flipCoords(obj) {
         const coords = obj.geometry.coordinates[0];
         coords.forEach(function(val, i) {
-            coords[i] = [ val[1], val[0] ];
+            coords[i] = [val[1], val[0]];
         });
         return obj;
-    };
+    }
+    //Takes in an OUTERring
+    function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default projection system.
+        //using the geodesic library to calculate the area of the polygon
+        //Used this tutorial:
+        //https://geographiclib.sourceforge.io/JavaScript/doc/tutorial-3-examples.html
+        var p = geod.Polygon(false);
+        for (i = 0; i < array.length; ++i)
+            p.AddPoint(array[i][0], array[i][1]);
+            p = p.Compute(false, true);
+
+        var area = Math.abs(p.area.toFixed(2));
+        return area;
+    }

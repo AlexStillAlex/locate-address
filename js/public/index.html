@@ -15,6 +15,8 @@
     <script src="https://labs.os.uk/public/os-api-branding/v0.3.1/os-api-branding.js"></script>
     <script src="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script> <!-- Allows different projections. -->
+    <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-geodesic.min.js"></script> <!-- Geodesic calculations -->
+    <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
 
     <link rel="stylesheet" href="layout.css">
 
@@ -39,7 +41,7 @@
 
         <!-- The Sidebar Medu Box -->
     <div class="map-overlay-inner">
-        <button type="button" class="collapsible">Filter By</button>
+        <button id = "showFilter" type="button" class="collapsible"onclick="toggleCollapsible(event)">Filter By</button>
         <div class="sections" style = "display:none">
           <!-- Address (search by) -->
           <p>Addres:</p>
@@ -65,7 +67,7 @@
           </div>
         </div>
 
-        <button type="button" class="collapsible">Colour By</button>
+        <button id = "showColour"  type="button" class="collapsible" onclick="toggleCollapsible(event)">Colour By</button>
         <div class="sections" style = "display:none">
           <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button> <!-- Highlights buildings for general polygon. -->
           <div id="legend"></div> <!--  Legend Container -->
@@ -76,15 +78,20 @@
           <p>ERV (Tiers)</p>
         </div>
 
-        <button type="button" class="collapsible">Print</button>
+        <button id = "showPrint" type="button" class="collapsible"onclick="toggleCollapsible(event)">Print</button>
         <div class="sections" style = "display:none">
           <button class ="big-red-button" id="exportMap">Image Export TODO</button>
         </div>
-        <button type="button" class="collapsible">Other</button>
+        <button id = "showOther" type="button" class="collapsible"onclick="toggleCollapsible(event)">Dev Testing</button>
         <div class="sections" style = "display:none">
           <button id="testButton" class = "big-red-button">Test Query</button> <!-- Submits an SQL query -->
           <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select count(*) from main.intermediate.int_unit_table_decoded'>
           <button id="testPensnett" class = "big-red-button">Test Pensnett</button> <!-- Highlighting buildings within PENSNETT polygon -->
+          <div id="areaDisplay">
+            <p id="totalArea">Total Area: </p>
+            <p id="internalArea">Internal Area: </p>
+            <p id="externalArea">External Area: </p>
+          </div>
         </div>            
     </div>
     </div>
@@ -96,24 +103,6 @@
     <script src = /features.js></script>
     <script src = /test.js></script>
     <script src = /callingEndpoints.js></script>
-
-    <script>
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
-        
-        for (i = 0; i < coll.length; i++) {
-          coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var sections = this.nextElementSibling;
-            if (sections.style.display == "block") {
-              sections.style.display = "none";
-            } else {
-              sections.style.display = "block";
-            }
-          });
-        }
-    </script>
-
 </body>
 
 </html>
