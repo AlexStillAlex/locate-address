@@ -43,6 +43,7 @@
  [ -2.158159487555376, 52.504734772552503 ], [ -2.15823650900737, 52.504726578063533 ], [ -2.158348432659333, 52.504714560788258 ], [ -2.15841499791441, 52.504707459045029 ], [ -2.158439738974352, 52.504704818653899 ], [ -2.158607182943474, 52.504686972808571 ] ], [ [ -2.151462008225976, 52.504220189530393 ], [ -2.151413461667152, 52.504219191113712 ], [ -2.151411305234606, 52.504268630315686 ], [ -2.151458732098846, 52.504269603202772 ],
  [ -2.15146025791291, 52.50424651472472 ], [ -2.151462008225976, 52.504220189530393 ] ], [ [ -2.154737543182503, 52.508058811607043 ], [ -2.154736479375823, 52.508049643131464 ], [ -2.154735114216174, 52.508038587136646 ], [ -2.154734467341489, 52.508026496340214 ], [ -2.154731785550034, 52.508026418951765 ], [ -2.154672919092166, 52.508024815106417 ], [ -2.154670474385779, 52.508058432192797 ], [ -2.154671429802133, 52.50806195504645 ], [ -2.154692613538193, 52.508061046206592 ], [ -2.154719719430874, 52.508059922814141 ], [ -2.154731002375033, 52.508059071919597 ], [ -2.154737248288651, 52.508058749063871 ], [ -2.154737543182503, 52.508058811607043 ] ] ] 
 
+ //If a property has holes in it or outside of it (ex: a electrical facility that is owned by the local government), we want to work with the largest polygon, which will always be the first polygon listed in the array, so we select coordinates[0]
  let outerRing = coordinates[0];
     // Define a GeoJSON polygon feature.
     let geoJsonPoly = {
@@ -82,6 +83,7 @@
             clusterRadius: 40
         });
 
+        //Create the most outer blue circles pointing to each topographical Feature
         map.addLayer({
             id: "clusters",
             type: "circle",
@@ -93,6 +95,7 @@
             }
         });
 
+        //Add numbers to those most outer blue circles representing the number of UPRNs at this particular topographical feature
         map.addLayer({
             id: "cluster-count",
             type: "symbol",
@@ -108,6 +111,7 @@
             }
         });
 
+        //Create smaller circles representing topographical features where number of UPRNs attached to this topographical feature = 1
         map.addLayer({
             id: "unclustered-point",
             type: "circle",
@@ -298,3 +302,55 @@
         var area = Math.abs(p.area.toFixed(2));
         return area;
     }
+
+///Highlighting Features
+document.getElementById('highlightFeaturesWithinPensnett').addEventListener('click', function() {
+// Convert polygon coordinates to GeoJSON format
+const polygonGeoJSON = {
+    "type": "Polygon",
+    "coordinates": [coordinates[0]]
+};
+
+// Define API endpoint and parameters
+const apiEndpoint = "https://api.os.uk/features/ngd/ofa/v1/collections";
+
+const featureType = "Building";
+
+const requestData = {
+    key: apiKey,
+    request: "GetFeature",
+    service: "WFS",
+    typeName: featureType,
+    outputFormat: "json",
+    filter: {
+        geoWithin: {
+            geometry: polygonGeoJSON
+        }
+    }
+};
+
+console.log(requestData);
+
+// Send POST request
+fetch(apiEndpoint, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(data => {
+    // Process the response (parse JSON, extract features, etc.)
+    const featuresWithinPolygon = data.features;
+    // Do something with the features
+})
+.catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+});
+});
