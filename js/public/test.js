@@ -106,7 +106,7 @@
             },
             layout: {
                 "text-field": "{point_count_abbreviated}",
-                "text-font": [ "Open Sans Bold" ],
+                "text-font": [ "Source Sans Pro Regular" ],
                 "text-size": 12
             }
         });
@@ -303,54 +303,3 @@
         return area;
     }
 
-///Highlighting Features
-document.getElementById('highlightFeaturesWithinPensnett').addEventListener('click', function() {
-// Convert polygon coordinates to GeoJSON format
-const polygonGeoJSON = {
-    "type": "Polygon",
-    "coordinates": [coordinates[0]]
-};
-
-// Define API endpoint and parameters
-const apiEndpoint = "https://api.os.uk/features/ngd/ofa/v1/collections";
-
-const featureType = "Building";
-
-const requestData = {
-    key: apiKey,
-    request: "GetFeature",
-    service: "WFS",
-    typeName: featureType,
-    outputFormat: "json",
-    filter: {
-        geoWithin: {
-            geometry: polygonGeoJSON
-        }
-    }
-};
-
-console.log(requestData);
-
-// Send POST request
-fetch(apiEndpoint, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestData)
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
-    }
-    return response.json();
-})
-.then(data => {
-    // Process the response (parse JSON, extract features, etc.)
-    const featuresWithinPolygon = data.features;
-    // Do something with the features
-})
-.catch(error => {
-    console.error('There was a problem with the fetch operation:', error);
-});
-});

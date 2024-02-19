@@ -50,6 +50,7 @@ const map = new maplibregl.Map({
             url: url + '&srs=3857'
         }
     }
+
 });
 
 map.on('style.load', function () {
