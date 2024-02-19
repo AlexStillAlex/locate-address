@@ -184,7 +184,7 @@
                     return key + '=' + params[key];
                 }).join('&');
 
-                fetch('https://api.os.uk/search/places/v1/polygon?' + queryString, {
+                fetch('https://api.os.uk/search/places/v1/polygon?' + queryString, { // Inputs OUR Polygon
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -194,14 +194,14 @@
                 .then(response => response.ok ? response.json() : Promise.reject({ err: response.status }))
                 .then(data => {
                     if( data.header.totalresults === 0 ) {
-                        document.getElementsByClassName('message')[0].style.display = 'inline-block';
+                        document.getElementsByClassName('message')[0].style.display = 'inline-block'; //Creates a popup 
                         return;
                     }
 
                     data.results.forEach(function(val, i) {
-                        let type = val.hasOwnProperty('DPA') ? 'DPA' : 'LPI';
+                        let type = val.hasOwnProperty('DPA') ? 'DPA' : 'LPI'; //Can ignore this. To do with which UPRN datasets we used. Hardcoded to LPI
                         let result = val[ type ];
-
+                        //Empty map layer as uesual.
                         let feature = {
                             "type": "Feature",
                             "properties": {
@@ -217,7 +217,7 @@
 
                         geoJson.features.push(feature);
                     });
-
+                        //Pagination
                     params.offset += data.results.length;
 
                     resultsRemain = data.results.length < 100 ? false : true;
