@@ -160,7 +160,6 @@
         getFeatures();
     });
 
-
     /**
      * Get features from the API.
      */
@@ -173,6 +172,10 @@
             output_srs: 'EPSG:4326',
             srs: 'EPSG:4326'
         };
+
+        //arrays for topographical features and TOID for highlighting buildings in the section below
+        let TOID_for_highlighting_buildings = [];
+        let UPRN_for_highlighting_buildings = [];
 
         let resultsRemain = true;
 
@@ -218,26 +221,57 @@
                                 "coordinates": [ result.LNG, result.LAT ]
                             }
                         };
-
+                        console.log(result);
                         geoJson.features.push(feature);
+
+                        //array of topographical features used for highlighting buildings in the next sction
+                        TOID_for_highlighting_buildings.push(result.TOPOGRAPHY_LAYER_TOID);
+                        //array of UPRNs created for highlighting buildings in the next section
+                        UPRN_for_highlighting_buildings.push(result.UPRN);
+                        
                     });
+
+
                         //Pagination
                     params.offset += data.results.length;
 
                     resultsRemain = data.results.length < 100 ? false : true;
 
                     fetchWhile(resultsRemain);
+                
                 })
                 .catch(error => console.log(error));
             }
             else {
                 map.getSource('addresses').setData(geoJson);
+            
+            //HIGHLIGHTING FEATURES - we get all features within each array
+            console.log(TOID_for_highlighting_buildings);
+            console.log(UPRN_for_highlighting_buildings);
+
+            //there could be several UPRNs refering to the same feature, so many UPRNs referring to same TOID. So, we want only distinct TOIDs.
+            function removeDuplicatesFromArray(arr){
+                let unique_toid_array = [];
+                arr.forEach(element => {
+                    if (!unique_toid_array.includes(element)){
+                        unique_toid_array.push(element);
+                    }
+                });
+                return unique_toid_array;
+            }
+            unique_toid_array = removeDuplicatesFromArray(TOID_for_highlighting_buildings)
+            console.log(unique_toid_array)
             }
         }
 
         fetchWhile(resultsRemain);
     });
     }
+    //%20 - space; %27 - single quotes; the toid expects a string as input (this could be looked up in "https://.../queryables"), so we need to put single quotes around our inputed string that contains both characters and numbers
+    url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?" + apiKey + "&" + "filter=toid%20=%20%27" + unique_toid_array + "%27"
+    //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=toid%20=%20%27osgb1000019313050%27
+  
+
 
     /**
      * Opens a popup at the defined location, with some basic HTML content for the
@@ -303,3 +337,53 @@
         return area;
     }
 
+
+// ///Highlighting Features
+// document.getElementById('highlightFeaturesWithinPensnett').addEventListener('click', function() {
+// // Convert polygon coordinates to GeoJSON format
+// const polygonGeoJSON = {
+//     "type": "Polygon",
+//     "coordinates": [coordinates[0]]
+// };
+
+// // Define API endpoint and parameters
+// const apiEndpointNGDFeatures = "https://api.os.uk/features/ngd/ofa/v1/collections" + "/bld-fts-building-1/items";
+
+// // const featureType = "Building";
+
+// const requestData = {
+//     request: "GetFeature",
+//     service: "WFS",
+//     // typeName: featureType,
+//     outputFormat: "json",
+//     filter: {
+//         geoWithin: {
+//             geometry: polygonGeoJSON
+//         }
+//     }
+// };
+
+// // Send POST request
+// fetch(apiEndpointNGDFeatures, {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'application/json',
+//         key: apiKey
+//     },
+//     body: JSON.stringify(requestData)
+// })
+// .then(response => {
+//     if (!response.ok) {
+//         throw new Error('Network response was not ok');
+//     }
+//     return response.json();
+// })
+// .then(data => {
+//     // Process the response (parse JSON, extract features, etc.)
+//     const featuresWithinPolygon = data.features;
+//     // Do something with the features
+// })
+// .catch(error => {
+//     console.error('There was a problem with the fetch operation:', error);
+// });
+// });
