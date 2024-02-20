@@ -8,7 +8,7 @@ window.onload = function() { //When the server loads ping a request to the backe
             populateDropdown(data);
         });
 }
-function populateDropdown(data) {
+async function populateDropdown(data) {
     var menu = document.getElementById('myMenu'); //Gets the menu. Initially blank
     data.forEach(function(item) { 
         //For each item in my data JSON containing property references, it will happend a hidden list item to the menu.
