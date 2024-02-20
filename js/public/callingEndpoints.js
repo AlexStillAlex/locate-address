@@ -4,6 +4,7 @@ window.onload = function() { //When the server loads ping a request to the backe
     fetch('/dropdown-data')
         .then(response => response.json())
         .then(data => {
+          console.log(data); // log data on server
             populateDropdown(data);
         });
 }

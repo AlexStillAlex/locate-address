@@ -106,7 +106,7 @@
             },
             layout: {
                 "text-field": "{point_count_abbreviated}",
-                "text-font": [ "Open Sans Bold" ],
+                "text-font": [ "Source Sans Pro Regular" ],
                 "text-size": 12
             }
         });

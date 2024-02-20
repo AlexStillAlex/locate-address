@@ -11,7 +11,9 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 //Definining custom map styles
-// const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+ const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+ const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;
+
 // Initialise the map object.
 const style = {
     "version": 8,
@@ -35,18 +37,39 @@ const map = new maplibregl.Map({
     container: 'map',
     minZoom: 6,
     maxZoom: 19,
-    style: style,
+    style: customStyleJson,
     maxBounds: [
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
     center: [ -2.158607182943474, 52.504686972808571 ],
-    zoom: 17
+    zoom: 17,
+    transformRequest: url => {
+        if(! /[?&]key=/.test(url) ) url += '?key=' + apikey
+        return {
+            url: url + '&srs=3857'
+        }
+    }
+
+});
+
+map.on('style.load', function () {
+    console.log('Style has loaded.');
+});
+
+map.on('error', function (e) {
+    console.error('An error occurred: ', e.error);
 });
 // Add navigation control (excluding compass button) to the map.
 
     map.addControl(new maplibregl.NavigationControl({
         showCompass: true
+    }));
+
+//Add scale control.
+    map.addControl(new maplibregl.ScaleControl({
+        maxWidth: 200, //in Pixels
+        unit: 'metric'
     }));
 
 //This function is redundant if we don't have to highlight buildings that have been searched.
@@ -233,26 +256,38 @@ function hideSpinner() {
 
 // When Export map is clicked, the map will download.
 document.getElementById('exportMap').addEventListener('click', function() { 
-    //I was having some ittisues with the map not rendering before the download so I measured the time it took to render.
-    // console.log('clicked')
-    // tic = Date.now() //tic
-    //Logic to IMPROVE resolution of Map. Should be easier for exports.
     var dpi = 900;
     Object.defineProperty(window, 'devicePixelRatio', {
-        get: function() {return dpi / 96} //Standard ratio suppposedly.
+        get: function() {return dpi / 96}
     });
-    map.once('render', function() { // Wait for the map to render! Important otherwise you get a blank image!
-        var imgURL = map.getCanvas().toDataURL('image/png'); // Get the data URL of the map
-        var link = document.createElement('a'); 
-        link.href = imgURL; 
-        link.download = 'what_a_gift.png'; // Set the download attribute to the desired file name
-        link.click(); // Click the link to start the download
+    map.once('render', function() {
+        var mapCanvas = map.getCanvas();
+        var mapImage = new Image();
+        mapImage.src = mapCanvas.toDataURL('image/png');
+        //Adds padding. WIll need to do as a percentage of the Map pixels.
+        mapImage.onload = function() {
+            var padding = 50; // The amount of white space to add around the image
+            var canvas = document.createElement('canvas');
+            canvas.width = mapCanvas.width + padding * 2;
+            canvas.height = mapCanvas.height + padding * 2;
+            var context = canvas.getContext('2d');
 
-        // toc =  Date.now()
-        // console.log('time taken:')
-        // console.log((toc - tic) / 1000)
+            // Draw a white rectangle
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the map image on top of the white rectangle
+            context.drawImage(mapImage, padding, padding);
+
+            // Export the image
+            var imgURL = canvas.toDataURL('image/png');
+            var link = document.createElement('a');
+            link.href = imgURL;
+            link.download = 'what_a_gift.png';
+            link.click();
+        };
     });
-    map.triggerRepaint(); // Force a map rerender
+    map.triggerRepaint();
 });
 
     //Toggles the Collapsible menu when clicked. Does this by taking the Button ID.
