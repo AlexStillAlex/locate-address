@@ -254,54 +254,7 @@ function hideSpinner() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// When Export map is clicked, the map will download.
-document.getElementById('exportMap').addEventListener('click', function() { 
-    var dpi = 900;
-    Object.defineProperty(window, 'devicePixelRatio', {
-        get: function() {return dpi / 96}
-    });
-    map.once('render', function() {
-        var mapCanvas = map.getCanvas();
-        var mapImage = new Image();
-        mapImage.src = mapCanvas.toDataURL('image/png');
-        //Adds padding. WIll need to do as a percentage of the Map pixels.
-        mapImage.onload = function() {
-            var padding = 50; // The amount of white space to add around the image
-            var canvas = document.createElement('canvas');
-            canvas.width = mapCanvas.width + padding * 2;
-            canvas.height = mapCanvas.height + padding * 2;
-            var context = canvas.getContext('2d');
 
-            // Draw a white rectangle
-            context.fillStyle = 'white';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw the map image on top of the white rectangle
-            context.drawImage(mapImage, padding, padding);
-
-            // Export the image
-            var imgURL = canvas.toDataURL('image/png');
-            var link = document.createElement('a');
-            link.href = imgURL;
-            link.download = 'what_a_gift.png';
-            link.click();
-        };
-    });
-    map.triggerRepaint();
-});
-
-    //Toggles the Collapsible menu when clicked. Does this by taking the Button ID.
-function toggleCollapsible(event) {
-    var buttonId = event.target.id; 
-    var coll = document.getElementById(buttonId); 
-    coll.classList.toggle("active");
-    var sections = coll.nextElementSibling;//Logic to show/hide
-    if (sections.style.display == "block") {
-        sections.style.display = "none";
-    } else {
-        sections.style.display = "block";
-    }
-}
 
   //best commit:
   console.log(`All you need is

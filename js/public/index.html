@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script> <!-- Allows different projections. -->
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-geodesic.min.js"></script> <!-- Geodesic calculations -->
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
-
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script> <!--WE WILL BE USING KONVA TO DRAW ON OUR MAP.-->
     
     <link rel="stylesheet" href="layout.css">
 
@@ -66,7 +66,7 @@
           <p>Tenant Name</p>
           </div>
         </div>
-
+        <!-- <div id="canvas-container" style="display: none;"></div> EMPTY DIV TO STOP THROWING ERRORS -->
         <button id = "showColour"  type="button" class="collapsible" onclick="toggleCollapsible(event)">Colour By</button>
         <div class="sections" style = "display:none">
           <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button> <!-- Highlights buildings for general polygon. -->
@@ -98,11 +98,12 @@
     </body>
     <!-- These scripts have to go here. Arises due to the pageload query -->
     <script src="/main.js"></script>
-    <script src="/searching.js"></script>
-    <script src="/selecting.js"></script>
-    <script src = /features.js></script>
-    <script src = /test.js></script>
-    <script src = /callingEndpoints.js></script>
+    <script src="functions/searching.js"></script>
+    <script src="functions/selecting.js"></script>
+    <script src = functions/features.js></script>
+    <script src = functions/test.js></script>
+    <script src = functions/callingEndpoints.js></script>
+    <script src = functions/drawing.js></script>
 </body>
 
 </html>
