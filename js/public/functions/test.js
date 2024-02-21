@@ -278,8 +278,8 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
             }
         });
         return unique_toid_array;
-    }
-
+    } 
+    
     //now we have an array of distinct TOIDS
     unique_toid_array = removeDuplicatesFromArray(TOID_for_highlighting_buildings)
     console.log(unique_toid_array);
@@ -289,7 +289,33 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
         "features": []
     };
 
-    fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)",{
+    //Maximum number of TOIDs per request
+    const maxTOIDsPerRequest = 100;
+
+    //Split the list of TOIDs into smaller arrays
+    const dividedTOIDs = [];
+    for (let i = 0; i < unique_toid_array.length; i += maxTOIDsPerRequest){
+        dividedTOIDs.push(unique_toid_array.slice(i, i+maxTOIDsPerRequest))
+    }
+
+    console.log(dividedTOIDs)
+
+    // const result = unique_toid_array.slice(0, 100);
+
+    // console.log(result)
+    // let arguments_to_default_url = result.map(element=> `(toid%20=%20%27${element}%27)`).join('or');
+    // let default_url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter="
+    // let final_url_for_highlighting_features = default_url.concat(arguments_to_default_url);
+    // console.log(final_url_for_highlighting_features);
+
+    //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)
+    const fetchPromises = dividedTOIDs.map(subsetTOIDs => {
+    let arguments_to_default_url = subsetTOIDs.map(toid=> `(toid=%27${toid}%27)`).join('or');
+    let default_url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter="
+    let final_url_for_highlighting_features = default_url.concat(arguments_to_default_url);
+    console.log(final_url_for_highlighting_features);
+
+    fetch(final_url_for_highlighting_features,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -318,38 +344,43 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
         const featuresWithinPolygon = data.features;
         console.log(featuresWithinPolygon);
 
-        toidJSON.features.push(featuresWithinPolygon);
+        //toidJSON.features.push(featuresWithinPolygon);
+        toidJSON.features = toidJSON.features.concat(featuresWithinPolygon);
 
-        console.log(JSON.stringify(toidJSON));
         // .push(featuresWithinPolygon.geometry.coordinates) => map.getSource('buildingHighlight')
 
-        map.addSource("buildingHighlight", {
-            type: "geojson",
-            data: toidJSON
-        });
-    
-        map.addLayer({
-            id: "buildingHighlight",
-            type: "fill",
-            source: "buildingHighlight",
-            paint: {
-                "fill-color": "#f50b07"
-            }
-        });
+        // map.addSource("buildingHighlight", {
+        //     type: "geojson",
+        //     data: toidJSON
+        // });
 
     })
-
     .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
     });
     // });
-    }   
+    });
 
+    Promise.all(fetchPromises)
+    .then(() => {
+    console.log(JSON.stringify(toidJSON));
 
-//%20 - space; %27 - single quotes; the toid expects a string as input (this could be looked up in "https://.../queryables"), so we need to put single quotes around our inputed string that contains both characters and numbers
-// url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?" + apiKey + "&" + "filter=toid%20=%20%27" + unique_toid_array + "%27"
-//https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=toid%20=%20%27osgb1000019313050%27
-
+    map.addLayer({
+        id: "buildingHighlight",
+        type: "fill",
+        source: {
+            "type": "geojson",
+            "data": toidJSON
+        },
+        paint: {
+            "fill-color": "#f50b07"
+        }
+    });
+    })
+    .catch(error => {
+        console.error('Error in Promise.all:', error);
+    });
+}   
 
 
 /**
