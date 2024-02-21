@@ -3,10 +3,10 @@ document.getElementById('exportMap').addEventListener('click', function() {
     map.once('render', function() {
         var mapCanvas = map.getCanvas(); //Get the MAPBOX canvas
         var mapImage = new Image(); // Create a blank image for the MAP layer
-        mapImage.src = mapCanvas.toDataURL('image/png'); // Convert the canvas to a png URL
-        var overlayImage = new Image(); // Create a blank image for the overlay (MCore logo)
-        overlayImage.src = 'img/MCOREBlack.png'; // Replace with the path to your image
-        
+        mapImage.src = mapCanvas.toDataURL({ pixelRatio: 10 }); // Convert the canvas to a png URL
+        var mCoreOverlayImage = new Image(); // Create a blank image for the overlay (MCore logo)
+        mCoreOverlayImage.src = 'img/mcore.png'; // Set the source of the Mcore logo
+
         mapImage.onload = function() {
             // Create a new container for the Konva stage
             var container = document.createElement('div');
@@ -16,52 +16,113 @@ document.getElementById('exportMap').addEventListener('click', function() {
             // Create a new Konva stage
             var paddingx = mapCanvas.width/30; // Adjust the padding as needed
             var paddingy = mapCanvas.height/7; 
+
+            
             var stage = new Konva.Stage({
                 container: 'canvas-container',
-                width: mapCanvas.width + paddingx * 2,
-                height: mapCanvas.height + paddingy * 2
+                width: 1191,
+                height: 842,
             });
 
-            // Create a new Konva layer
-            var layer = new Konva.Layer();
+            
+            // Create a new Konva layer for the rectangle
+            var rectangleLayer = new Konva.Layer();
 
-                // Create a new Konva rectangle
-                var rectangle = new Konva.Rect({
-                    x: 0,
-                    y: 0,
-                    width: stage.width(),
-                    height: stage.height(),
-                    fill: 'white' // Adjust the color as needed
+            // Create a new Konva rectangle
+            var rectangle = new Konva.Rect({
+                x: 0,   
+                y: 0,
+                width: stage.width(),
+                height: stage.height(),
+                fill: 'white' // Adjust the color as needed
+            });
+
+            // Add the rectangle to the rectangle layer
+            rectangleLayer.add(rectangle);
+            // Calculate the center position
+
+            // Calculate the center position
+            var centerX = (stage.width() - (mapCanvas.width - 2*paddingx)) / 2;
+            var centerY = (stage.height() - (mapCanvas.height - 2*paddingy)) / 2;
+
+            // Create a new Konva image using the map image
+            var konvaImage = new Konva.Image({
+                image: mapImage,
+                x: centerX,
+                y: centerY,
+                width: mapCanvas.width - 2*paddingx,
+                height: mapCanvas.height - 2*paddingy
+            });
+            // Add the Konva image to the rectangle layer
+            rectangleLayer.add(konvaImage);
+
+            // Add the rectangle layer to the stage
+            stage.add(rectangleLayer);
+
+
+            function drawImage() {
+                return new Promise((resolve, reject) => {
+                    var mCoreOverlayImage = new Image();
+                    mCoreOverlayImage.src = 'img/mcore.png';
+                    mCoreOverlayImage.onload = function() {
+                        var mCoreKonvaImage = new Konva.Image({
+                            image: mCoreOverlayImage,
+                            height: paddingy,
+                            width:  stage.width() / 8,
+                            x: paddingx, 
+                            y: 0
+                        });
+                        // Add the MCore logo to the rectangle layer
+                        rectangleLayer.add(mCoreKonvaImage);
+                        rectangleLayer.draw();
+                        resolve();
+                    };
+                    mCoreOverlayImage.onerror = function() {
+                        reject(new Error('Failed to load image'));
+                    };
                 });
-                
-                layer.add(rectangle);
+            }
+            async function main() {
+                try {
+                    await drawImage();
+            
+                    stage.draw();
+                    var link = document.createElement('a');
+                    link.href = stage.toDataURL({ pixelRatio: 5}); // Set the href attribute
+                    link.download = 'map.png';
+                    link.click();
+            
+                    // Remove the container from the document after exporting the image
+                    document.body.removeChild(container);
+                } catch (error) {
+                    console.error('An error occurred:', error);
+                }
+            }
+        main();
 
-                // Create a new Konva image using the map image
-                var konvaImage = new Konva.Image({
-                    image: mapImage,
-                    x: paddingx,
-                    y: paddingy,
-                    width: mapCanvas.width,
-                    height: mapCanvas.height
-                });
+        var text = new Konva.Text({
+            x: stage.width() / 2,
+            y:  paddingy/2,
+            text: 'PENSNETT',
+            fontSize: stage.width() * 0.02,
+            fontFamily: 'Comic Sans MS',
+            fill: 'black',
+            align: 'center',
+        });
+        
+        // To align the text in the center of its position, set the offset to half of the text's size
+        text.offsetX(text.width() / 2);
+        text.offsetY(text.height() / 2);
+        
+        // Add the text to the rectangle layer
+        rectangleLayer.add(text);
+        rectangleLayer.draw();
 
-            // Add the Konva image to the layer
-            layer.add(konvaImage);
-
-            // Add the layer to the stage
-            stage.add(layer);
-
-            // Export the image
-            var link = document.createElement('a');
-            link.href = stage.toDataURL({ pixelRatio: 1 }); // Set the href attribute
-            link.download = 'map.png';
-            link.click();
-
-            // Remove the container from the document after exporting the image
-            document.body.removeChild(container);
-        };
+    };
     });
+    
     map.triggerRepaint();
+
 });
 
     //Toggles the Collapsible menu when clicked. Does this by taking the Button ID.

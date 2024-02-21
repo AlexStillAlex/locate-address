@@ -1,3 +1,4 @@
+
 //Test if this works
 // API Key in config object 
 var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled so I don't care if this is exposed.
@@ -53,13 +54,6 @@ const map = new maplibregl.Map({
 
 });
 
-map.on('style.load', function () {
-    console.log('Style has loaded.');
-});
-
-map.on('error', function (e) {
-    console.error('An error occurred: ', e.error);
-});
 // Add navigation control (excluding compass button) to the map.
 
     map.addControl(new maplibregl.NavigationControl({
@@ -72,6 +66,7 @@ map.on('error', function (e) {
         unit: 'metric'
     }));
 
+    
 //This function is redundant if we don't have to highlight buildings that have been searched.
 function highlightTOIDs(toids) {
     if (toids.length > 0) {

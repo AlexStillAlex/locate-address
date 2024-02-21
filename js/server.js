@@ -19,7 +19,6 @@ const client = new DBSQLClient();
 const cors = require("cors");
 app.use(cors());
 app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api request. 
-
 //receives a query from the client, 
 // connects to a remote server, executes the query, 
 // fetches the results, logs the results to the console,
@@ -156,5 +155,5 @@ app.post('/wfs-proxy', (req, res) => {
 app.use(express.static('js/public'));
 //puts a link in the console for me to copy
 app.listen(3001, () => { //Changing this TEMPORARILY so I don't crash Mark's server
-    console.log('Server running on http://localhost:3000');
+    console.log('Server running on http://localhost:3001');
   });
