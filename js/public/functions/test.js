@@ -289,15 +289,24 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
         "features": []
     };
 
-    //let's make a fetch query to get polygons from OS NGD API – Features
-    unique_toid_array.forEach(element => {
-        fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=" + apiKey + "&" + "filter=toid%20=%20%27" + element + "%27",{
+    fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)",{
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             key: apiKey
         }
         })
+        
+
+    //let's make a fetch query to get polygons from OS NGD API – Features
+    // unique_toid_array.forEach(element => {
+    //     fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=" + apiKey + "&" + "filter=toid%20=%20%27" + element + "%27",{
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         key: apiKey
+    //     }
+    //     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -308,38 +317,40 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
         // Process the response (parse JSON, extract features, etc.)
         const featuresWithinPolygon = data.features;
         console.log(featuresWithinPolygon);
-        // Do something with the
 
         toidJSON.features.push(featuresWithinPolygon);
+
+        console.log(JSON.stringify(toidJSON));
         // .push(featuresWithinPolygon.geometry.coordinates) => map.getSource('buildingHighlight')
 
         map.addSource("buildingHighlight", {
             type: "geojson",
             data: toidJSON
         });
-
+    
         map.addLayer({
             id: "buildingHighlight",
             type: "fill",
             source: "buildingHighlight",
             paint: {
-                "fill-color": "#38f",
-                "fill-opacity": 0.9
+                "fill-color": "#f50b07"
             }
         });
+
     })
+
     .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
     });
-    });
+    // });
     }   
-        
 
+{"type":"FeatureCollection","features":[[{"id":"9767e3e6-ff5d-4416-ab8d-8729de123291","type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-2.1483224,52.5068593],[-2.1483204,52.5069029],[-2.1483189,52.5069151],[-2.1483168,52.5069524],[-2.1483161,52.5069641],[-2.1484038,52.5069662],[-2.1485876,52.5069705],[-2.1486062,52.5066663],[-2.1485545,52.5066653],[-2.1485545,52.5066527],[-2.1483733,52.5066494],[-2.1483726,52.5066615],[-2.1483343,52.5066606],[-2.1483224,52.5068593]]]},"properties":{"osid":"9767e3e6-ff5d-4416-ab8d-8729de123291","toid":"osgb1000019311093","theme":"Buildings","changetype":"New","isobscured":false,"description":"Building","versiondate":"2022-08-26","geometry_area":640.842191,"height_source":"Ordnance Survey","physicallevel":"Surface Level","oslandusetiera":"Commercial Activity: Industrial Or Manufacturing","oslandusetierb":[],"geometry_source":"Ordnance Survey","oslandcovertiera":"Constructed","oslandcovertierb":["Building"],"oslanduse_source":"Ordnance Survey","height_updatedate":"2022-08-24","description_source":"Ordnance Survey","oslandcover_source":"Ordnance Survey","associatedstructure":null,"geometry_updatedate":"2021-03-17","height_evidencedate":"2022-06-16","capturespecification":"Urban","oslanduse_updatedate":"2010-06-23","absoluteheightmaximum":108.15,"absoluteheightminimum":98.32,"geometry_evidencedate":"2021-03-17","heightconfidencelevel":"Not Assessed","relativeheightmaximum":9.83,"absoluteheightroofbase":105.48,"description_updatedate":"2010-06-23","oslandcover_updatedate":"2010-06-23","oslanduse_evidencedate":"2010-06-23","relativeheightroofbase":7.16,"versionavailabletodate":null,"firstdigitalcapturedate":"1991-09-01","description_evidencedate":"2010-06-23","oslandcover_evidencedate":"2010-06-23","versionavailablefromdate":"2022-08-27T00:00:00Z"}},{"id":"bec1abb7-9ab3-4336-8643-3c3e5c331f2d","type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-2.1457546,52.5086808],[-2.1457691,52.5088426],[-2.1456807,52.5088458],[-2.1456968,52.5090175],[-2.1469395,52.5089745],[-2.1469632,52.5089737],[-2.1471516,52.5089672],[-2.1471409,52.5088508],[-2.1469494,52.5088573],[-2.1469448,52.5088038],[-2.1468527,52.5088071],[-2.1468195,52.5088083],[-2.1464984,52.5088197],[-2.1464949,52.5087818],[-2.1464831,52.5086556],[-2.1458054,52.5086789],[-2.1458032,52.508679],[-2.1457546,52.5086808]]]},"properties":{"osid":"bec1abb7-9ab3-4336-8643-3c3e5c331f2d","toid":"osgb1000019313050","theme":"Buildings","changetype":"Modified Attributes","isobscured":false,"description":"Building","versiondate":"2024-02-03","geometry_area":2699.750479,"height_source":"Ordnance Survey","physicallevel":"Surface Level","oslandusetiera":"Commercial Activity: Distribution Or Storage","oslandusetierb":[],"geometry_source":"Ordnance Survey","oslandcovertiera":"Constructed","oslandcovertierb":["Building"],"oslanduse_source":"Ordnance Survey","height_updatedate":"2022-08-24","description_source":"Ordnance Survey","oslandcover_source":"Ordnance Survey","associatedstructure":null,"geometry_updatedate":"2017-01-18","height_evidencedate":"2022-06-16","capturespecification":"Urban","oslanduse_updatedate":"1989-10-01","absoluteheightmaximum":118.78,"absoluteheightminimum":106.14,"geometry_evidencedate":"2016-05-04","heightconfidencelevel":"Not Assessed","relativeheightmaximum":12.64,"absoluteheightroofbase":113.85,"description_updatedate":"1989-10-01","oslandcover_updatedate":"1989-10-01","oslanduse_evidencedate":"1989-10-01","relativeheightroofbase":7.71,"versionavailabletodate":null,"firstdigitalcapturedate":"1989-10-01","description_evidencedate":"1989-10-01","oslandcover_evidencedate":"1989-10-01","versionavailablefromdate":"2024-02-04T00:00:00Z"}}]]}
 
 
 
 //%20 - space; %27 - single quotes; the toid expects a string as input (this could be looked up in "https://.../queryables"), so we need to put single quotes around our inputed string that contains both characters and numbers
-url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?" + apiKey + "&" + "filter=toid%20=%20%27" + unique_toid_array + "%27"
+// url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?" + apiKey + "&" + "filter=toid%20=%20%27" + unique_toid_array + "%27"
 //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=toid%20=%20%27osgb1000019313050%27
 
 
