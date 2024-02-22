@@ -300,15 +300,6 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
 
     console.log(dividedTOIDs)
 
-    // const result = unique_toid_array.slice(0, 100);
-
-    // console.log(result)
-    // let arguments_to_default_url = result.map(element=> `(toid%20=%20%27${element}%27)`).join('or');
-    // let default_url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter="
-    // let final_url_for_highlighting_features = default_url.concat(arguments_to_default_url);
-    // console.log(final_url_for_highlighting_features);
-
-    //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)
     const fetchPromises = dividedTOIDs.map(subsetTOIDs => {
     let arguments_to_default_url = subsetTOIDs.map(toid=> `(toid=%27${toid}%27)`).join('or');
     let default_url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter="
@@ -322,17 +313,7 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
             key: apiKey
         }
         })
-        
-
-    //let's make a fetch query to get polygons from OS NGD API – Features
-    // unique_toid_array.forEach(element => {
-    //     fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=" + apiKey + "&" + "filter=toid%20=%20%27" + element + "%27",{
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         key: apiKey
-    //     }
-    //     })
+ 
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -346,14 +327,6 @@ function HighlightBuildings(TOID_for_highlighting_buildings){
 
         //toidJSON.features.push(featuresWithinPolygon);
         toidJSON.features = toidJSON.features.concat(featuresWithinPolygon);
-
-        // .push(featuresWithinPolygon.geometry.coordinates) => map.getSource('buildingHighlight')
-
-        // map.addSource("buildingHighlight", {
-        //     type: "geojson",
-        //     data: toidJSON
-        // });
-
     })
     .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
@@ -448,7 +421,7 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
 }
 
 
-// ///Highlighting Features
+// Comments:
 // document.getElementById('highlightFeaturesWithinPensnett').addEventListener('click', function() {
 // // Convert polygon coordinates to GeoJSON format
 // const polygonGeoJSON = {
@@ -473,3 +446,33 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
 //     }
 // };
 
+
+        // .push(featuresWithinPolygon.geometry.coordinates) => map.getSource('buildingHighlight')
+
+        // map.addSource("buildingHighlight", {
+        //     type: "geojson",
+        //     data: toidJSON
+        // });
+  
+
+    //let's make a fetch query to get polygons from OS NGD API – Features
+    // unique_toid_array.forEach(element => {
+    //     fetch("https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=" + apiKey + "&" + "filter=toid%20=%20%27" + element + "%27",{
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         key: apiKey
+    //     }
+    //     })
+
+
+
+    // const result = unique_toid_array.slice(0, 100);
+
+    // console.log(result)
+    // let arguments_to_default_url = result.map(element=> `(toid%20=%20%27${element}%27)`).join('or');
+    // let default_url = "https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter="
+    // let final_url_for_highlighting_features = default_url.concat(arguments_to_default_url);
+    // console.log(final_url_for_highlighting_features);
+
+    //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)
