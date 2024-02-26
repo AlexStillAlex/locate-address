@@ -60,7 +60,7 @@ map.on('load', function() {
         type: "geojson",
         data: geoJsonPoly
     });
-
+    
     map.addLayer({
         id: "polygon",
         type: "line",
@@ -476,3 +476,6 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
     // console.log(final_url_for_highlighting_features);
 
     //https://api.os.uk/features/ngd/ofa/v1/collections/bld-fts-buildingpart-1/items?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&filter=(toid%20=%20%27osgb1000019311093%27)or(toid%20=%20%27osgb1000019313050%27)
+
+
+

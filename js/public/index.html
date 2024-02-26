@@ -20,11 +20,39 @@
 
     <link rel="stylesheet" href="layout.css">
 
+    <!-- used to see the coordinates of a mouse move -->
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js'></script>
+    <!-- used for selecting colour of polygons -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 </head>
 <!-- <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"> -->
 <!-- Map Layer options template. -->
 <body>
+  <!-- used to see coordinates of where the mouse is -->
+  <style type="text/css">
+    #info {
+        display: block;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translate(-50%);
+        width: 50%;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        color: #222;
+        background: #fff;
+    }
+</style>
+
     <div id="map"></div>
+
+    <!-- used to see coordinates of where the mouse is -->
+    <pre id="info"></pre>
 
     <div class="map-overlay">
         <div id="mapSelect"></div>
@@ -92,11 +120,22 @@
             <p id="internalArea">Internal Area: </p>
             <p id="externalArea">External Area: </p>
           </div>
-          <button id = "testing_select_features" clas="bug-red-button">Testing Select Features</button>
+          <h3>Select Color:</h3>
+          <input type="color" id="colorPicker">
+          <!-- select polygons and change their colour -->
+          <style>
+            .color-option { cursor: pointer; margin-bottom: 5px; }
+          </style>
+            <h2>Select Color:</h2>
+            <div class="color-option" data-color="red">Red</div>
+            <div class="color-option" data-color="blue">Blue</div>
+            <div class="color-option" data-color="green">Green</div>
+
         </div>            
     </div>
     </div>
     </body>
+
     <!-- These scripts have to go here. Arises due to the pageload query -->
     <script src="/main.js"></script>
     <script src="functions/searching.js"></script>
@@ -105,7 +144,9 @@
     <script src = functions/test.js></script>
     <script src = functions/callingEndpoints.js></script>
     <script src = functions/drawing.js></script>
+    <script src = functions/intermediate_features.js></script>
 
 </body>
 
 </html>
+
