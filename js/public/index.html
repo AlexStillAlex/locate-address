@@ -17,8 +17,10 @@
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-geodesic.min.js"></script> <!-- Geodesic calculations -->
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
     <script src="https://unpkg.com/konva@9/konva.min.js"></script> <!--WE WILL BE USING KONVA TO DRAW ON OUR MAP.-->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  BOOTSTRAP JavaScript. -->
 
     <link rel="stylesheet" href="layout.css">
+    <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">  BOOTSTRAP CSS. -->
 
     <!-- used to see the coordinates of a mouse move -->
     <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css' />
@@ -97,18 +99,30 @@
         <!-- <div id="canvas-container" style="display: none;"></div> EMPTY DIV TO STOP THROWING ERRORS -->
         <button id = "showColour"  type="button" class="collapsible" onclick="toggleCollapsible(event)">Colour By</button>
         <div class="sections" style = "display:none">
-          <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button> <!-- Highlights buildings for general polygon. -->
-          <div id="legend"></div> <!--  Legend Container -->
-          <p>Demise Type</p>
-          <p>Demise Status</p>
-          <p>EPC</p>
-          <p>Demise Area (Tiers)</p>
-          <p>ERV (Tiers)</p>
+          <h2>Select Color:</h2>
+          <input type="color" id="colorPicker">
+          <h2>By Attribute</h2>
+          <select name="colour_by" id="colour_by">
+            <option value="volvo">Default (no colour)</option>
+            <option value="volvo">Demise Type</option>
+            <option value="saab">Demise Status</option>
+            <option value="opel">Demise Area (Tiers)</option>
+            <option value="audi">ERV (Tiers)</option>
+          </select>
+          <br><br>
         </div>
 
         <button id = "showPrint" type="button" class="collapsible"onclick="toggleCollapsible(event)">Print</button>
         <div class="sections" style = "display:none">
-          <button class ="big-red-button" id="exportMap">Image Export TODO</button>
+          <button class ="big-red-button" id="exportMap">Image Export</button>
+          <h2>Drawing Tools</h2>
+          <p>Arrow</p>
+          <p>Text</p>
+          <p>Legend</p>
+          <h2>Bezel Content</h2>
+          <p>MCore Logo</p>
+          <p>Name of the Property</p>
+          <p>Property Reference</p>
         </div>
         <button id = "showOther" type="button" class="collapsible"onclick="toggleCollapsible(event)">Dev Testing</button>
         <div class="sections" style = "display:none">
@@ -120,17 +134,13 @@
             <p id="internalArea">Internal Area: </p>
             <p id="externalArea">External Area: </p>
           </div>
-          <h3>Select Color:</h3>
-          <input type="color" id="colorPicker">
-          <!-- select polygons and change their colour -->
-          <style>
-            .color-option { cursor: pointer; margin-bottom: 5px; }
-          </style>
-            <h2>Select Color:</h2>
-            <div class="color-option" data-color="red">Red</div>
-            <div class="color-option" data-color="blue">Blue</div>
-            <div class="color-option" data-color="green">Green</div>
-
+          <h2>Drawing Mode</h2>
+          <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label>
+          <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button> <!-- Highlights buildings for general polygon. -->
+          <div id="legend"></div> <!--  Legend Container -->
         </div>            
     </div>
     </div>
@@ -144,8 +154,8 @@
     <script src = functions/test.js></script>
     <script src = functions/callingEndpoints.js></script>
     <script src = functions/drawing.js></script>
-    <script src = functions/intermediate_features.js></script>
-
+    <script src = functions/colouring_in_polygons.js></script>
+    <script src = functions/polygon_layer.js></script>
 </body>
 
 </html>

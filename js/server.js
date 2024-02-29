@@ -71,9 +71,11 @@ app.get('/get-data', (req, res) => {
         res.status(500).json({ message: 'An error occurred' });
       });
   });
+
+//endpoint for "Filter By" section. When the client server loads it will ping this endpoint to populate the dropdown of each "Filter By"
 //when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
   app.get('/dropdown-data', async (req, res) => {
-    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
+    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area, 
     from main.offies.property_table 
     left join main.intermediate.int_demise_table_decoded 
     on dmse_prop_ref = prop_ref
@@ -157,3 +159,5 @@ app.use(express.static('js/public'));
 app.listen(3001, () => { //Changing this TEMPORARILY so I don't crash Mark's server
     console.log('Server running on http://localhost:3001');
   });
+
+  

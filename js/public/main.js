@@ -43,7 +43,9 @@ const map = new maplibregl.Map({
         [ -10.76418, 49.528423 ],
         [ 1.9134116, 61.331151 ]
     ],
-    center: [ -2.158607182943474, 52.504686972808571 ],
+    // wolverhampton 
+    center: [-1.16369788103475,52.575980079451796],
+    // center: [ -2.158607182943474, 52.504686972808571 ],
     zoom: 17,
     transformRequest: url => {
         if(! /[?&]key=/.test(url) ) url += '?key=' + apikey

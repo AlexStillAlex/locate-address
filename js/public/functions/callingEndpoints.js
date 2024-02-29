@@ -1,17 +1,39 @@
 // BACKEND INTERACTIONS
 
 window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
-    fetch('/dropdown-data')
-        .then(response => response.json())
-        .then(data => {
-          console.log(data); // log data on server
-            populateDropdown(data);
-        });
+  fetch('/dropdown-data')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // log data on server
+          populateDropdown(data);
+      });
+    //this function gets back a table of dmse_ref and tnnt_name from main.intermediate.int_leas_table_decoded
+  function tnnt_information(){
+    const query = 'select leas_dmse_ref, leas_tnnt_name from main.intermediate.int_lease_table_decoded'
+    fetch('/run-query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: query // Send the user's input as a JSON'd query
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+  console.log(tnnt_information())
 }
 async function populateDropdown(data) {
     var menu = document.getElementById('myMenu'); //Gets the menu. Initially blank
     data.forEach(function(item) { 
-        //For each item in my data JSON containing property references, it will happend a hidden list item to the menu.
+        //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
         //then has onclick functionality to fly to the coordinates of the property.
         var li = document.createElement('li');
         li.className = 'searchable';
@@ -81,4 +103,3 @@ document.getElementById('testButton').addEventListener('click', function() {
     });
   });
 /////////////////////////////////////////////////////////////////////
-
