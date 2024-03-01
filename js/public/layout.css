@@ -243,4 +243,12 @@ body {
   .slider.round:before {
     border-radius: 50%;
   }
-  
+
+  .map-label {
+    position: absolute;
+    font: 12px/20px Arial, sans-serif;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    pointer-events: none;
+  }

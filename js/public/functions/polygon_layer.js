@@ -119,4 +119,46 @@ map.on('load', function() {
         }
     });
 
-});
+    map.addLayer({
+        'id': 'tenant-names',
+        'type': 'symbol',
+        'source': 'blaby_leaseholds',
+        'layout': {
+        // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+          "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+          'text-field': ['get', 'tenant_name'],
+          'text-size': 12,
+        //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+        //   'text-radial-offset': 0.5,
+          'text-justify': 'center'
+        },
+        'paint': {
+          'text-color': '#000'
+        }
+      });
+    });
+
+
+    // blaby_leasehold_polygons.forEach(function(polygon) {
+    //     var center = getCenterOfPolygon(polygon.geometry.coordinates);
+    //     var label = document.createElement('div');
+    //     label.className = 'map-label';
+    //     label.textContent = polygon.tenantName;
+  
+    //     new maplibregl.Marker(label)
+    //       .setLngLat(center)
+    //       .addTo(map);
+    //   });
+    // });
+  
+    // function getCenterOfPolygon(coordinates) {
+    //   var bounds = coordinates[0].reduce(function(bounds, coord) {
+    //     return bounds.extend(coord);
+    //   }, new maplibregl.LngLatBounds(coordinates[0][0], coordinates[0][0]));
+  
+    //   return bounds.getCenter();
+    // }
+
+
+
+

@@ -18,7 +18,7 @@ const endpoints = {
 // Initialise the map object.
 const style = {
     "version": 8,
-    "glyphs": "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+    "glyphs": "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf", //These are the available fonts
     "sources": {
         "raster-tiles": {
             "type": "raster",
@@ -47,10 +47,11 @@ const map = new maplibregl.Map({
     center: [-1.16369788103475,52.575980079451796],
     // center: [ -2.158607182943474, 52.504686972808571 ],
     zoom: 17,
-    transformRequest: url => {
+    transformRequest: url => { //Does something weird to the API call when sending the key. If in doubt check url by loggin g to conosle.
         if(! /[?&]key=/.test(url) ) url += '?key=' + apikey
         return {
             url: url + '&srs=3857'
+            // console.log(url)
         }
     }
 

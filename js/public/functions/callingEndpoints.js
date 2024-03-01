@@ -10,7 +10,7 @@ window.onload = function() { //When the server loads ping a request to the backe
     }
     
   //this function gets back a table of dmse_ref and tnnt_name from main.intermediate.int_leas_table_decoded
-    const query = 'select leas_dmse_ref as dmse_ref, leas_tnnt_name as tenant_name from main.intermediate.int_lease_table_decoded'
+    const query = 'select leas_dmse_ref as dmse_ref, tnnt_trade_name as tenant_name from main.intermediate.int_lease_table_decoded left join main.intermediate.int_tenant_table_decoded on tnnt_ref = leas_tnnt_ref'
     fetch('/run-query', {
       method: 'POST',
       headers: {
