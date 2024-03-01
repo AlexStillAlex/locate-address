@@ -30,8 +30,11 @@ map.on('load', function() {
         // this logs the ID of clicked polygon. This way, one can look at console to see what is the id of the polygon they clicked on
         console.log(id_of_clicked_polygon)
 
+        //setData() will set data attribute within the source. source = {type: 'geojson', data: {}}
         map.getSource('blaby_leaseholds').setData({
             type: 'FeatureCollection',
+            //note that we are accessing '_data' property rather than 'data'. If you look at what is inside a source, you would notice it is '_data', rather than 'data'. Random decision by MapLibre.\
+            //we can use '.map' method, because 'features' is an array of features. So, for each feature in this array, we are changing the colour to new colour if that polygon was pressed on.
             features: map.getSource('blaby_leaseholds')._data.features.map(feature => {
                 if (feature.properties.id === id_of_clicked_polygon) {
                 // Update the color property of the desired polygon

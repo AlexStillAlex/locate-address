@@ -1,5 +1,5 @@
 // BACKEND INTERACTIONS
-
+document.addEventListener("DOMContentLoaded", (event) => {
 window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
   fetch('/dropdown-data')
       .then(response => response.json())
@@ -7,9 +7,10 @@ window.onload = function() { //When the server loads ping a request to the backe
         console.log(data); // log data on server
           populateDropdown(data);
       });
-    //this function gets back a table of dmse_ref and tnnt_name from main.intermediate.int_leas_table_decoded
-  function tnnt_information(){
-    const query = 'select leas_dmse_ref, leas_tnnt_name from main.intermediate.int_lease_table_decoded'
+    }
+    
+  //this function gets back a table of dmse_ref and tnnt_name from main.intermediate.int_leas_table_decoded
+    const query = 'select leas_dmse_ref as dmse_ref, leas_tnnt_name as tenant_name from main.intermediate.int_lease_table_decoded'
     fetch('/run-query', {
       method: 'POST',
       headers: {
@@ -22,14 +23,13 @@ window.onload = function() { //When the server loads ping a request to the backe
     .then(response => response.json())
     .then(data => {
       console.log(data);
-    
+      tenant_table = data;
     })
     .catch((error) => {
       console.error('Error:', error);
     });
-  }
-  console.log(tnnt_information())
-}
+});
+
 async function populateDropdown(data) {
     var menu = document.getElementById('myMenu'); //Gets the menu. Initially blank
     data.forEach(function(item) { 

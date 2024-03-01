@@ -6,7 +6,7 @@ console.log(process.env); // Check the environment variables
 const express = require('express');//The server
 const bodyParser = require('body-parser'); //Read my post requests
 const path = require('path'); //find my static files
-const { DBSQLClient } = require('@databricks/sql'); //databricks connect
+const { DBSQLClient } = require('@databricks/sql'); //databricks connect; we want to only import DBSQLClient and not other functions/classes from '@databricks/sql' module. Thus, object destructring syntax.
 
 var token = process.env.DBSQL_TOKEN; //DBT access token will last until 29th/February
 var server_hostname = process.env.SERVER_HOSTNAME;
@@ -75,12 +75,12 @@ app.get('/get-data', (req, res) => {
 //endpoint for "Filter By" section. When the client server loads it will ping this endpoint to populate the dropdown of each "Filter By"
 //when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
   app.get('/dropdown-data', async (req, res) => {
-    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area, 
+    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
     from main.offies.property_table 
     left join main.intermediate.int_demise_table_decoded 
     on dmse_prop_ref = prop_ref
     where dmse_area is not null
-     group by 1,2,3 order by prop_ref`; // Yikes!
+    group by 1,2,3 order by prop_ref`; // Yikes!
     client.connect({
         token: token,
         host: server_hostname,
@@ -104,33 +104,7 @@ app.get('/get-data', (req, res) => {
     });
 });
 
-app.post('/run-query', async (req, res) => {
-    const query = req.body.query; // Extract the query from the request body
-    client.connect({
-      token: token,
-      host: server_hostname,
-      path: http_path
-    }).then(async client => {
-      const session = await client.openSession();
-    
-      const queryOperation = await session.executeStatement(
-        query, // Use the query from the request body
-        { runAsync: true }
-      );
-    
-      await queryOperation.waitUntilReady();
-      const result = await queryOperation.fetchAll();
-      console.log(result);
-      await queryOperation.close();
-      res.json(result); // Send the result back to the client
-        
-      await session.close();
-      client.close();
-    }).catch(error => {
-      console.log(error);
-      res.status(500).json({ message: 'An error occurred' });
-    });
-});
+
 
 //endpoint called /wfsproxy for the backend.
 app.post('/wfs-proxy', (req, res) => {
