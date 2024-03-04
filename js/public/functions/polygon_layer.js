@@ -1,7 +1,7 @@
 // //This JS contains the feature to look up one's mouse coordinates and five polygons in Pensnett created by hand
 map.on('load', function() {
 
-    let selectedColor = '#FF0000'; // Default color
+    defaultcolor = '#FF0000'; // Default color
     
     const blaby_leasehold_polygons = [
         {
@@ -13,7 +13,7 @@ map.on('load', function() {
             properties: {
                 id: '17000891',
                 address: 'unit 2',
-                'color': selectedColor
+                'color': defaultcolor
             }
         },
         {
@@ -25,7 +25,7 @@ map.on('load', function() {
             properties: {
                 id: '17000894',
                 address: 'unit 5',
-                'color': selectedColor
+                'color': defaultcolor
             }
         },
         {
@@ -37,7 +37,7 @@ map.on('load', function() {
             properties: {
                 id: '17000895',
                 address: 'unit 6',
-                'color': selectedColor
+                'color': defaultcolor
             }
         },
         {
@@ -49,39 +49,79 @@ map.on('load', function() {
             properties: {
                 id: '17000896',
                 address: 'unit 6-7; actually 7',
-                'color': selectedColor
+                'color': defaultcolor
             }
         }
     ]
 
+    //add tenant_name from lease_tenant_table. 
     //add tenant_name attribute to each feature's properties. To do so, look up the tenant name in the databricks tenant table by dmse_reference that is already attached to the feature.
     blaby_leasehold_polygons.forEach(feature => {
         const reference = feature.properties.id.toString();
-        const tenant = tenant_table.find(item => item.dmse_ref === reference);
+        const tenant = lease_tenant_table.find(item => item.dmse_ref === reference);
         if (tenant == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in tenant_table`)
+            console.log(`The demise reference ${reference} taken from the polygon is not in lease_tenant_table`)
             feature.properties.tenant_name = undefined;
         }
         else {
                 feature.properties.tenant_name = tenant.tenant_name;
         }
     });
+    //to see if the attribute has been added to the polygon feature run this in the console:
+    // console.log(map.getLayer('blaby_leaseholds'));
+    // console.log(map.getSource('blaby_leaseholds'));
 
-    console.log(blaby_leasehold_polygons);
-
-    // Function to calculate rotation angle based on the longest side of the polygon
-    function getRotation(coordinates) {
-        var maxDistance = 0;
-        var rotation = 0;
-        for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-            }
+    //add dmse_type from tenant dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = dmse_table.find(item => item.dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
+            feature.properties.dmse_type = undefined;
         }
-        return rotation;
-    }
+        else {
+                feature.properties.dmse_type = demise.dmse_type_desc;
+        }
+    });
+
+    //add dmse_status from tenant dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = dmse_table.find(item => item.dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`)
+            feature.properties.dmse_status = undefined;
+        }
+        else {
+                feature.properties.dmse_status = demise.dmse_status_desc;
+        }
+    });
+
+    //add epc_letter from dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
+            feature.properties.epc_rating_letter = undefined;
+        }
+        else {
+                feature.properties.epc_rating_letter = demise.depc_rating_letter;
+        }
+    });
+
+    //add passing_rent from lease_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
+            feature.properties.epc_rating_letter = undefined;
+        }
+        else {
+                feature.properties.epc_rating_letter = demise.depc_rating_letter;
+        }
+    });
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -132,6 +172,52 @@ map.on('load', function() {
         }
     });
 
+    //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
+    //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
+    //->finding largest rectangle that would fit inside a convex polygon:
+    //#convexHull() function tries to simolify the problem by making any concave polygon a convex polygon and running the function on it. The convexHull() function is not shown below.
+    function getRectangleCoordinates(polygon) {
+        const convexHullPoints = convexHull(polygon);
+    
+        let maxArea = 0;
+        let rectangleCoordinates = [];
+    
+        for (let i = 0; i < convexHullPoints.length; i++) {
+            const p1 = convexHullPoints[i];
+            const p2 = convexHullPoints[(i + 1) % convexHullPoints.length];
+    
+            for (let j = i + 1; j < convexHullPoints.length; j++) {
+                const p3 = convexHullPoints[j];
+                const p4 = convexHullPoints[(j + 1) % convexHullPoints.length];
+    
+                const area = Math.abs(
+                    (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p4[0] - p3[0]) * (p2[1] - p1[1])
+                );
+    
+                if (area > maxArea) {
+                    maxArea = area;
+                    rectangleCoordinates = [p1, p2, p3, p4];
+                }
+            }
+        }
+    
+        return rectangleCoordinates;
+    }
+    //rotation should be towards the longest side of this resulting rectangle
+    //-> Function to calculate rotation angle based on the longest side of the polygon
+    function getRotation(coordinates) {
+        var maxDistance = 0;
+        var rotation = 0;
+        for (var i = 0; i < coordinates.length - 1; i++) {
+            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
+            }
+        }
+        return rotation;
+    }
+
     map.addLayer({
         'id': 'tenant-names',
         'type': 'symbol',
@@ -150,8 +236,64 @@ map.on('load', function() {
           'text-color': '#000'
         }
       });
+});
+
+//COLOURING IN BY ATTRUBUTE:
+//Add Colouring for "dmse_type"
+const dmse_type_colors = [
+    { value: "Retail", color: "#157CBD" }, //blue
+    { value: "Residential", color: "#FFC300" } //orange
+];
+
+//Add Colouring for "dmse_status"
+const dmse_status_colors = [
+    { value: "Vacant", color: "#0ee627" }, //green
+    { value: "Occupied", color: "#e6db0e" } //yellow
+];
+
+const epc_colors = [
+    { value: "A", color: "#008e38" },
+    { value: "B", color: "#6daf4c" },
+    { value: "C", color: "#cad24d" },
+    { value: "D", color: "#fbee5c" },
+    { value: "E", color: "#f0ba4d" },
+    { value: "F", color: "#D76F35" },
+    { value: "G", color: "#cd2e2b" } 
+]
+
+// Add event listener to select element
+const selectElement = document.getElementById('colour_by');
+selectElement.addEventListener('change', function () {
+    const selectedValue = selectElement.value;
+    let colorExpression = defaultcolor; // Default color is red
+
+    // Change color expression based on selected value
+    if (selectedValue === 'default_value') {
+    colorExpression = defaultcolor; // Default color is red
+    } if (selectedValue === 'dmse_type') {
+    // Change color based on 'type' attribute and dmse_type_colors array
+    colorExpression = ['match', ['get', 'dmse_type']];
+    dmse_type_colors.forEach(({ value, color }) => {
+    colorExpression.push(value, color);
     });
-
-
+//!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
+// This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
+colorExpression.push('#000000'); //black
+    } if (selectedValue === 'epc') {
+        colorExpression = ['match', ['get', 'epc_rating_letter']];
+        epc_colors.forEach(({ value, color }) => {
+        colorExpression.push(value, color);
+        });
+        colorExpression.push('#000000'); //black
+    } else if (selectedValue === 'dmse_status') {
+        colorExpression = ['match', ['get', 'dmse_status']];
+        dmse_status_colors.forEach(({ value, color }) => {
+        colorExpression.push(value, color);
+        });
+        colorExpression.push('#000000'); //black
+    }
+    // Set paint property to update colors
+    map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
+});
 
 
