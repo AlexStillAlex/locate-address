@@ -2,7 +2,16 @@
 import numpy as np
 import cvxpy
 from shapely.geometry import Polygon
+import json
 
+# takes the coords of the polygon
+def extract_coordinates(json_string):
+    geojson = json.loads(json_string)
+    coordinates_list = []
+    for feature in geojson:
+        coordinates = feature['geometry']['coordinates']
+        coordinates_list.append(coordinates)
+    return coordinates_list
 
 def rect2poly(ll, ur):
     """
@@ -101,11 +110,14 @@ def get_maximal_rectangle(coordinates):
     coordinates = np.array(coordinates)
     x_range = np.max(coordinates, axis=0)[0]-np.min(coordinates, axis=0)[0]
     y_range = np.max(coordinates, axis=0)[1]-np.min(coordinates, axis=0)[1]
-
+    # print('Ranges:')
+    # print(x_range, y_range)
     scale = np.array([x_range, y_range])
+    # print('Scale:')
     sc_coordinates = coordinates/scale
-
+    # print(sc_coordinates)   
     poly = Polygon(sc_coordinates)
+    # print(poly)
     inside_pt = (poly.representative_point().x,
                  poly.representative_point().y)
 
@@ -136,10 +148,37 @@ def get_maximal_rectangle(coordinates):
             constraints.append(tl[0] * A1[i] + tl[1] * A2[i] >= B[i])
 
     prob = cvxpy.Problem(obj, constraints)
-    prob.solve(solver=cvxpy.CVXOPT, verbose=False, max_iters=1000, reltol=1e-9)
+    prob.solve(solver=cvxpy.ECOS, verbose=False, max_iters=100000, reltol=1e-7)
 
     bottom_left = np.array(bl.value).T * scale
     top_right = np.array(tr.value).T * scale
+    # print(bottom_left,top_right)
+    # print('Rectangular Coordinates:')
+    # print(rect2poly(bottom_left, top_right))
+    print('here')
+    return rect2poly(bottom_left, top_right)
 
-    return list(bottom_left[0]), list(top_right[0])
-print(1)
+coords = [[-1.1635999511877344,52.57585432418023], [-1.1634841917738186,52.575927864813195], [-1.1634855328784397,52.57602892494674], [-1.1637711881385258,52.576030554947124], [-1.1637658237200412,52.575967799893505], [-1.163615620015662,52.57596616989139], [-1.163615620015662,52.575935199830695],[-1.1636254321734896,52.57593337943709]]
+input = [[round(x, 6) for x in sublist] for sublist in coords] 
+# print(len(input))
+# print(input)
+
+# print(get_maximal_rectangle(input))
+# print(get_maximal_rectangle(coords))
+
+coords2= ([[[-1.1635999511877344, 52.57585432418023], 
+   [-1.1634841917738186, 52.575927864813195], 
+   [-1.1634855328784397, 52.57602892494674], 
+   [-1.1637711881385258, 52.576030554947124], 
+   [-1.1637658237200412, 52.575967799893505], 
+   [-1.163615620015662, 52.57596616989139], 
+   [-1.163615620015662, 52.575935199830695], 
+   [-1.1636254321734896, 52.57593337943709], 
+   [-1.1635999511877344, 52.57585432418023]]], 
+ [[[-1.163615620015662, 52.57585432418023], 
+   [-1.1637711881385258, 52.576030554947124]]])
+print(coords2[1])
+
+print((coords2[1][0]))
+# print(cvxpy.installed_solvers())
+# ['CLARABEL', 'CVXOPT', 'ECOS', 'ECOS_BB', 'GLPK', 'GLPK_MI', 'OSQP', 'SCIPY', 'SCS']
