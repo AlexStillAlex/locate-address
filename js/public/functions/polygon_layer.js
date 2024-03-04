@@ -67,61 +67,27 @@ map.on('load', function() {
                 feature.properties.tenant_name = tenant.tenant_name;
         }
     });
-    //to see if the attribute has been added to the polygon feature run this in the console:
-    // console.log(map.getLayer('blaby_leaseholds'));
-    // console.log(map.getSource('blaby_leaseholds'));
 
-    //add dmse_type from tenant dmse_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = dmse_table.find(item => item.dmse_ref === reference);
-        if (demise == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
-            feature.properties.dmse_type = undefined;
-        }
-        else {
-                feature.properties.dmse_type = demise.dmse_type_desc;
-        }
-    });
+    console.log(blaby_leasehold_polygons);
 
-    //add dmse_status from tenant dmse_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = dmse_table.find(item => item.dmse_ref === reference);
-        if (demise == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`)
-            feature.properties.dmse_status = undefined;
+    // Function to calculate rotation angle based on the longest side of the polygon
+    function getRotation(coordinates) {
+        var maxDistance = 0;
+        var rotation = 0;
+        for (var i = 0; i < coordinates.length - 1; i++) {
+            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
+                if (rotation < 0) {
+                    rotation += 360;
+                }
+            }
         }
-        else {
-                feature.properties.dmse_status = demise.dmse_status_desc;
-        }
-    });
-
-    //add epc_letter from dmse_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
-        if (demise == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
-            feature.properties.epc_rating_letter = undefined;
-        }
-        else {
-                feature.properties.epc_rating_letter = demise.depc_rating_letter;
-        }
-    });
-
-    //add passing_rent from lease_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
-        if (demise == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
-            feature.properties.epc_rating_letter = undefined;
-        }
-        else {
-                feature.properties.epc_rating_letter = demise.depc_rating_letter;
-        }
-    });
+        
+        console.log(rotation)
+        return rotation;
+    }
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -151,7 +117,7 @@ map.on('load', function() {
                 type: 'Feature',
                 geometry:{
                     type: 'Polygon',    
-                    coordinates:  [[[-1.1640429605042755,52.57579883474423], [-1.1637210954224884,52.5758004647532], [-1.1636084426452271,52.575809429800074], [-1.163462262253688,52.57591864022933], [-1.1634139824923295,52.57627968471252], [-1.1639464009814446,52.57627886971696], [-1.163951765398906,52.57634406930785], [-1.1641073335218834,52.57632532443509], [-1.1640885580591203,52.57602459038611], [-1.1640429605042755,52.57579883474423]]]
+                    coordinates:  [[[-1.1640362904134918,52.574531156713334], [-1.164405094155427,52.574781369588976], [-1.1633939013568124,52.57486857699885], [-1.1633912191477975,52.57482293575953], [-1.1640349493118265,52.5747838146589], [-1.1640161738487222,52.574696607080995], [-1.1637757051985318,52.574714165161055],  [-1.163518624076005,52.57472839304066], [-1.1635172829714975,52.574727578016365],[-1.1634931430903634,52.57461102938265],[-1.1640362904134918,52.574531156713334]]]
                 },
                 properties: {
                     id: '15000050'
@@ -236,64 +202,91 @@ map.on('load', function() {
           'text-color': '#000'
         }
       });
-});
+//       var coordinates = [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]];
 
-//COLOURING IN BY ATTRUBUTE:
-//Add Colouring for "dmse_type"
-const dmse_type_colors = [
-    { value: "Retail", color: "#157CBD" }, //blue
-    { value: "Residential", color: "#FFC300" } //orange
-];
+// // Create a turf polygon from the coordinates
+//     var polygon = turf.polygon(coordinates);
 
-//Add Colouring for "dmse_status"
-const dmse_status_colors = [
-    { value: "Vacant", color: "#0ee627" }, //green
-    { value: "Occupied", color: "#e6db0e" } //yellow
-];
+// // Calculate the centroid of the polygon
+//     var centroid = turf.centroid(polygon);
 
-const epc_colors = [
-    { value: "A", color: "#008e38" },
-    { value: "B", color: "#6daf4c" },
-    { value: "C", color: "#cad24d" },
-    { value: "D", color: "#fbee5c" },
-    { value: "E", color: "#f0ba4d" },
-    { value: "F", color: "#D76F35" },
-    { value: "G", color: "#cd2e2b" } 
-]
+// // The centroid's coordinates are in the .geometry.coordinates property
+//     var centroidCoordinates = centroid.geometry.coordinates;
 
-// Add event listener to select element
-const selectElement = document.getElementById('colour_by');
-selectElement.addEventListener('change', function () {
-    const selectedValue = selectElement.value;
-    let colorExpression = defaultcolor; // Default color is red
+//     map.addLayer({
+//         id: 'text-layer',
+//         type: 'symbol',
+//         source: {
+//             type: 'geojson',
+//             data: {
+//                 type: 'Feature',
+//                 geometry: {
+//                     type: 'Point',
+//                     coordinates: centroidCoordinates
+//                 },
+//                 properties: {
+//                     message: 'TEST!'
+//                 }
+//             }
+//         },
+//         layout: {
+//             'text-field': ['get', 'message'],
+//             "text-font": [ "Source Sans Pro Regular" ],
+//             'text-size': 24,
+//             'text-justify': 'center',
+//             'text-rotate': getRotation(coordinates),
 
-    // Change color expression based on selected value
-    if (selectedValue === 'default_value') {
-    colorExpression = defaultcolor; // Default color is red
-    } if (selectedValue === 'dmse_type') {
-    // Change color based on 'type' attribute and dmse_type_colors array
-    colorExpression = ['match', ['get', 'dmse_type']];
-    dmse_type_colors.forEach(({ value, color }) => {
-    colorExpression.push(value, color);
+//         }
+//     });
+    //     // Adding the invisible rectangles!
+    testcoord  = [[-1.1641723912687918, 52.57460904292981], [-1.1641686371240196, 52.574698897528776], [-1.1635196965080394, 52.574688832165926], [-1.1635234519780315, 52.574598977599464], [-1.1641723912687918, 52.57460904292981]]
+    map.addSource('rectesting', {
+        'type': 'geojson',
+        'data': {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+            'type': 'Polygon',
+            // Define the coordinates of your rectangle here
+            'coordinates': [
+                testcoord]
+          }
+        }
+      });
+    
+      // Add the rectangle layer
+      map.addLayer({
+        'id': 'rectesting',
+        'type': 'line',
+        'source': 'rectesting',
+        'layout': {},
+        'paint': {
+          'line-color': '#088', // Color of the rectangle
+          'line-opacity': 1.0, //Invisible rectangle
+          'line-width': 3
+        }
+      });
+      map.addLayer({
+        'id': 'text',
+        'type': 'symbol',
+        'source': 'rectesting',
+        'layout': {
+            // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+              "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+              'text-field': 'TESTING',
+              'text-size': 12,
+               'text-rotate': getRotation(testcoord),
+            //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+            //   'text-radial-offset': 0.5,
+              'text-justify': 'center'
+            },
+        'paint': {
+          'text-color': '#000'
+        }
+      });
+
+
     });
-//!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
-// This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
-colorExpression.push('#000000'); //black
-    } if (selectedValue === 'epc') {
-        colorExpression = ['match', ['get', 'epc_rating_letter']];
-        epc_colors.forEach(({ value, color }) => {
-        colorExpression.push(value, color);
-        });
-        colorExpression.push('#000000'); //black
-    } else if (selectedValue === 'dmse_status') {
-        colorExpression = ['match', ['get', 'dmse_status']];
-        dmse_status_colors.forEach(({ value, color }) => {
-        colorExpression.push(value, color);
-        });
-        colorExpression.push('#000000'); //black
-    }
-    // Set paint property to update colors
-    map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-});
 
+  
 
