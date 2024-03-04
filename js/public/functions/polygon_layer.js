@@ -67,27 +67,61 @@ map.on('load', function() {
                 feature.properties.tenant_name = tenant.tenant_name;
         }
     });
+    //to see if the attribute has been added to the polygon feature run this in the console:
+    // console.log(map.getLayer('blaby_leaseholds'));
+    // console.log(map.getSource('blaby_leaseholds'));
 
-    console.log(blaby_leasehold_polygons);
-
-    // Function to calculate rotation angle based on the longest side of the polygon
-    function getRotation(coordinates) {
-        var maxDistance = 0;
-        var rotation = 0;
-        for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-                if (rotation < 0) {
-                    rotation += 360;
-                }
-            }
+    //add dmse_type from tenant dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = dmse_table.find(item => item.dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
+            feature.properties.dmse_type = undefined;
         }
-        
-        console.log(rotation)
-        return rotation;
-    }
+        else {
+                feature.properties.dmse_type = demise.dmse_type_desc;
+        }
+    });
+
+    //add dmse_status from tenant dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = dmse_table.find(item => item.dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`)
+            feature.properties.dmse_status = undefined;
+        }
+        else {
+                feature.properties.dmse_status = demise.dmse_status_desc;
+        }
+    });
+
+    //add epc_letter from dmse_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
+            feature.properties.epc_rating_letter = undefined;
+        }
+        else {
+                feature.properties.epc_rating_letter = demise.depc_rating_letter;
+        }
+    });
+
+    //add passing_rent from lease_table. 
+    blaby_leasehold_polygons.forEach(feature => {
+        const reference = feature.properties.id.toString();
+        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
+        if (demise == undefined){
+            console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
+            feature.properties.epc_rating_letter = undefined;
+        }
+        else {
+                feature.properties.epc_rating_letter = demise.depc_rating_letter;
+        }
+    });
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -117,7 +151,7 @@ map.on('load', function() {
                 type: 'Feature',
                 geometry:{
                     type: 'Polygon',    
-                    coordinates:  [[[-1.1640362904134918,52.574531156713334], [-1.164405094155427,52.574781369588976], [-1.1633939013568124,52.57486857699885], [-1.1633912191477975,52.57482293575953], [-1.1640349493118265,52.5747838146589], [-1.1640161738487222,52.574696607080995], [-1.1637757051985318,52.574714165161055],  [-1.163518624076005,52.57472839304066], [-1.1635172829714975,52.574727578016365],[-1.1634931430903634,52.57461102938265],[-1.1640362904134918,52.574531156713334]]]
+                    coordinates:  [[[-1.1640429605042755,52.57579883474423], [-1.1637210954224884,52.5758004647532], [-1.1636084426452271,52.575809429800074], [-1.163462262253688,52.57591864022933], [-1.1634139824923295,52.57627968471252], [-1.1639464009814446,52.57627886971696], [-1.163951765398906,52.57634406930785], [-1.1641073335218834,52.57632532443509], [-1.1640885580591203,52.57602459038611], [-1.1640429605042755,52.57579883474423]]]
                 },
                 properties: {
                     id: '15000050'
@@ -137,6 +171,131 @@ map.on('load', function() {
             "line-width": 3
         }
     });
+
+    //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
+    //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
+    //->finding largest rectangle that would fit inside a convex polygon:
+    //#convexHull() function tries to simolify the problem by making any concave polygon a convex polygon and running the function on it. The convexHull() function is not shown below.
+    function getRectangleCoordinates(polygon) {
+        const convexHullPoints = convexHull(polygon);
+    
+        let maxArea = 0;
+        let rectangleCoordinates = [];
+    
+        for (let i = 0; i < convexHullPoints.length; i++) {
+            const p1 = convexHullPoints[i];
+            const p2 = convexHullPoints[(i + 1) % convexHullPoints.length];
+    
+            for (let j = i + 1; j < convexHullPoints.length; j++) {
+                const p3 = convexHullPoints[j];
+                const p4 = convexHullPoints[(j + 1) % convexHullPoints.length];
+    
+                const area = Math.abs(
+                    (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p4[0] - p3[0]) * (p2[1] - p1[1])
+                );
+    
+                if (area > maxArea) {
+                    maxArea = area;
+                    rectangleCoordinates = [p1, p2, p3, p4];
+                }
+            }
+        }
+    
+        return rectangleCoordinates;
+    }
+    //rotation should be towards the longest side of this resulting rectangle
+    //-> Function to calculate rotation angle based on the longest side of the polygon
+    function getRotation(coordinates) {
+        var maxDistance = 0;
+        var rotation = 0;
+        for (var i = 0; i < coordinates.length - 1; i++) {
+            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
+            }
+        }
+        return rotation;
+    }
+
+//COLOURING IN BY ATTRUBUTE:
+//Add Colouring for "dmse_type"
+const dmse_type_colors = [
+    { value: "Retail", color: "#157CBD" }, //blue
+    { value: "Residential", color: "#FFC300" } //orange
+];
+
+//Add Colouring for "dmse_status"
+const dmse_status_colors = [
+    { value: "Vacant", color: "#0ee627" }, //green
+    { value: "Occupied", color: "#e6db0e" } //yellow
+];
+
+const epc_colors = [
+    { value: "A", color: "#008e38" },
+    { value: "B", color: "#6daf4c" },
+    { value: "C", color: "#cad24d" },
+    { value: "D", color: "#fbee5c" },
+    { value: "E", color: "#f0ba4d" },
+    { value: "F", color: "#D76F35" },
+    { value: "G", color: "#cd2e2b" } 
+]
+
+// Add event listener to select element
+const selectElement = document.getElementById('colour_by');
+selectElement.addEventListener('change', function () {
+    const selectedValue = selectElement.value;
+    let colorExpression = defaultcolor; // Default color is red
+
+    // Change color expression based on selected value
+    if (selectedValue === 'default_value') {
+    colorExpression = defaultcolor; // Default color is red
+    } if (selectedValue === 'dmse_type') {
+    // Change color based on 'type' attribute and dmse_type_colors array
+    colorExpression = ['match', ['get', 'dmse_type']];
+    dmse_type_colors.forEach(({ value, color }) => {
+    colorExpression.push(value, color);
+    });
+//!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
+// This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
+colorExpression.push('#000000'); //black
+    } if (selectedValue === 'epc') {
+        colorExpression = ['match', ['get', 'epc_rating_letter']];
+        epc_colors.forEach(({ value, color }) => {
+        colorExpression.push(value, color);
+        });
+        colorExpression.push('#000000'); //black
+    } else if (selectedValue === 'dmse_status') {
+        colorExpression = ['match', ['get', 'dmse_status']];
+        dmse_status_colors.forEach(({ value, color }) => {
+        colorExpression.push(value, color);
+        });
+        colorExpression.push('#000000'); //black
+    }
+    // Set paint property to update colors
+    map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
+
+
+
+    // Function to calculate rotation angle based on the longest side of the polygon
+    function getRotation(coordinates) {
+        var maxDistance = 0;
+        var rotation = 0;
+        for (var i = 0; i < coordinates.length - 1; i++) {
+            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
+                if (rotation < 0) {
+                    rotation += 360;
+                }
+            }
+        }
+        
+        console.log(rotation)
+        return rotation;
+    }
+
 
     //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
     //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
@@ -288,5 +447,5 @@ map.on('load', function() {
 
     });
 
-  
+});
 
