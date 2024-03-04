@@ -69,6 +69,19 @@ map.on('load', function() {
 
     console.log(blaby_leasehold_polygons);
 
+    // Function to calculate rotation angle based on the longest side of the polygon
+    function getRotation(coordinates) {
+        var maxDistance = 0;
+        var rotation = 0;
+        for (var i = 0; i < coordinates.length - 1; i++) {
+            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
+            }
+        }
+        return rotation;
+    }
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -128,6 +141,7 @@ map.on('load', function() {
           "text-font": [ "Source Sans Pro Regular" ], //Testing here!
           'text-field': ['get', 'tenant_name'],
           'text-size': 12,
+          'text-rotate': getRotation(['get', 'coordinates']),
         //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
         //   'text-radial-offset': 0.5,
           'text-justify': 'center'
@@ -137,27 +151,6 @@ map.on('load', function() {
         }
       });
     });
-
-
-    // blaby_leasehold_polygons.forEach(function(polygon) {
-    //     var center = getCenterOfPolygon(polygon.geometry.coordinates);
-    //     var label = document.createElement('div');
-    //     label.className = 'map-label';
-    //     label.textContent = polygon.tenantName;
-  
-    //     new maplibregl.Marker(label)
-    //       .setLngLat(center)
-    //       .addTo(map);
-    //   });
-    // });
-  
-    // function getCenterOfPolygon(coordinates) {
-    //   var bounds = coordinates[0].reduce(function(bounds, coord) {
-    //     return bounds.extend(coord);
-    //   }, new maplibregl.LngLatBounds(coordinates[0][0], coordinates[0][0]));
-  
-    //   return bounds.getCenter();
-    // }
 
 
 

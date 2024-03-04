@@ -100,3 +100,26 @@
 //     });
   
 // });
+
+
+
+    // blaby_leasehold_polygons.forEach(function(polygon) {
+    //     var center = getCenterOfPolygon(polygon.geometry.coordinates);
+    //     var label = document.createElement('div');
+    //     label.className = 'map-label';
+    //     label.textContent = polygon.tenantName;
+  
+    //     new maplibregl.Marker(label)
+    //       .setLngLat(center)
+    //       .addTo(map);
+    //   });
+    // });
+  
+    // function getCenterOfPolygon(coordinates) {
+    //   var bounds = coordinates[0].reduce(function(bounds, coord) {
+    //     return bounds.extend(coord);
+    //   }, new maplibregl.LngLatBounds(coordinates[0][0], coordinates[0][0]));
+  
+    //   return bounds.getCenter();
+    // }
+
