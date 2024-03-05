@@ -7,6 +7,7 @@ const express = require('express');//The server
 const bodyParser = require('body-parser'); //Read my post requests
 const path = require('path'); //find my static files
 const { DBSQLClient } = require('@databricks/sql'); //databricks connect; we want to only import DBSQLClient and not other functions/classes from '@databricks/sql' module. Thus, object destructring syntax.
+const { spawn } = require('child_process'); //to run a python script
 
 var token = process.env.DBSQL_TOKEN; //DBT access token will last until 29th/February
 var server_hostname = process.env.SERVER_HOSTNAME;
@@ -19,6 +20,40 @@ const client = new DBSQLClient();
 const cors = require("cors");
 app.use(cors());
 app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api request. 
+
+//Gets the inscribed rectangle from the python script.
+app.post('/get_rectangle_py', (req, res) => {
+  // Define the Python script and arguments
+  let script = 'js/public/functions/inter_rect2.py'; //make sure this is in the root directory. OR THE SAME as server.js
+  let coords = req.body.coords;  // Get coordinates of Polygon
+
+  // Spawn a child process to run the Python script
+  let process = spawn('python3', [script, ...coords]);
+  let output = '';
+  // Capture the output
+  process.stdout.on('data', (data) => {
+    output += data.toString();
+    console.log(`stdout: ${data}`);
+  });
+
+  // Error handling
+  process.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  process.on('error', (error) => {
+    console.error(`spawn error: ${error}`);
+  });
+
+  process.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+    if (code !== 0) {
+        res.send({ status: 'error', exitCode: code });
+    } else {
+        res.send({ status: 'completed', exitCode: code, data: output });
+    }
+  });
+});
 //receives a query from the client, 
 // connects to a remote server, executes the query, 
 // fetches the results, logs the results to the console,
