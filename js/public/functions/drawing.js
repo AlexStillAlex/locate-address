@@ -59,7 +59,7 @@ document.getElementById('exportMap').addEventListener('click', function() {
             // Add the rectangle layer to the stage
             stage.add(rectangleLayer);
 
-
+            
             function drawImage() {
                 return new Promise((resolve, reject) => {
                     var mCoreOverlayImage = new Image();
