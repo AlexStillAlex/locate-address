@@ -219,6 +219,8 @@ const epc_colors = [
     { value: "G", color: "#cd2e2b" } 
 ]
 
+
+
 // Add event listener to select element
 const selectElement = document.getElementById('colour_by');
 selectElement.addEventListener('change', function () {
@@ -243,6 +245,8 @@ colorExpression.push('#000000'); //black
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
+    } if (selectedValue === 'passing_rent') {
+        colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 5000, '#f70202']
     } else if (selectedValue === 'dmse_status') {
         colorExpression = ['match', ['get', 'dmse_status']];
         dmse_status_colors.forEach(({ value, color }) => {
