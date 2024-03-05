@@ -1,5 +1,8 @@
 // //This JS contains the feature to look up one's mouse coordinates and five polygons in Pensnett created by hand
-map.on('load', function() {
+
+async function goadMapTest(){
+
+// map.on('load', function() {
 // Possible conflict because map is called twice
     defaultcolor = '#FF0000'; // Default color
     
@@ -79,13 +82,13 @@ map.on('load', function() {
             console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
             feature.properties.dmse_type = undefined;
             feature.properties.dmse_status = undefined;
-            feature.properties.leas_passing_rent = undefined;
+            feature.properties.passing_rent = undefined;
             
         }
         else {
                 feature.properties.dmse_type = demise.dmse_type_desc;
                 feature.properties.dmse_status = demise.dmse_status_desc;
-                feature.properties.leas_passing_rent = demise.leas_passing_rent
+                feature.properties.passing_rent = demise.leas_passing_rent
         }
     });
 
@@ -177,52 +180,7 @@ map.on('load', function() {
         }
     });
 
-    //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
-    //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
-    //->finding largest rectangle that would fit inside a convex polygon:
-    //#convexHull() function tries to simolify the problem by making any concave polygon a convex polygon and running the function on it. The convexHull() function is not shown below.
-    function getRectangleCoordinates(polygon) {
-        const convexHullPoints = convexHull(polygon);
-    
-        let maxArea = 0;
-        let rectangleCoordinates = [];
-    
-        for (let i = 0; i < convexHullPoints.length; i++) {
-            const p1 = convexHullPoints[i];
-            const p2 = convexHullPoints[(i + 1) % convexHullPoints.length];
-    
-            for (let j = i + 1; j < convexHullPoints.length; j++) {
-                const p3 = convexHullPoints[j];
-                const p4 = convexHullPoints[(j + 1) % convexHullPoints.length];
-    
-                const area = Math.abs(
-                    (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p4[0] - p3[0]) * (p2[1] - p1[1])
-                );
-    
-                if (area > maxArea) {
-                    maxArea = area;
-                    rectangleCoordinates = [p1, p2, p3, p4];
-                }
-            }
-        }
-    
-        return rectangleCoordinates;
-    }
-    //rotation should be towards the longest side of this resulting rectangle
-    //-> Function to calculate rotation angle based on the longest side of the polygon
-    function getRotation(coordinates) {
-        var maxDistance = 0;
-        var rotation = 0;
-        for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-            }
-        }
-        return rotation;
-    }
-
+   
 //COLOURING IN BY ATTRUBUTE:
 //Add Colouring for "dmse_type"
 const dmse_type_colors = [
@@ -272,9 +230,9 @@ colorExpression.push('#000000'); //black
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
-    } if (selectedValue === )
-    
-    else if (selectedValue === 'dmse_status') {
+    } if (selectedValue === 'passing_rent') {
+        colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 5000, '#f70202']
+    } else if (selectedValue === 'dmse_status') {
         colorExpression = ['match', ['get', 'dmse_status']];
         dmse_status_colors.forEach(({ value, color }) => {
         colorExpression.push(value, color);
@@ -283,74 +241,6 @@ colorExpression.push('#000000'); //black
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-
-
-
-    // Function to calculate rotation angle based on the longest side of the polygon
-    function getRotation(coordinates) {
-        var maxDistance = 0;
-        var rotation = 0;
-        for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-                if (rotation < 0) {
-                    rotation += 360;
-                }
-            }
-        }
-        
-        console.log(rotation)
-        return rotation;
-    }
-
-
-    //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
-    //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
-    //->finding largest rectangle that would fit inside a convex polygon:
-    //#convexHull() function tries to simolify the problem by making any concave polygon a convex polygon and running the function on it. The convexHull() function is not shown below.
-    function getRectangleCoordinates(polygon) {
-        const convexHullPoints = convexHull(polygon);
-    
-        let maxArea = 0;
-        let rectangleCoordinates = [];
-    
-        for (let i = 0; i < convexHullPoints.length; i++) {
-            const p1 = convexHullPoints[i];
-            const p2 = convexHullPoints[(i + 1) % convexHullPoints.length];
-    
-            for (let j = i + 1; j < convexHullPoints.length; j++) {
-                const p3 = convexHullPoints[j];
-                const p4 = convexHullPoints[(j + 1) % convexHullPoints.length];
-    
-                const area = Math.abs(
-                    (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p4[0] - p3[0]) * (p2[1] - p1[1])
-                );
-    
-                if (area > maxArea) {
-                    maxArea = area;
-                    rectangleCoordinates = [p1, p2, p3, p4];
-                }
-            }
-        }
-    
-        return rectangleCoordinates;
-    }
-    //rotation should be towards the longest side of this resulting rectangle
-    //-> Function to calculate rotation angle based on the longest side of the polygon
-    function getRotation(coordinates) {
-        var maxDistance = 0;
-        var rotation = 0;
-        for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-            }
-        }
-        return rotation;
-    }
 
     map.addLayer({
         'id': 'tenant-names',
@@ -370,42 +260,6 @@ colorExpression.push('#000000'); //black
           'text-color': '#000'
         }
       });
-//       var coordinates = [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]];
-
-// // Create a turf polygon from the coordinates
-//     var polygon = turf.polygon(coordinates);
-
-// // Calculate the centroid of the polygon
-//     var centroid = turf.centroid(polygon);
-
-// // The centroid's coordinates are in the .geometry.coordinates property
-//     var centroidCoordinates = centroid.geometry.coordinates;
-
-//     map.addLayer({
-//         id: 'text-layer',
-//         type: 'symbol',
-//         source: {
-//             type: 'geojson',
-//             data: {
-//                 type: 'Feature',
-//                 geometry: {
-//                     type: 'Point',
-//                     coordinates: centroidCoordinates
-//                 },
-//                 properties: {
-//                     message: 'TEST!'
-//                 }
-//             }
-//         },
-//         layout: {
-//             'text-field': ['get', 'message'],
-//             "text-font": [ "Source Sans Pro Regular" ],
-//             'text-size': 24,
-//             'text-justify': 'center',
-//             'text-rotate': getRotation(coordinates),
-
-//         }
-//     });
     //     // Adding the invisible rectangles!
     testcoord  = [[-1.1641723912687918, 52.57460904292981], [-1.1641686371240196, 52.574698897528776], [-1.1635196965080394, 52.574688832165926], [-1.1635234519780315, 52.574598977599464], [-1.1641723912687918, 52.57460904292981]]
     map.addSource('rectesting', {
@@ -454,7 +308,6 @@ colorExpression.push('#000000'); //black
       });
 
 
-    });
+    }); 
 
-});
-
+}
