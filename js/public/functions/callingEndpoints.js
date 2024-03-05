@@ -25,7 +25,7 @@ fetch('/dropdown-data')
     .then(response => response.json())
     .then(data => {
       console.log(data);
-
+      // POINT TO CHECK
       lease_tenant_table = data.query_lease_tenant_table;
       dmse_table = data.query_dmse_table;
       epc_table = data.query_EPC_table;
