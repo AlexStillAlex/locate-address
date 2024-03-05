@@ -1,0 +1,14 @@
+.env
+node_modules/
+.venv/
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[co]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
