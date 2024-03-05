@@ -24,27 +24,41 @@ app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api 
 // fetches the results, logs the results to the console,
 // and sends the results back to the client.
 app.post('/run-query', async (req, res) => {
-    const query = req.body.query; // Extract the query from the request body
+  //connect to Databricks client
     client.connect({
       token: token,
       host: server_hostname,
       path: http_path
     }).then(async client => {
-      const session = await client.openSession();
-    
-      const queryOperation = await session.executeStatement(
-        query, // Use the query from the request body
-        { runAsync: true }
-      );
-    
-      await queryOperation.waitUntilReady();
-      const result = await queryOperation.fetchAll();
-      console.log(result);
-      await queryOperation.close();
-      res.json(result); // Send the result back to the client
-        
-      await session.close();
-      client.close();
+    // Extract query from the request body
+    const queries = {
+      query_lease_tenant_table : req.body.query_lease_tenant_table,
+      query_dmse_table : req.body.query_dmse_table,
+      query_EPC_table : req.body.query_EPC_table
+    }
+
+    // check that all the queries are well recieved by the server
+    // console.log(queries)
+    const queryResults = {};
+
+     // Execute each query sequentially
+    for (const [queryName, query] of Object.entries(queries)) {
+    const session = await client.openSession();
+    const queryOperation = await session.executeStatement(query);
+    const result = await queryOperation.fetchAll();
+    await queryOperation.close();
+    await session.close();
+
+    // Store the query result in the queryResults object
+    queryResults[queryName] = result;
+    }
+
+    // console.log(queryResults);
+
+    res.json(queryResults); // Send the result back to the client
+
+    await client.close();
+
     }).catch(error => {
       console.log(error);
       res.status(500).json({ message: 'An error occurred' });
@@ -95,7 +109,7 @@ app.get('/get-data', (req, res) => {
     
         await queryOperation.waitUntilReady();
         const result = await queryOperation.fetchAll();
-        console.log(result);
+        // console.log(result);
         await queryOperation.close();
         res.json(result); // Send the result back to the client
     }).catch(error => {

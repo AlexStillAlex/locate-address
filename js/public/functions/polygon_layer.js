@@ -1,6 +1,6 @@
 // //This JS contains the feature to look up one's mouse coordinates and five polygons in Pensnett created by hand
 map.on('load', function() {
-
+// Possible conflict because map is called twice
     defaultcolor = '#FF0000'; // Default color
     
     const blaby_leasehold_polygons = [

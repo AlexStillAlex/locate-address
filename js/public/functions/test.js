@@ -55,7 +55,7 @@ let geoJsonPoly = {
 }
 
 // Add event which waits for the map to be loaded.
-map.on('load', function() {
+map.on('load', function() {//comment out
     map.addSource("polygon", {
         type: "geojson",
         data: geoJsonPoly

@@ -123,3 +123,97 @@
     //   return bounds.getCenter();
     // }
 
+
+
+
+  // //lease_tenant_table
+  // //select dmse_ref, tnnt_name from main.intermediate.int_leas_table_decoded
+  //   let query_lease_tenant_table = 'select leas_dmse_ref as dmse_ref, tnnt_trade_name as tenant_name, leas_passing_rent from main.offies.lease_table left join main.intermediate.int_tenant_table_decoded on tnnt_ref = leas_tnnt_ref'
+  //   fetch('/run-query', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       query: query_lease_tenant_table // Send the user's input as a JSON'd query
+  //     })
+  //   })
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     console.log(data);
+  //     lease_tenant_table = data;
+  //   })
+  //   .catch((error) => {
+  //     console.error('Error:', error);
+  //   });
+
+  // //dmse_table
+  // //select dmse_ref, dmse_desc, dmse_prop_ref, dmse_grop_name, dmse_status_desc, dmse_type_desc from main.intermediate.int_demise_table_decoded
+  // let query_dmse_table = 'select dmse_ref, dmse_desc, dmse_prop_ref, dmse_grop_name, dmse_status_desc, dmse_type_desc from main.intermediate.int_demise_table_decoded'
+  //   fetch('/run-query', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       query: query_dmse_table // Send the user's input as a JSON'd query
+  //     })
+  //   })
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     console.log(data);
+  //     dmse_table = data;
+  //   })
+  //   .catch((error) => {
+  //     console.error('Error:', error);
+  //   });
+
+  // //EPC table
+  // //select depc_dmse_ref, depc_rating_letter from main.intermediate.int_epc_demise_table
+  // let query_EPC_table = 'select depc_dmse_ref, depc_rating_letter from main.intermediate.int_epc_demise_table'
+  //   fetch('/run-query', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       query: query_EPC_table // Send the user's input as a JSON'd query
+  //     })
+  //   })
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     console.log(data);
+  //     epc_table = data;
+  //   })
+  //   .catch((error) => {
+  //     console.error('Error:', error);
+  //   });
+
+
+// app.post('/run-query', async (req, res) => {
+//   const query = req.body.query; // Extract the query from the request body
+//   client.connect({
+//     token: token,
+//     host: server_hostname,
+//     path: http_path
+//   }).then(async client => {
+//     const session = await client.openSession();
+  
+//     const queryOperation = await session.executeStatement(
+//       query, // Use the query from the request body
+//       { runAsync: true }
+//     );
+  
+//     await queryOperation.waitUntilReady();
+//     const result = await queryOperation.fetchAll();
+//     console.log(result);
+//     await queryOperation.close();
+//     res.json(result); // Send the result back to the client
+      
+//     await session.close();
+//     client.close();
+//   }).catch(error => {
+//     console.log(error);
+//     res.status(500).json({ message: 'An error occurred' });
+//   });
+// });

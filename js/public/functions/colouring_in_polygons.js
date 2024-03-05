@@ -1,4 +1,4 @@
-map.on('load', function() {
+map.on('load', function() { //Change the event listener
     //used for seeing the coordinates of where the mouse goes
     map.on('click', (e) => {
     document.getElementById('info').innerHTML =
