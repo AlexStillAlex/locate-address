@@ -59,8 +59,11 @@ async function goadMapTest(){
 
     //add tenant_name from lease_tenant_table. 
     //add tenant_name attribute to each feature's properties. To do so, look up the tenant name in the databricks tenant table by dmse_reference that is already attached to the feature.
+        // console.log(map.getLayer('blaby_leaseholds'));
+    // console.log(map.getSource('blaby_leaseholds'));
     blaby_leasehold_polygons.forEach(feature => {
         const reference = feature.properties.id.toString();
+        // Logic for adding tenant name
         const tenant = lease_tenant_table.find(item => item.dmse_ref === reference);
         console.log(tenant)
         if (tenant == undefined){
@@ -72,17 +75,10 @@ async function goadMapTest(){
                 feature.properties.tenant_name = tenant.tenant_name;
                 feature.properties.passing_rent = tenant.leas_passing_rent;
         }
-    });
-    //to see if the attribute has been added to the polygon feature run this in the console:
-    // console.log(map.getLayer('blaby_leaseholds'));
-    // console.log(map.getSource('blaby_leaseholds'));
-
-    //add dmse_type, demise_status, leas_passing_rent from tenant dmse_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = dmse_table.find(item => item.dmse_ref === reference);
-        if (demise == undefined){
-            console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
+        // Logic for adding dmse_type and dmse_status
+        const dmse_demise = dmse_table.find(item => item.dmse_ref === reference);
+        if (dmse_demise == undefined) {
+            console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`);
             feature.properties.dmse_type = undefined;
             feature.properties.dmse_status = undefined;        
         }
@@ -114,22 +110,11 @@ async function goadMapTest(){
             feature.properties.epc_rating_letter = undefined;
         }
         else {
-                feature.properties.epc_rating_letter = demise.depc_rating_letter;
+            feature.properties.epc_rating_letter = epc_demise.depc_rating_letter;
         }
     });
 
-    // //add passing_rent from lease_table. 
-    // blaby_leasehold_polygons.forEach(feature => {
-    //     const reference = feature.properties.id.toString();
-    //     const demise = epc_table.find(item => item.depc_dmse_ref === reference);
-    //     if (demise == undefined){
-    //         console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
-    //         feature.properties.epc_rating_letter = undefined;
-    //     }
-    //     else {
-    //             feature.properties.epc_rating_letter = demise.depc_rating_letter;
-    //     }
-    // });
+    //TODOdd passing_rent from lease_table. 
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -179,8 +164,59 @@ async function goadMapTest(){
             "line-width": 3
         }
     });
-
+    // Adding the tenant names
+    map.addLayer({
+        'id': 'tenant-names',
+        'type': 'symbol',
+        'source': 'blaby_leaseholds',
+        'layout': {
+        // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+          "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+          'text-field': ['get', 'tenant_name'],
+          'text-size': 12,
+          'text-rotate': getRotation(['get', 'coordinates']),
+        //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+        //   'text-radial-offset': 0.5,
+          'text-justify': 'center'
+        },
+        'paint': {
+          'text-color': '#000'
+        }
+      });
+      //should I make a fetch request here?
+}
    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// THIS SHOULD BE A NEW SCRIPT?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //COLOURING IN BY ATTRUBUTE:
 //Add Colouring for "dmse_type"
 const dmse_type_colors = [
@@ -355,7 +391,7 @@ selectElement.addEventListener('change', function () {
     map.addLayer({
         'id': 'tenant-names',
         'type': 'symbol',
-        'source': 'blaby_leaseholds',
+        'source': 'blaby_leaseholds', //define a different source of the inscribed rectangle
         'layout': {
         // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
           "text-font": [ "Source Sans Pro Regular" ], //Testing here!
@@ -371,53 +407,50 @@ selectElement.addEventListener('change', function () {
         }
       });
     //     // Adding the invisible rectangles!
-    testcoord  = [[-1.1641723912687918, 52.57460904292981], [-1.1641686371240196, 52.574698897528776], [-1.1635196965080394, 52.574688832165926], [-1.1635234519780315, 52.574598977599464], [-1.1641723912687918, 52.57460904292981]]
-    map.addSource('rectesting', {
-        'type': 'geojson',
-        'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-            'type': 'Polygon',
-            // Define the coordinates of your rectangle here
-            'coordinates': [
-                testcoord]
-          }
-        }
-      });
+    // testcoord  = [[-1.1641723912687918, 52.57460904292981], [-1.1641686371240196, 52.574698897528776], [-1.1635196965080394, 52.574688832165926], [-1.1635234519780315, 52.574598977599464], [-1.1641723912687918, 52.57460904292981]]
+    // map.addSource('rectesting', {
+    //     'type': 'geojson',
+    //     'data': {
+    //       'type': 'Feature',
+    //       'properties': {},
+    //       'geometry': {
+    //         'type': 'Polygon',
+    //         // Define the coordinates of your rectangle here
+    //         'coordinates': [
+    //             testcoord]
+    //       }
+    //     }
+    //   });
     
-      // Add the rectangle layer
-      map.addLayer({
-        'id': 'rectesting',
-        'type': 'line',
-        'source': 'rectesting',
-        'layout': {},
-        'paint': {
-          'line-color': '#088', // Color of the rectangle
-          'line-opacity': 1.0, //Invisible rectangle
-          'line-width': 3
-        }
-      });
-      map.addLayer({
-        'id': 'text',
-        'type': 'symbol',
-        'source': 'rectesting',
-        'layout': {
-            // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-              "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-              'text-field': 'TESTING',
-              'text-size': 12,
-               'text-rotate': getRotation(testcoord),
-            //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-            //   'text-radial-offset': 0.5,
-              'text-justify': 'center'
-            },
-        'paint': {
-          'text-color': '#000'
-        }
-      });
-
-
+    //   // Add the rectangle layer
+    //   map.addLayer({
+    //     'id': 'rectesting',
+    //     'type': 'line',
+    //     'source': 'rectesting',
+    //     'layout': {},
+    //     'paint': {
+    //       'line-color': '#088', // Color of the rectangle
+    //       'line-opacity': 1.0, //Invisible rectangle
+    //       'line-width': 3
+    //     }
+    //   });
+    //   map.addLayer({
+    //     'id': 'text',
+    //     'type': 'symbol',
+    //     'source': 'rectesting',
+    //     'layout': {
+    //         // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+    //           "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+    //           'text-field': 'TESTING',
+    //           'text-size': 12,
+    //            'text-rotate': getRotation(testcoord),
+    //         //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+    //         //   'text-radial-offset': 0.5,
+    //           'text-justify': 'center'
+    //         },
+    //     'paint': {
+    //       'text-color': '#000'
+    //     }
+    //   });
     }); 
 
-}

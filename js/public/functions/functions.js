@@ -5,8 +5,6 @@ var form = document.getElementById("the-form");
 // var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled so I don't care if this is exposed.
 form.addEventListener('submit', lookUpAddressesOld);
 
-
-
 // Function to get features of the clicked point
 /**
  * Return URL with encoded parameters.

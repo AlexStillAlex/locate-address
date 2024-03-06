@@ -25,7 +25,7 @@ fetch('/dropdown-data')
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      // POINT TO CHECK
+      // Global variables
       lease_tenant_table = data.query_lease_tenant_table;
       dmse_table = data.query_dmse_table;
       epc_table = data.query_EPC_table;
@@ -33,13 +33,86 @@ fetch('/dropdown-data')
       console.log(lease_tenant_table)
       console.log(dmse_table)
       console.log(epc_table)
-      // This is the function in that other file.
+      // This is the function in that other file. It just does some highlighting
       goadMapTest();
+
+      // Currently this is the blaby polygons but we can cange that
+      // We chain fetch requests like this.
+      let testcoord = [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]]
+      // TESTING
+      // add an empty map source
+      map.addSource('inscribed_rectangles_testing', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: [
+            ]
+        }
+    });  
+      let interior_polygon_source = map.getSource('blaby_leaseholds')
+
+      return fetch('/get_rectangle_py', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ "coords": testcoord }),  // Pass the coordinates in the request body
+        })
+      }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+
+        return response.json();  // This returns a Promise
     })
-    .catch((error) => {
-      console.error('Error:', error);
+    .then(data => {
+        //  [(x1,y1),(x2,y2),(x3,y3),(x4,y4)] --> [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+        let rawcoords = JSON.parse(data.data);
+        console.log(typeof(rawcoords))
+        
+        console.log(rawcoords[1])
+        let newcoords = rawcoords.map(tuple => Array.from(tuple));
+        //Create JSON
+        let feature = {
+          type: 'Feature',
+          geometry: {
+              type: 'Polygon',
+              coordinates: newcoords
+          }
+      };
+          // Get the current data from the source
+    let sourceData = map.getSource('inscribed_rectangles_testing')._data;
+
+    // Add the new feature to the features array
+    sourceData.features.push(feature);
+    // Update the source with the new data
+    map.getSource('inscribed_rectangles_testing').setData(sourceData);
+    map.addLayer({
+          'id': 'test_rectangles',
+          'type': 'symbol',
+          'source': 'inscribed_rectangles_testing',
+          'layout': {
+          // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+            "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+            'text-field': 'Testing',
+            'text-size': 30,
+            'text-rotate': getRotation(newcoords),
+            'text-justify': 'center'
+          },
+          'paint': {
+            'text-color': '#000'
+          }
+        });
+    })
+    .catch(error => {
+        // Handle the error here
+        console.error('There has been a problem with your fetch operation:', error);
+    })
+  .catch((error) => {
+    console.error('Error:', error);
     });
-});
+  });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Get the Databricks query on Client side

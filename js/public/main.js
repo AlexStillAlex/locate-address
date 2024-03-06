@@ -75,32 +75,32 @@ const map = new maplibregl.Map({
     "features": []
 };
 
-// // Add event which waits for the map to be loaded.
-// map.on('load', function() {
-//     // Add an empty GeoJSON layer for the Topographic Area features.
-//     map.addLayer({
-//         "id": "topographic-areas",
-//         "type": "fill",
-//         "source": {
-//             "type": "geojson",
-//             "data": geoJson
-//         },
-//         "layout": {},
-//         "paint": {
-//             "fill-color": "#38f", //BLUE
-//             "fill-opacity": 0.3 //Don't even need to highlight htis
-//         }
-//     });
+// Add event which waits for the map to be loaded.
+map.on('load', function() {
+    // Add an empty GeoJSON layer for the Topographic Area features.
+    map.addLayer({
+        "id": "topographic-areas",
+        "type": "fill",
+        "source": {
+            "type": "geojson",
+            "data": geoJson
+        },
+        "layout": {},
+        "paint": {
+            "fill-color": "#38f", //BLUE
+            "fill-opacity": 0.3 //Don't even need to highlight htis
+        }
+    });
 
-//     // Add click event handler.
-//     map.on('click', function(e) {
-//         let coord = e.lngLat;
+    // Add click event handler.
+    map.on('click', function(e) {
+        let coord = e.lngLat;
 
-//         // SetMarkerLocation(coord);
-//         getFeatures(coord);
+        // SetMarkerLocation(coord);
+        getFeatures(coord);
 
-//     });
-// });
+    });
+});
 
 
 
