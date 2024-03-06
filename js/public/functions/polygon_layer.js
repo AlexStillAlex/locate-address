@@ -62,12 +62,15 @@ async function goadMapTest(){
     blaby_leasehold_polygons.forEach(feature => {
         const reference = feature.properties.id.toString();
         const tenant = lease_tenant_table.find(item => item.dmse_ref === reference);
+        console.log(tenant)
         if (tenant == undefined){
             console.log(`The demise reference ${reference} taken from the polygon is not in lease_tenant_table`)
             feature.properties.tenant_name = undefined;
+            feature.properties.passing_rent = undefined;
         }
         else {
                 feature.properties.tenant_name = tenant.tenant_name;
+                feature.properties.passing_rent = tenant.leas_passing_rent;
         }
     });
     //to see if the attribute has been added to the polygon feature run this in the console:
@@ -81,14 +84,11 @@ async function goadMapTest(){
         if (demise == undefined){
             console.log(`The demise reference ${reference} taken from the polygon is not in demise_table`)
             feature.properties.dmse_type = undefined;
-            feature.properties.dmse_status = undefined;
-            feature.properties.passing_rent = undefined;
-            
+            feature.properties.dmse_status = undefined;        
         }
         else {
                 feature.properties.dmse_type = demise.dmse_type_desc;
                 feature.properties.dmse_status = demise.dmse_status_desc;
-                feature.properties.passing_rent = demise.leas_passing_rent
         }
     });
 
@@ -209,6 +209,11 @@ const epc_colors = [
 // Add event listener to select element
 const selectElement = document.getElementById('colour_by');
 selectElement.addEventListener('change', function () {
+    //let's remove any legend that might be there from the previous selection:
+    const colourLegendDiv = document.getElementById('colourlegend');
+    colourLegendDiv.style.display = 'none';
+    colourLegendDiv.innerHTML = '';
+
     const selectedValue = selectElement.value;
     let colorExpression = defaultcolor; // Default color is red
 
@@ -221,23 +226,128 @@ selectElement.addEventListener('change', function () {
     dmse_type_colors.forEach(({ value, color }) => {
     colorExpression.push(value, color);
     });
-//!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
-// This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
-colorExpression.push('#000000'); //black
+    //!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
+    // This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
+    colorExpression.push('#000000'); //black
+
+    // Add legend
+    for (let item of dmse_type_colors) {
+        let legendItem = document.createElement('div');
+
+        // Create a color box.
+        let colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.marginRight = '8px';
+        colorBox.style.backgroundColor = item.color;
+        legendItem.appendChild(colorBox);
+
+        // Create a label.
+        let label = document.createTextNode(item.value);
+        legendItem.appendChild(label);
+
+        // Add the legend item to the legend.
+        colourlegend.appendChild(legendItem);
+    }
+    colourLegendDiv.style.display = 'block';
+
     } if (selectedValue === 'epc') {
         colorExpression = ['match', ['get', 'epc_rating_letter']];
         epc_colors.forEach(({ value, color }) => {
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
+
+        // Add legend
+        for (let item of epc_colors) {
+            let legendItem = document.createElement('div');
+
+            // Create a color box.
+            let colorBox = document.createElement('span');
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '20px';
+            colorBox.style.height = '20px';
+            colorBox.style.marginRight = '8px';
+            colorBox.style.backgroundColor = item.color;
+            legendItem.appendChild(colorBox);
+
+            // Create a label.
+            let label = document.createTextNode(item.value);
+            legendItem.appendChild(label);
+
+            // Add the legend item to the legend.
+            colourlegend.appendChild(legendItem);
+        }
+        colourLegendDiv.style.display = 'block';
     } if (selectedValue === 'passing_rent') {
-        colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 5000, '#f70202']
+        // colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 10000, '#02f7f7', 20000]
+        colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to blue
+
+        // Add legend for passing rent
+        const minPassingRent = 0; // Smallest passing rent
+        const maxPassingRent = 1000000; // Largest passing rent
+        const numSteps = 5; // Number of legend steps
+
+        // Calculate step size
+        const stepSize = (maxPassingRent - minPassingRent) / numSteps;
+
+        // Create legend items
+        for (let i = 0; i <= numSteps; i++) {
+            let legendItem = document.createElement('div');
+
+            // Calculate passing rent value for this step
+            const passingRent = minPassingRent + (i * stepSize);
+
+            // Create a color box.
+            let colorBox = document.createElement('span');
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '20px';
+            colorBox.style.height = '20px';
+            colorBox.style.marginRight = '8px';
+            console.log(`rgb(255, 255, ${255 - (i * (255 / numSteps))})`);
+            colorBox.style.backgroundColor = `rgb(255, 255, ${255 - (i * (255 / numSteps))})`; // Calculate color based on step
+            legendItem.appendChild(colorBox);
+
+            // Create a label.
+            let label = document.createTextNode(passingRent.toFixed(2)); // Round to 2 decimal places
+            legendItem.appendChild(label);
+
+            // Add the legend item to the legend.
+            colourLegendDiv.appendChild(legendItem);
+        }
+
+        // Show the legend for passing rent when 'passing_rent' option is selected
+        colourLegendDiv.style.display = 'block';
+
     } else if (selectedValue === 'dmse_status') {
         colorExpression = ['match', ['get', 'dmse_status']];
         dmse_status_colors.forEach(({ value, color }) => {
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
+
+        // Add legend
+    for (let item of dmse_status_colors) {
+        let legendItem = document.createElement('div');
+
+        // Create a color box.
+        let colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.marginRight = '8px';
+        colorBox.style.backgroundColor = item.color;
+        legendItem.appendChild(colorBox);
+
+        // Create a label.
+        let label = document.createTextNode(item.value);
+        legendItem.appendChild(label);
+
+        // Add the legend item to the legend.
+        colourlegend.appendChild(legendItem);
+    }
+    colourLegendDiv.style.display = 'block';
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
