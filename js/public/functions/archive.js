@@ -217,3 +217,29 @@
 //     res.status(500).json({ message: 'An error occurred' });
 //   });
 // });
+
+    // //add dmse_status from tenant dmse_table. 
+    // blaby_leasehold_polygons.forEach(feature => {
+    //     const reference = feature.properties.id.toString();
+    //     const demise = dmse_table.find(item => item.dmse_ref === reference);
+    //     if (demise == undefined){
+    //         console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`)
+    //         feature.properties.dmse_status = undefined;
+    //     }
+    //     else {
+    //             feature.properties.dmse_status = demise.dmse_status_desc;
+    //     }
+    // });
+
+    //add epc_letter from epc_table. 
+    // blaby_leasehold_polygons.forEach(feature => {
+    //     const reference = feature.properties.id.toString();
+    //     const demise = epc_table.find(item => item.depc_dmse_ref === reference);
+    //     if (demise == undefined){
+    //         console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
+    //         feature.properties.epc_rating_letter = undefined;
+    //     }
+    //     else {
+    //         feature.properties.epc_rating_letter = demise.depc_rating_letter;
+    //     }
+    // });

@@ -18,6 +18,10 @@
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
     <script src="https://unpkg.com/konva@9/konva.min.js"></script> <!--WE WILL BE USING KONVA TO DRAW ON OUR MAP.-->
 
+    <!-- this is needed for autocomplete -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script> -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.css" rel="stylesheet"> -->
+
     <link rel="stylesheet" href="layout.css">
 
     <!-- used to see the coordinates of a mouse move -->
@@ -75,14 +79,15 @@
     <div class="map-overlay-inner">
         <button id = "showFilter" type="button" class="collapsible"onclick="toggleCollapsible(event)">Filter By</button>
         <div class="sections" style = "display:none">
+
+          <h2>Find:</h2>
           <!-- Address (search by) -->
-          <p>Addres:</p>
+          <p>Address:</p>
             <form id="the-form">
                 <textarea id="address-text" placeholder="Enter addresses here, one per line..."></textarea>
                 <input id="address-field" type="submit"> 
                 <i id="spinner" class="c-inline-spinner"></i>
             </form>
-
           <!-- Property Reference (search by) -->
           <div class="row">
               <div class="left" >
@@ -92,7 +97,13 @@
                 </ul>
               </div>
           <div id="address-info"><!-- Address information will be displayed here --></div>
+          <p>Demise Reference</p>
         
+          <h2>Select:</h2>
+          <p>Asset Manager</p>
+          <input type="text" id="asset_manager_box" onkeyup="searchReferences_asset_managers()" placeholder="Type an Asset Manager">
+                <ul id="myMenu_asset_manager">
+                </ul> 
           <p>Group Name</p>
           <p>Demise Type</p>
           <p>Tenant Name</p>

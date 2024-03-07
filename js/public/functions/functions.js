@@ -265,6 +265,68 @@ function searchReferences() {
         }
     }
 }
+
+//Same as above, but now for asset managers
+function searchReferences_asset_managers() {
+    var input, ul,filter, li, a, i, visibleCount;
+    input = document.getElementById("asset_manager_box"); //Gets the search bar
+    ul = document.getElementById("myMenu_asset_manager");
+    var filter = input.value.toUpperCase(); // shouldnt matter cos we're dealing with numvers
+    li = ul.getElementsByTagName("li"); 
+    visibleCount = 0; //Counter to keep track of how many items are visible
+
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            if (visibleCount < 3) { //Only show 3 items at a time
+                li[i].style.display = "block"; //Show vertically
+                visibleCount++;
+            } else {
+                li[i].style.display = "none";
+            }
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
+async function populateDropdown_asset_managers(data) {
+
+    const asset_manager_array = data.map(obj => obj.dmse_surveyor);
+    const assetManagerBox = document.getElementById('asset_manager_box');
+    new Awesomplete(assetManagerBox, {
+        list: asset_manager_array
+    });
+
+
+    // var menu = document.getElementById('myMenu_asset_manager'); //Gets the menu. Initially blank
+    // data.forEach(function(item) { 
+    //     //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
+    //     //then has onclick functionality to fly to the coordinates of the property.
+    //     var li = document.createElement('li');
+    //     li.className = 'searchable';
+    //     var a = document.createElement('a'); //these are called ANCHOR tags. 
+    //     a.href = '#'; //Link is blank. good for now.
+    //     a.textContent = item.dmse_surveyor; // Use the prop_ref property as the text
+
+    //     a.onclick = function() {
+    //         map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
+    //     }
+
+    //     li.appendChild(a);
+    //     menu.appendChild(li);
+    // });
+}
+
+document.getElementById('asset_manager_box').addEventListener('input', function () {
+    const assetManager = document.getElementById('asset_manager_box').value.trim().toLowerCase();
+    if (assetManager === '') {
+        // If input is empty, show all polygons
+        map.setFilter('blaby_leaseholds', null);
+}
+});
+
+
 // DRAWING.JS
 // When Export map is clicked, the map will download.
 document.getElementById('exportMap').addEventListener('click', function() { 

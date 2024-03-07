@@ -4,8 +4,10 @@ async function goadMapTest(){
 
 // map.on('load', function() {
 // Possible conflict because map is called twice
+
+//We have three map layers: leasehold_polygon layer (polygon), freehold_polygon layer (polygon), and tenant_names_layer (symbol; i.e. point)
     defaultcolor = '#FF0000'; // Default color
-    
+    // National Polygon Data will only have coordinates and title number. In this example, we have coordinates and dmse_ref
     const blaby_leasehold_polygons = [
         {
             type: 'Feature',
@@ -15,7 +17,6 @@ async function goadMapTest(){
             },
             properties: {
                 id: '17000891',
-                address: 'unit 2',
                 'color': defaultcolor
             }
         },
@@ -27,7 +28,6 @@ async function goadMapTest(){
             },
             properties: {
                 id: '17000894',
-                address: 'unit 5',
                 'color': defaultcolor
             }
         },
@@ -39,7 +39,6 @@ async function goadMapTest(){
             },
             properties: {
                 id: '17000895',
-                address: 'unit 6',
                 'color': defaultcolor
             }
         },
@@ -51,19 +50,51 @@ async function goadMapTest(){
             },
             properties: {
                 id: '17000896',
-                address: 'unit 6-7; actually 7',
+                'color': defaultcolor
+            }
+        },
+
+        // industrial site: Oakhill Trading Estate, Leicester
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates:  [[[-1.131841286097142,52.61494511216986], [-1.1312569221032618,52.614949660983285], [-1.1312606680265844,52.615161180288], [-1.1318450320204647,52.61517027786988], [-1.131841286097142,52.61494511216986]]]
+            },
+            properties: {
+                id: '17006871',
+                'color': defaultcolor
+            }
+        },
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.131841286097142,52.61428780365418], [-1.131586563330302,52.614280980330506], [-1.1315790714849072,52.61415588587724], [-1.1312681598732297,52.614151336981365], [-1.1312662869104315,52.61450387501583], [-1.1318525238659731,52.614507286660626], [-1.131841286097142,52.61428780365418]]]
+            },
+            properties: {
+                id: '17006874',
+                'color': defaultcolor
+            }
+        },
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.1325584268997773, 52.61465934533422], [-1.1321896231603432,52.614656088206374], [-1.1321909642649644,52.61498994252298], [-1.1325557446896255,52.614989128247174], [-1.1325584268997773,52.61465934533422]]]
+            },
+            properties: {
+                id: '17006875',
                 'color': defaultcolor
             }
         }
     ]
 
-    //add tenant_name from lease_tenant_table. 
-    //add tenant_name attribute to each feature's properties. To do so, look up the tenant name in the databricks tenant table by dmse_reference that is already attached to the feature.
-        // console.log(map.getLayer('blaby_leaseholds'));
-    // console.log(map.getSource('blaby_leaseholds'));
+    //add properties to 'blaby_leasehold_polygons'
     blaby_leasehold_polygons.forEach(feature => {
+        //take the demise reference from a particular feature
         const reference = feature.properties.id.toString();
-        // Logic for adding tenant name
+        // add tenant_name and passing_rent from lease_tenant_table
         const tenant = lease_tenant_table.find(item => item.dmse_ref === reference);
         console.log(tenant)
         if (tenant == undefined){
@@ -75,46 +106,35 @@ async function goadMapTest(){
                 feature.properties.tenant_name = tenant.tenant_name;
                 feature.properties.passing_rent = tenant.leas_passing_rent;
         }
-        // Logic for adding dmse_type and dmse_status
+        // add dmse_type, dmse_status, dmse_desc from dmse_table
         const dmse_demise = dmse_table.find(item => item.dmse_ref === reference);
         if (dmse_demise == undefined) {
             console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`);
             feature.properties.dmse_type = undefined;
-            feature.properties.dmse_status = undefined;        
+            feature.properties.dmse_status = undefined;  
+            feature.properties.dmse_desc = undefined;
+            feature.properties.dmse_surveyor = undefined;
         }
         else {
-                feature.properties.dmse_type = demise.dmse_type_desc;
-                feature.properties.dmse_status = demise.dmse_status_desc;
+                feature.properties.dmse_type = dmse_demise.dmse_type_desc;
+                feature.properties.dmse_status = dmse_demise.dmse_status_desc;
+                feature.properties.dmse_desc = dmse_demise.dmse_desc;
+                feature.properties.dmse_surveyor = dmse_demise.dmse_surveyor;
         }
-    });
-
-    // //add dmse_status from tenant dmse_table. 
-    // blaby_leasehold_polygons.forEach(feature => {
-    //     const reference = feature.properties.id.toString();
-    //     const demise = dmse_table.find(item => item.dmse_ref === reference);
-    //     if (demise == undefined){
-    //         console.log(`The demise reference ${reference} taken from the polygon is not in dmse_table`)
-    //         feature.properties.dmse_status = undefined;
-    //     }
-    //     else {
-    //             feature.properties.dmse_status = demise.dmse_status_desc;
-    //     }
-    // });
-
-    //add epc_letter from epc_table. 
-    blaby_leasehold_polygons.forEach(feature => {
-        const reference = feature.properties.id.toString();
-        const demise = epc_table.find(item => item.depc_dmse_ref === reference);
-        if (demise == undefined){
+        // add epc_rating_letter from epc_table
+        const epc_table_demise = epc_table.find(item => item.depc_dmse_ref === reference);
+        if (epc_table_demise == undefined){
             console.log(`The demise reference ${reference} taken from the polygon is not in epc_table`)
             feature.properties.epc_rating_letter = undefined;
         }
         else {
-            feature.properties.epc_rating_letter = epc_demise.depc_rating_letter;
+            feature.properties.epc_rating_letter = epc_table_demise.depc_rating_letter;
         }
     });
 
-    //TODOdd passing_rent from lease_table. 
+    //check that attributes have been added to the map source:
+    // console.log(map.getLayer('blaby_leaseholds'));
+    // console.log(map.getSource('blaby_leaseholds'));
 
     //creating map layer source
     map.addSource('blaby_leaseholds', {
@@ -183,17 +203,178 @@ async function goadMapTest(){
           'text-color': '#000'
         }
       });
+
       //should I make a fetch request here?
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Creating Circles on Map Zoom level > ()
+//Input should be taken from tenant-names coordinates. For now we will test on fictional example.
+const centroid_points = [
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates: [-1.163888981124046,52.57594745749188]
+        },
+        properties: {
+            id: '17000891',
+        }
+    },
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates: [-1.1636471894971692,52.57589847779269]
+        },
+        properties: {
+            id: '17000894',
+        }
+    },
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates: [-1.163577452060963,52.575978347970135]
+        },
+        properties: {
+            id: '17000895',
+        }
+    },
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates:  [-1.1636243907191783,52.576052513005266]
+        },
+        properties: {
+            id: '17000896',
+        }
+    },
+
+    // industrial points:
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates:  [-1.1315503209007147,52.61441423077889]
+        },
+        properties: {
+            id: '17006874',
+        }
+    },
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates:  [-1.131515360354797,52.615013486934345]
+        },
+        properties: {
+            id: '17006871',
+        }
+    },
+    {
+        type: 'Feature',
+        geometry:{
+            type: 'Point',    
+            coordinates:  [-1.132370549067332,52.6147750917348]
+        },
+        properties: {
+            id: '17006875',
+        }
+    }
+]
+
+map.addSource('centroid_polygon', {
+    type: 'geojson',
+    data: {
+        type: 'FeatureCollection',
+        features: centroid_points
+    },
+    cluster: true,
+    clusterMaxZoom: 14, // Max zoom to cluster points on
+    clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+});
+
+map.addLayer({
+    id: 'clusters',
+    type: 'circle',
+    source: 'centroid_polygon',
+    filter: ['has', 'point_count'],
+    paint: {
+        // Use step expressions (https://maplibre.org/maplibre-style-spec/#expressions-step)
+        // with three steps to implement three types of circles:
+        //   * Blue, 20px circles when point count is less than 100
+        //   * Yellow, 30px circles when point count is between 100 and 750
+        //   * Pink, 40px circles when point count is greater than or equal to 750
+        'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#51bbd6',
+            5,
+            '#f1f075',
+            10,
+            '#f28cb1'
+        ],
+        'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20,
+            100,
+            30,
+            750,
+            40
+        ]
+    }
+});
+
+map.addLayer({
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'centroid_polygon',
+    filter: ['has', 'point_count'],
+    layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': [ "Source Sans Pro Regular" ],
+        'text-size': 12
+    }
+});
+
+map.addLayer({
+    id: 'unclustered-point',
+    type: 'circle',
+    source: 'centroid_polygon',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+        'circle-color': '#11b4da',
+        'circle-radius': 4,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#fff'
+    }
+});
+
+// inspect a cluster on click
+map.on('click', 'clusters', async (e) => {
+    const features = map.queryRenderedFeatures(e.point, {
+        layers: ['clusters']
+    });
+    const clusterId = features[0].properties.cluster_id;
+    const zoom = await map.getSource('centroid_polygon').getClusterExpansionZoom(clusterId);
+    map.easeTo({
+        center: features[0].geometry.coordinates,
+        zoom
+    });
+});
+
+map.on('mouseenter', 'clusters', () => {
+    map.getCanvas().style.cursor = 'pointer';
+});
+map.on('mouseleave', 'clusters', () => {
+    map.getCanvas().style.cursor = '';
+});
+
 }
-   
-
-
-
-
-
-
-
-
 
 
 
@@ -221,7 +402,8 @@ async function goadMapTest(){
 //Add Colouring for "dmse_type"
 const dmse_type_colors = [
     { value: "Retail", color: "#157CBD" }, //blue
-    { value: "Residential", color: "#FFC300" } //orange
+    { value: "Residential", color: "#FFC300" }, //orange
+    { value: "Industrial", color: "#ff00bf" }, //pink
 ];
 
 //Add Colouring for "dmse_status"
@@ -237,10 +419,9 @@ const epc_colors = [
     { value: "D", color: "#fbee5c" },
     { value: "E", color: "#f0ba4d" },
     { value: "F", color: "#D76F35" },
-    { value: "G", color: "#cd2e2b" } 
+    { value: "G", color: "#cd2e2b" },
+    { value: "No EPC Available", color: "#000000"} 
 ]
-
-
 
 // Add event listener to select element
 const selectElement = document.getElementById('colour_by');
@@ -387,6 +568,16 @@ selectElement.addEventListener('change', function () {
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
+
+
+
+
+
+
+
+
+
+
 
     map.addLayer({
         'id': 'tenant-names',
