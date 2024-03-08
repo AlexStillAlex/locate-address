@@ -208,9 +208,9 @@ async function goadMapTest(){
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Creating Circles on Map Zoom level > ()
-//Input should be taken from tenant-names coordinates. For now we will test on fictional example.
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //Creating Circles on Map Zoom level > ()
+// //Input should be taken from tenant-names coordinates. For now we will test on fictional example.
 const centroid_points = [
     {
         type: 'Feature',
@@ -220,6 +220,9 @@ const centroid_points = [
         },
         properties: {
             id: '17000891',
+            epc_rating_letter: "C",
+            dmse_type: "Retail",
+            dmse_status: "Occupied"
         }
     },
     {
@@ -230,6 +233,9 @@ const centroid_points = [
         },
         properties: {
             id: '17000894',
+            epc_rating_letter: "C",
+            dmse_type: "Retail",
+            dmse_status: "Occupied"
         }
     },
     {
@@ -240,6 +246,11 @@ const centroid_points = [
         },
         properties: {
             id: '17000895',
+            // epc_rating_letter : "NA"
+            epc_rating_letter: "NA",
+            // epc_rating_letter : null
+            dmse_type: "Retail",
+            dmse_status: "Occupied"
         }
     },
     {
@@ -250,6 +261,9 @@ const centroid_points = [
         },
         properties: {
             id: '17000896',
+            epc_rating_letter: "C",
+            dmse_type: "Retail",
+            dmse_status: "Occupied"
         }
     },
 
@@ -258,20 +272,26 @@ const centroid_points = [
         type: 'Feature',
         geometry:{
             type: 'Point',    
-            coordinates:  [-1.1315503209007147,52.61441423077889]
+            coordinates:  [-1.131515360354797,52.615013486934345]
         },
         properties: {
-            id: '17006874',
+            id: '17006871',
+            epc_rating_letter: "C",
+            dmse_type: "Industrial",
+            dmse_status: "Occupied"
         }
     },
     {
         type: 'Feature',
         geometry:{
             type: 'Point',    
-            coordinates:  [-1.131515360354797,52.615013486934345]
+            coordinates:  [-1.1315503209007147,52.61441423077889]
         },
         properties: {
-            id: '17006871',
+            id: '17006874',
+            epc_rating_letter: "D",
+            dmse_type: "Industrial",
+            dmse_status: "Occupied"
         }
     },
     {
@@ -282,121 +302,14 @@ const centroid_points = [
         },
         properties: {
             id: '17006875',
+            epc_rating_letter: "C",
+            dmse_type: "Industrial",
+            dmse_status: "Occupied"
         }
     }
 ]
 
-map.addSource('centroid_polygon', {
-    type: 'geojson',
-    data: {
-        type: 'FeatureCollection',
-        features: centroid_points
-    },
-    cluster: true,
-    clusterMaxZoom: 14, // Max zoom to cluster points on
-    clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
-});
-
-map.addLayer({
-    id: 'clusters',
-    type: 'circle',
-    source: 'centroid_polygon',
-    filter: ['has', 'point_count'],
-    paint: {
-        // Use step expressions (https://maplibre.org/maplibre-style-spec/#expressions-step)
-        // with three steps to implement three types of circles:
-        //   * Blue, 20px circles when point count is less than 100
-        //   * Yellow, 30px circles when point count is between 100 and 750
-        //   * Pink, 40px circles when point count is greater than or equal to 750
-        'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#51bbd6',
-            5,
-            '#f1f075',
-            10,
-            '#f28cb1'
-        ],
-        'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            100,
-            30,
-            750,
-            40
-        ]
-    }
-});
-
-map.addLayer({
-    id: 'cluster-count',
-    type: 'symbol',
-    source: 'centroid_polygon',
-    filter: ['has', 'point_count'],
-    layout: {
-        'text-field': '{point_count_abbreviated}',
-        'text-font': [ "Source Sans Pro Regular" ],
-        'text-size': 12
-    }
-});
-
-map.addLayer({
-    id: 'unclustered-point',
-    type: 'circle',
-    source: 'centroid_polygon',
-    filter: ['!', ['has', 'point_count']],
-    paint: {
-        'circle-color': '#11b4da',
-        'circle-radius': 4,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#fff'
-    }
-});
-
-// inspect a cluster on click
-map.on('click', 'clusters', async (e) => {
-    const features = map.queryRenderedFeatures(e.point, {
-        layers: ['clusters']
-    });
-    const clusterId = features[0].properties.cluster_id;
-    const zoom = await map.getSource('centroid_polygon').getClusterExpansionZoom(clusterId);
-    map.easeTo({
-        center: features[0].geometry.coordinates,
-        zoom
-    });
-});
-
-map.on('mouseenter', 'clusters', () => {
-    map.getCanvas().style.cursor = 'pointer';
-});
-map.on('mouseleave', 'clusters', () => {
-    map.getCanvas().style.cursor = '';
-});
-
-}
-
-
-
-
-
-
-
-
-// THIS SHOULD BE A NEW SCRIPT?
-
-
-
-
-
-
-
-
-
-
-
-
-
+create_default_pie_charts_on_high_zoom_level(centroid_points);
 
 //COLOURING IN BY ATTRUBUTE:
 //Add Colouring for "dmse_type"
@@ -420,84 +333,98 @@ const epc_colors = [
     { value: "E", color: "#f0ba4d" },
     { value: "F", color: "#D76F35" },
     { value: "G", color: "#cd2e2b" },
-    { value: "No EPC Available", color: "#000000"} 
+    { value: "NA", color: "#000000"} 
 ]
 
-// Add event listener to select element
-const selectElement = document.getElementById('colour_by');
-selectElement.addEventListener('change', function () {
+document.getElementById('colour_by').addEventListener('change', function () {
     //let's remove any legend that might be there from the previous selection:
     const colourLegendDiv = document.getElementById('colourlegend');
     colourLegendDiv.style.display = 'none';
     colourLegendDiv.innerHTML = '';
 
-    const selectedValue = selectElement.value;
+    const selectedValue = document.getElementById('colour_by').value;
     let colorExpression = defaultcolor; // Default color is red
 
     // Change color expression based on selected value
     if (selectedValue === 'default_value') {
-    colorExpression = defaultcolor; // Default color is red
-    } if (selectedValue === 'dmse_type') {
-    // Change color based on 'type' attribute and dmse_type_colors array
-    colorExpression = ['match', ['get', 'dmse_type']];
-    dmse_type_colors.forEach(({ value, color }) => {
-    colorExpression.push(value, color);
-    });
-    //!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
-    // This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
-    colorExpression.push('#000000'); //black
+        //let's remove any existing pie charts on high zoom level
+        if(map.getLayer('unclustered-point')){
+            map.removeLayer('unclustered-point');
+            map.removeSource('unclustered-point');
+        }
+        // let's add back the default pie charts on high zoom level
+            map.setLayoutProperty('unclustered-point-default', 'visibility', 'visible');
+            map.setLayoutProperty('clusters', 'visibility', 'visible');
+            map.setLayoutProperty('cluster-count', 'visibility', 'visible');
 
-    // Add legend
-    for (let item of dmse_type_colors) {
-        let legendItem = document.createElement('div');
+        colorExpression = defaultcolor; // Default color is red
+    } 
+    if (selectedValue === 'dmse_type') {
+        //let's remove any existing pie charts on high zoom level
+        if(map.getLayer('unclustered-point')){
+            map.removeLayer('unclustered-point');
+            map.removeSource('unclustered-point');
+        }
 
-        // Create a color box.
-        let colorBox = document.createElement('span');
-        colorBox.style.display = 'inline-block';
-        colorBox.style.width = '20px';
-        colorBox.style.height = '20px';
-        colorBox.style.marginRight = '8px';
-        colorBox.style.backgroundColor = item.color;
-        legendItem.appendChild(colorBox);
+        // let's remove any default pie charts on high zoom level
+            map.setLayoutProperty('unclustered-point-default', 'visibility', 'none');
+            map.setLayoutProperty('clusters', 'visibility', 'none');
+            map.setLayoutProperty('cluster-count', 'visibility', 'none');
 
-        // Create a label.
-        let label = document.createTextNode(item.value);
-        legendItem.appendChild(label);
+        // Change color based on 'type' attribute and dmse_type_colors array
+        colorExpression = ['match', ['get', 'dmse_type']];
+        dmse_type_colors.forEach(({ value, color }) => {
+        colorExpression.push(value, color);
+        });
+        //!!!! Need to add handelling of error when a new dmse_type is added to Horizon, we do not have a colour hard-coded to it. In that case a new colour should be permanently assigned to it. Notice that dmse_type_colors is a constant.
+        // This will set a "fallback" colour that will colour in the polygon if the colour for this category is not found.
+        colorExpression.push('#000000'); //black
 
-        // Add the legend item to the legend.
-        colourlegend.appendChild(legendItem);
-    }
-    colourLegendDiv.style.display = 'block';
+        color_by_legend(dmse_type_colors);
+        colourLegendDiv.style.display = 'block';
+
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
+        create_pie_charts(centroid_points, dmse_type_colors, "dmse_type", colorExpression)
+        
 
     } if (selectedValue === 'epc') {
+
+        //let's remove any existing pie charts on high zoom level
+        if(map.getLayer('unclustered-point')){
+            map.removeLayer('unclustered-point');
+            map.removeSource('unclustered-point');
+        }
+
+        // let's remove any default pie charts on high zoom level
+        map.setLayoutProperty('unclustered-point-default', 'visibility', 'none');
+        map.setLayoutProperty('clusters', 'visibility', 'none');
+        map.setLayoutProperty('cluster-count', 'visibility', 'none');
+
         colorExpression = ['match', ['get', 'epc_rating_letter']];
         epc_colors.forEach(({ value, color }) => {
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
 
-        // Add legend
-        for (let item of epc_colors) {
-            let legendItem = document.createElement('div');
-
-            // Create a color box.
-            let colorBox = document.createElement('span');
-            colorBox.style.display = 'inline-block';
-            colorBox.style.width = '20px';
-            colorBox.style.height = '20px';
-            colorBox.style.marginRight = '8px';
-            colorBox.style.backgroundColor = item.color;
-            legendItem.appendChild(colorBox);
-
-            // Create a label.
-            let label = document.createTextNode(item.value);
-            legendItem.appendChild(label);
-
-            // Add the legend item to the legend.
-            colourlegend.appendChild(legendItem);
-        }
+        color_by_legend(epc_colors);
         colourLegendDiv.style.display = 'block';
-    } if (selectedValue === 'passing_rent') {
+        
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
+        create_pie_charts(centroid_points, epc_colors, "epc_rating_letter", colorExpression)
+
+    } 
+    if (selectedValue === 'passing_rent') {
+        //let's remove any existing pie charts on high zoom level
+        if(map.getLayer('unclustered-point')){
+            map.removeLayer('unclustered-point');
+            map.removeSource('unclustered-point');
+        }
+
+        // let's remove any default pie charts on high zoom level
+        map.setLayoutProperty('unclustered-point-default', 'visibility', 'none');
+        map.setLayoutProperty('clusters', 'visibility', 'none');
+        map.setLayoutProperty('cluster-count', 'visibility', 'none');
+
         // colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 10000, '#02f7f7', 20000]
         colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to blue
 
@@ -508,7 +435,7 @@ selectElement.addEventListener('change', function () {
 
         // Calculate step size
         const stepSize = (maxPassingRent - minPassingRent) / numSteps;
-
+        
         // Create legend items
         for (let i = 0; i <= numSteps; i++) {
             let legendItem = document.createElement('div');
@@ -537,34 +464,30 @@ selectElement.addEventListener('change', function () {
         // Show the legend for passing rent when 'passing_rent' option is selected
         colourLegendDiv.style.display = 'block';
 
-    } else if (selectedValue === 'dmse_status') {
+    } 
+    else if (selectedValue === 'dmse_status') {
+        //let's remove any existing pie charts on high zoom level
+        if(map.getLayer('unclustered-point')){
+            map.removeLayer('unclustered-point');
+            map.removeSource('unclustered-point');
+        }
+
+        // let's remove any default pie charts on high zoom level
+        map.setLayoutProperty('unclustered-point-default', 'visibility', 'none');
+        map.setLayoutProperty('clusters', 'visibility', 'none');
+        map.setLayoutProperty('cluster-count', 'visibility', 'none');
+
         colorExpression = ['match', ['get', 'dmse_status']];
         dmse_status_colors.forEach(({ value, color }) => {
         colorExpression.push(value, color);
         });
         colorExpression.push('#000000'); //black
 
-        // Add legend
-    for (let item of dmse_status_colors) {
-        let legendItem = document.createElement('div');
+        color_by_legend(dmse_status_colors);
+        colourLegendDiv.style.display = 'block';
 
-        // Create a color box.
-        let colorBox = document.createElement('span');
-        colorBox.style.display = 'inline-block';
-        colorBox.style.width = '20px';
-        colorBox.style.height = '20px';
-        colorBox.style.marginRight = '8px';
-        colorBox.style.backgroundColor = item.color;
-        legendItem.appendChild(colorBox);
-
-        // Create a label.
-        let label = document.createTextNode(item.value);
-        legendItem.appendChild(label);
-
-        // Add the legend item to the legend.
-        colourlegend.appendChild(legendItem);
-    }
-    colourLegendDiv.style.display = 'block';
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
+        create_pie_charts(centroid_points, dmse_status_colors, "dmse_status", colorExpression)
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
@@ -585,6 +508,6 @@ selectElement.addEventListener('change', function () {
         'paint': {
           'text-color': '#000'
         }
-      });
-    }); 
-
+    });
+}); 
+}

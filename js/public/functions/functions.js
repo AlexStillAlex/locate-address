@@ -292,30 +292,30 @@ function searchReferences_asset_managers() {
 
 async function populateDropdown_asset_managers(data) {
 
-    const asset_manager_array = data.map(obj => obj.dmse_surveyor);
-    const assetManagerBox = document.getElementById('asset_manager_box');
-    new Awesomplete(assetManagerBox, {
-        list: asset_manager_array
-    });
-
-
-    // var menu = document.getElementById('myMenu_asset_manager'); //Gets the menu. Initially blank
-    // data.forEach(function(item) { 
-    //     //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
-    //     //then has onclick functionality to fly to the coordinates of the property.
-    //     var li = document.createElement('li');
-    //     li.className = 'searchable';
-    //     var a = document.createElement('a'); //these are called ANCHOR tags. 
-    //     a.href = '#'; //Link is blank. good for now.
-    //     a.textContent = item.dmse_surveyor; // Use the prop_ref property as the text
-
-    //     a.onclick = function() {
-    //         map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
-    //     }
-
-    //     li.appendChild(a);
-    //     menu.appendChild(li);
+    // const asset_manager_array = data.map(obj => obj.dmse_surveyor);
+    // const assetManagerBox = document.getElementById('asset_manager_box');
+    // new Awesomplete(assetManagerBox, {
+    //     list: asset_manager_array
     // });
+
+
+    var menu = document.getElementById('myMenu_asset_manager'); //Gets the menu. Initially blank
+    data.forEach(function(item) { 
+        //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
+        //then has onclick functionality to fly to the coordinates of the property.
+        var li = document.createElement('li');
+        li.className = 'searchable';
+        var a = document.createElement('a'); //these are called ANCHOR tags. 
+        a.href = '#'; //Link is blank. good for now.
+        a.textContent = item.dmse_surveyor; // Use the prop_ref property as the text
+
+        a.onclick = function() {
+            map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
+        }
+
+        li.appendChild(a);
+        menu.appendChild(li);
+    });
 }
 
 document.getElementById('asset_manager_box').addEventListener('input', function () {
@@ -971,3 +971,309 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
         console.log(largestArea,finalcoords,largestTheta)
         return {largestArea,finalcoords,largestTheta};
       }
+
+    function create_pie_charts (feature_points, color_categories, feature_property_categories, colorExpression) {
+            //First, let's create filters as distinct variables. Create an object to store the filters
+        const filter_categories = {};
+
+        // Iterate over (category) colour object to create filters
+        color_categories.forEach(item => {
+            filter_categories['color_by_category_' + item.value] = ['==', ['string', ['get', feature_property_categories]], item.value];
+        });
+
+        // Create clusterProperties dynamically
+        const clusterProperties = {};
+        Object.keys(filter_categories).forEach(key => {
+            clusterProperties[key] = ['+', ['case', filter_categories[key], 1, 0]];
+        });
+        
+        // Now you can use clusterProperties in your map source
+        map.addSource('unclustered-point', {
+            'type': 'geojson',
+            'data': {
+                type: 'FeatureCollection',
+                features: feature_points
+                },
+            'cluster': true,
+            'clusterRadius': 80,
+            'clusterProperties': clusterProperties
+        });
+
+        map.addLayer({
+            id: 'unclustered-point',
+            type: 'circle',
+            source: 'unclustered-point',
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+                'circle-color': colorExpression,
+                'circle-radius': 12,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'
+            },
+            maxzoom : 15 //don't show this layer when zoom level is < 15
+        });
+
+        //Create an array of colors from color_categories
+        const colors = color_categories.map(item => item.color);
+
+        // objects for caching and keeping track of HTML marker objects (for performance)
+        const markers = {};
+        let markersOnScreen = {};
+
+        function updateMarkers() {
+            const newMarkers = {};
+
+            const features = map.querySourceFeatures('unclustered-point');
+
+            // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+            // and add it to the map if it's not there already
+            for (let i = 0; i < features.length; i++) {
+                const coords = features[i].geometry.coordinates;
+                const props = features[i].properties;
+                
+                if (!props.cluster) continue;
+                const id = props.cluster_id;
+
+                let marker = markers[id];
+                if (!marker) {
+                    const el = createDonutChart(props);
+                    marker = markers[id] = new maplibregl.Marker({
+                        element: el
+                    }).setLngLat(coords);
+                }
+
+                newMarkers[id] = marker;
+
+                if (!markersOnScreen[id]) marker.addTo(map);
+            }
+            // for every marker we've added previously, remove those that are no longer visible
+            for (id in markersOnScreen) {
+                if (!newMarkers[id]) markersOnScreen[id].remove();
+            }
+            markersOnScreen = newMarkers;
+        }
+
+        // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
+        map.on('data', (e) => {
+            if (e.sourceId !== 'unclustered-point' || !e.isSourceLoaded) return;
+
+            map.on('move', updateMarkers);
+            map.on('moveend', updateMarkers);
+            updateMarkers();
+        });
+
+        // code for creating an SVG donut chart from feature properties
+        function createDonutChart(props) {
+            const offsets = [];
+
+            const counts = Object.keys(props)
+            .filter(key => key.startsWith("color_by_category_"))
+            .map(key => props[key]);
+
+            let total = 0;
+            for (let i = 0; i < counts.length; i++) {
+                offsets.push(total);
+                total += counts[i];
+            }
+            const fontSize =
+            total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
+            const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
+            const r0 = Math.round(r * 0.6);
+            const w = r * 2;
+
+            let html =
+                `<div><svg width="${
+                    w
+                }" height="${
+                    w
+                }" viewbox="0 0 ${
+                    w
+                } ${
+                    w
+                }" text-anchor="middle" style="font: ${
+                    fontSize
+                }px sans-serif; display: block">`;
+
+            for (i = 0; i < counts.length; i++) {
+                html += donutSegment(
+                    offsets[i] / total,
+                    (offsets[i] + counts[i]) / total,
+                    r,
+                    r0,
+                    colors[i]
+                );
+            }
+            html +=
+                `<circle cx="${
+                    r
+                }" cy="${
+                    r
+                }" r="${
+                    r0
+                }" fill="white" /><text dominant-baseline="central" transform="translate(${
+                    r
+                }, ${
+                    r
+                })">${
+                    total.toLocaleString()
+                }</text></svg></div>`;
+
+            const el = document.createElement('div');
+            el.innerHTML = html;
+            return el.firstChild;
+        }
+
+        function donutSegment(start, end, r, r0, color) {
+            if (end - start === 1) end -= 0.00001;
+            const a0 = 2 * Math.PI * (start - 0.25);
+            const a1 = 2 * Math.PI * (end - 0.25);
+            const x0 = Math.cos(a0),
+                y0 = Math.sin(a0);
+            const x1 = Math.cos(a1),
+                y1 = Math.sin(a1);
+            const largeArc = end - start > 0.5 ? 1 : 0;
+
+            return [
+                '<path d="M',
+                r + r0 * x0,
+                r + r0 * y0,
+                'L',
+                r + r * x0,
+                r + r * y0,
+                'A',
+                r,
+                r,
+                0,
+                largeArc,
+                1,
+                r + r * x1,
+                r + r * y1,
+                'L',
+                r + r0 * x1,
+                r + r0 * y1,
+                'A',
+                r0,
+                r0,
+                0,
+                largeArc,
+                0,
+                r + r0 * x0,
+                r + r0 * y0,
+                `" fill="${color}" />`
+            ].join(' ');
+        }
+        }
+
+// Add legend
+function color_by_legend(colors) {
+    for (let item of colors) {
+        let legendItem = document.createElement('div');
+
+        // Create a color box.
+        let colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.marginRight = '8px';
+        colorBox.style.backgroundColor = item.color;
+        legendItem.appendChild(colorBox);
+
+        // Create a label.
+        let label = document.createTextNode(item.value);
+        legendItem.appendChild(label);
+
+        // Add the legend item to the legend.
+        colourlegend.appendChild(legendItem);
+    }
+}
+
+function create_default_pie_charts_on_high_zoom_level(centroid_points) {
+    map.addSource('centroid_polygon', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: centroid_points
+        },
+        cluster: true,
+        clusterMaxZoom: 14, // Max zoom to cluster points on
+        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+    });
+    
+    map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'centroid_polygon',
+        filter: ['has', 'point_count'],
+        paint: {
+            // Use step expressions (https://maplibre.org/maplibre-style-spec/#expressions-step)
+            // with three steps to implement three types of circles:
+            //   * Blue, 20px circles when point count is less than 100
+            //   * Yellow, 30px circles when point count is between 100 and 750
+            //   * Pink, 40px circles when point count is greater than or equal to 750
+            'circle-color': [
+                'step',
+                ['get', 'point_count'],
+                '#51bbd6',
+                5,
+                '#f1f075',
+                10,
+                '#f28cb1'
+            ],
+            'circle-radius': [
+                'step',
+                ['get', 'point_count'],
+                20,
+                100,
+                30,
+                750,
+                40
+            ]
+        }
+    });
+    
+    map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'centroid_polygon',
+        filter: ['has', 'point_count'],
+        layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': [ "Source Sans Pro Regular" ],
+            'text-size': 12
+        }
+    });
+    
+    map.addLayer({
+        id: 'unclustered-point-default',
+        type: 'circle',
+        source: 'centroid_polygon',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 4,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+        },
+        maxzoom : 15 //don't show this layer when zoom level is < 15
+    });
+    
+    // inspect a cluster on click
+    map.on('click', 'clusters', async (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+            layers: ['clusters']
+        });
+        const clusterId = features[0].properties.cluster_id;
+        const zoom = await map.getSource('centroid_polygon').getClusterExpansionZoom(clusterId);
+        map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom
+        });
+    });
+    
+    map.on('mouseenter', 'clusters', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'clusters', () => {
+        map.getCanvas().style.cursor = '';
+    });
+}

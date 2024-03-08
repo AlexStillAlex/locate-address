@@ -243,3 +243,77 @@
     //         feature.properties.epc_rating_letter = demise.depc_rating_letter;
     //     }
     // });
+
+
+                        // {"epc_A":["+",["case",["==",["string",["get","epc_rating_letter"]],"A"],1,0]],
+            // "epc_B":["+",["case",["==",["string",["get","epc_rating_letter"]],"B"],1,0]],
+            // "epc_C":["+",["case",["==",["string",["get","epc_rating_letter"]],"C"],1,0]],
+            // "epc_D":["+",["case",["==",["string",["get","epc_rating_letter"]],"D"],1,0]],
+            // "epc_E":["+",["case",["==",["string",["get","epc_rating_letter"]],"E"],1,0]],
+            // "epc_F":["+",["case",["==",["string",["get","epc_rating_letter"]],"F"],1,0]],
+            // "epc_G":["+",["case",["==",["string",["get","epc_rating_letter"]],"G"],1,0]],
+            // "epc_Null":["+",["case",["==",["string",["get","epc_rating_letter"]],"_NA"],1,0]]
+        // }
+            // "epc_Null": ['+', ['case', ['!', ['has', 'epc_rating_letter']], 1, 0]]
+
+        // {"epc_A":["+",["case",["==",["string",["get","epc_rating_letter"]],"A"],1,0]],
+        // "epc_B":["+",["case",["==",["string",["get","epc_rating_letter"]],"B"],1,0]],
+        // "epc_C":["+",["case",["==",["string",["get","epc_rating_letter"]],"C"],1,0]],
+        // "epc_D":["+",["case",["==",["string",["get","epc_rating_letter"]],"D"],1,0]],
+        // "epc_E":["+",["case",["==",["string",["get","epc_rating_letter"]],"E"],1,0]],
+        // "epc_F":["+",["case",["==",["string",["get","epc_rating_letter"]],"F"],1,0]],
+        // "epc_G":["+",["case",["==",["string",["get","epc_rating_letter"]],"G"],1,0]],
+        // "epc_No EPC Available":["+",["case",["==",["string",["get","epc_rating_letter"]],"No EPC Available"],1,0]]}
+
+                // const counts = [
+        //     props["epc_A"],
+        //     props["epc_B"],
+        //     props["epc_C"],
+        //     props["epc_D"],
+        //     props["epc_E"],
+        //     props["epc_F"],
+        //     props["epc_G"],
+        //     props["epc_NA"]
+        // ];
+
+
+
+                    // map.setClusterProperties('unclustered-point', clusterProperties)
+            // map.setData('unclustered-point', {
+            //     type: 'FeatureCollection',
+            //     features: centroid_points
+            // })
+            // // map.setSourceLayer('unclustered-point', 'epc_cluster_source');
+            // map.setFilter('unclustered-point', ['!', ['has', 'point_count']]);
+            // map.setPaintProperty('unclustered-point', {
+            //     'circle-color': colorExpression,
+            //     'circle-radius': 12,
+            //     'circle-stroke-width': 1,
+            //     'circle-stroke-color': '#fff'
+            // })
+
+        // map.setLayoutProperty('unclustered-point-epc', 'visibility', 'visible');
+
+
+
+
+// //let's remove any pie chart clusters that might be there from previous selection:
+// map.addLayer({
+//     id: 'unclustered-point',
+//     type: 'circle',
+//     source: {
+//         'type': 'geojson',
+//         'data': {
+//             'type': 'FeatureCollection',
+//             'features': [],
+//         'cluster': true,
+//         'clusterRadius': 80,
+//         }
+//     },
+// });
+
+    // //hide pie-chart layers
+    // if (map.getLayer('unclustered-point-epc')) {
+    //     // Hide the layer if it exists
+    //     map.setLayoutProperty('unclustered-point-epc', 'visibility', 'none');
+    // }
