@@ -275,3 +275,45 @@
         //     props["epc_G"],
         //     props["epc_NA"]
         // ];
+
+
+
+                    // map.setClusterProperties('unclustered-point', clusterProperties)
+            // map.setData('unclustered-point', {
+            //     type: 'FeatureCollection',
+            //     features: centroid_points
+            // })
+            // // map.setSourceLayer('unclustered-point', 'epc_cluster_source');
+            // map.setFilter('unclustered-point', ['!', ['has', 'point_count']]);
+            // map.setPaintProperty('unclustered-point', {
+            //     'circle-color': colorExpression,
+            //     'circle-radius': 12,
+            //     'circle-stroke-width': 1,
+            //     'circle-stroke-color': '#fff'
+            // })
+
+        // map.setLayoutProperty('unclustered-point-epc', 'visibility', 'visible');
+
+
+
+
+// //let's remove any pie chart clusters that might be there from previous selection:
+// map.addLayer({
+//     id: 'unclustered-point',
+//     type: 'circle',
+//     source: {
+//         'type': 'geojson',
+//         'data': {
+//             'type': 'FeatureCollection',
+//             'features': [],
+//         'cluster': true,
+//         'clusterRadius': 80,
+//         }
+//     },
+// });
+
+    // //hide pie-chart layers
+    // if (map.getLayer('unclustered-point-epc')) {
+    //     // Hide the layer if it exists
+    //     map.setLayoutProperty('unclustered-point-epc', 'visibility', 'none');
+    // }
