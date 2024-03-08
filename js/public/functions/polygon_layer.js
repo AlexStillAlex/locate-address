@@ -185,24 +185,24 @@ async function goadMapTest(){
         }
     });
     // Adding the tenant names
-    map.addLayer({
-        'id': 'tenant-names',
-        'type': 'symbol',
-        'source': 'blaby_leaseholds',
-        'layout': {
-        // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-          "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-          'text-field': ['get', 'tenant_name'],
-          'text-size': 12,
-          'text-rotate': getRotation(['get', 'coordinates']),
-        //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-        //   'text-radial-offset': 0.5,
-          'text-justify': 'center'
-        },
-        'paint': {
-          'text-color': '#000'
-        }
-      });
+    // map.addLayer({
+    //     'id': 'tenant-names',
+    //     'type': 'symbol',
+    //     'source': 'blaby_leaseholds',
+    //     'layout': {
+    //     // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+    //       "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+    //       'text-field': ['get', 'tenant_name'],
+    //       'text-size': 12,
+    //       'text-rotate': getRotation(['get', 'coordinates']),
+    //     //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+    //     //   'text-radial-offset': 0.5,
+    //       'text-justify': 'center'
+    //     },
+    //     'paint': {
+    //       'text-color': '#000'
+    //     }
+    //   });
 
       //should I make a fetch request here?
 
