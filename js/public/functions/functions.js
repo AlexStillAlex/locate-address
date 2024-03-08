@@ -811,25 +811,63 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
 }
 
 // ADDING POLYGONS
+    function toRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    function toDegrees(radians) {
+        return radians * 180 / Math.PI;
+    }
 
     // Function to calculate rotation angle based on the longest side of the polygon
     function getRotation(coordinates) {
+        var R = 6371e3; // Earth's radius in meters
+        var counter = 1;
+        while (!(coordinates.length >= 2)) {
+            counter++;
+            coordinates = coordinates.flat(1);
+        }
         var maxDistance = 0;
         var rotation = 0;
         for (var i = 0; i < coordinates.length - 1; i++) {
-            var distance = Math.sqrt(Math.pow(coordinates[i][0] - coordinates[i+1][0], 2) + Math.pow(coordinates[i][1] - coordinates[i+1][1], 2));
+            var x1 = R * Math.cos(coordinates[i][1]) * Math.cos(coordinates[i][0]);
+            var y1 = R * Math.cos(coordinates[i][1]) * Math.sin(coordinates[i][0]);
+    
+            var x2 = R * Math.cos(coordinates[i+1][1]) * Math.cos(coordinates[i+1][0]);
+            var y2 = R * Math.cos(coordinates[i+1][1]) * Math.sin(coordinates[i+1][0]);
+    
+            var distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
             if (distance > maxDistance) {
                 maxDistance = distance;
-                rotation = Math.atan2(coordinates[i+1][1] - coordinates[i][1], coordinates[i+1][0] - coordinates[i][0]) * 180 / Math.PI;
-                if (rotation < 0) {
-                    rotation += 360;
-                }
+                rotation = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                console.log(x2-x1, y2-y1)
+                console.log('hej')
+                console.log(Math.acos((x2-x1)/Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))))
+                console.log(Math.atan((y2-y1)/(x2-x1)))
+
+                // if (rotation < 0) {
+                //     rotation += 360 - rotation;
+                // }
             }
         }
         console.log(rotation)
-        return rotation;
-    }
+        return Math.abs(rotation) + Math.PI;
 
+    
+
+    }
+    function findIxy(coordinates) {
+        var x = 0;
+        var y = 0;
+        sum = 0;
+        for (var i = 0; i < coordinates.length; i++) {
+            x += coordinates[i][0];
+            y += coordinates[i][1];
+        }
+
+        return [x, y];
+    
+    }
  //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
     //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
     //->finding largest rectangle that would fit inside a convex polygon:
@@ -860,4 +898,31 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
         }
     
         return rectangleCoordinates;
+    }
+
+    // get the centroid of the plygon for text inputting
+    function getCentroid(coordinates) {
+        // Create a Polygon feature from the coordinates
+        var polygon = turf.polygon([coordinates]);
+    
+        // Calculate the centroid of the polygon
+        var centroid = turf.centroid(polygon);
+    
+        // Return the coordinates of the centroid
+        return centroid.geometry.coordinates;
+    }
+
+    // Use turf library to rotate a polygon around it's centroid.
+    function rotateCoordinates(coordinates, angle) {
+        // Create a polygon from the coordinates
+        const polygon = turf.polygon(coordinates);
+    
+        // Calculate the centroid of the polygon
+        const centroid = turf.centroid(polygon);
+    
+        // Rotate the polygon around the centroid by the specified angle
+        const rotatedPolygon = turf.transformRotate(polygon, angle, { pivot: centroid });
+    
+        // Return the coordinates of the rotated polygon
+        return rotatedPolygon.geometry.coordinates[0];
     }

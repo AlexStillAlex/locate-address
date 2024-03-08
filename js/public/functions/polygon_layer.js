@@ -568,21 +568,10 @@ selectElement.addEventListener('change', function () {
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-
-
-
-
-
-
-
-
-
-
-
     map.addLayer({
         'id': 'tenant-names',
         'type': 'symbol',
-        'source': 'blaby_leaseholds', //define a different source of the inscribed rectangle
+        'source': 'blaby_leaseholds', 
         'layout': {
         // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
           "text-font": [ "Source Sans Pro Regular" ], //Testing here!
@@ -597,51 +586,5 @@ selectElement.addEventListener('change', function () {
           'text-color': '#000'
         }
       });
-    //     // Adding the invisible rectangles!
-    // testcoord  = [[-1.1641723912687918, 52.57460904292981], [-1.1641686371240196, 52.574698897528776], [-1.1635196965080394, 52.574688832165926], [-1.1635234519780315, 52.574598977599464], [-1.1641723912687918, 52.57460904292981]]
-    // map.addSource('rectesting', {
-    //     'type': 'geojson',
-    //     'data': {
-    //       'type': 'Feature',
-    //       'properties': {},
-    //       'geometry': {
-    //         'type': 'Polygon',
-    //         // Define the coordinates of your rectangle here
-    //         'coordinates': [
-    //             testcoord]
-    //       }
-    //     }
-    //   });
-    
-    //   // Add the rectangle layer
-    //   map.addLayer({
-    //     'id': 'rectesting',
-    //     'type': 'line',
-    //     'source': 'rectesting',
-    //     'layout': {},
-    //     'paint': {
-    //       'line-color': '#088', // Color of the rectangle
-    //       'line-opacity': 1.0, //Invisible rectangle
-    //       'line-width': 3
-    //     }
-    //   });
-    //   map.addLayer({
-    //     'id': 'text',
-    //     'type': 'symbol',
-    //     'source': 'rectesting',
-    //     'layout': {
-    //         // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-    //           "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-    //           'text-field': 'TESTING',
-    //           'text-size': 12,
-    //            'text-rotate': getRotation(testcoord),
-    //         //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-    //         //   'text-radial-offset': 0.5,
-    //           'text-justify': 'center'
-    //         },
-    //     'paint': {
-    //       'text-color': '#000'
-    //     }
-    //   });
     }); 
 

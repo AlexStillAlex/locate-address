@@ -1,7 +1,6 @@
 import numpy as np
 import cv2 as cv
 import largestinteriorrectangle as lir
-from pyproj import Proj, transform
 import sys
 import json
 
@@ -21,33 +20,31 @@ def rect2poly(tl, br):
         [x0, y0]   # back to top-left
     ]
 
-    # Create a projection transformation object
-    inProj = Proj(init='epsg:32630')  # UTM zone 30N, for UK
-    outProj = Proj(init='epsg:4326')  # WGS84
+    # # Convert the coordinates
+    # rectangle_coords_wgs84 = [transform(inProj, outProj, x, y) for x, y in rectangle_coords]
+    rectangle_coords_wgs84 = [[coord / 10**7 for coord in pair] for pair in rectangle_coords]
 
-    # Convert the coordinates
-    rectangle_coords_wgs84 = [transform(inProj, outProj, x, y) for x, y in rectangle_coords]
     return [[list(coord) for coord in rectangle_coords_wgs84]]
 
 
 def coordinates_to_polygon(coordinates):
-    # TRANSFORM
-    inProj = Proj(init='epsg:4326')  # WGS84
-    outProj = Proj(init='epsg:32630')  # UTM zone 30N, for UK
-  
-    coordinates_m = [transform(inProj, outProj, x, y) for x, y in coordinates]
-    coordinates_m = [[list(coord) for coord in coordinates_m]]
-    polygon = np.array(coordinates_m, np.int32)
+    # If its a rectangle return a rectangle
+    if len(coordinates) ==5:
+        return [coordinates]
+    else:
+            # TRANSFORM
+        coordinates_m = [[round(coord * 10**7) for coord in pair] for pair in coordinates]
+        coordinates_m = [[list(coord) for coord in coordinates_m]]
+        polygon = np.array(coordinates_m, np.int32)
 
-    rectangle = lir.lir(polygon)
+        rectangle = lir.lir(polygon)
+        top_left = lir.pt1(rectangle)
+        # Get the bottom-right point of the rectangle
+        bottom_right = lir.pt2(rectangle)
+        return rect2poly(tl=top_left, br=bottom_right)
 
-
-    top_left = lir.pt1(rectangle)
-    # Get the bottom-right point of the rectangle
-    bottom_right = lir.pt2(rectangle)
-    return rect2poly(tl=top_left, br=bottom_right)
-
-# coords  = [[[-1.1640429605042755,52.57579883474423], [-1.1637210954224884,52.5758004647532], [-1.1636084426452271,52.575809429800074], [-1.163462262253688,52.57591864022933], [-1.1634139824923295,52.57627968471252], [-1.1639464009814446,52.57627886971696], [-1.163951765398906,52.57634406930785], [-1.1641073335218834,52.57632532443509], [-1.1640885580591203,52.57602459038611], [-1.1640429605042755,52.57579883474423]]]
+# coords  = [[-1.1640429605042755,52.57579883474423], [-1.1637210954224884,52.5758004647532], [-1.1636084426452271,52.575809429800074], [-1.163462262253688,52.57591864022933], [-1.1634139824923295,52.57627968471252], [-1.1639464009814446,52.57627886971696], [-1.163951765398906,52.57634406930785], [-1.1641073335218834,52.57632532443509], [-1.1640885580591203,52.57602459038611], [-1.1640429605042755,52.57579883474423]]
+# print(coordinates_to_polygon(coords))
     # polygon = np.array([[[20, 15], [210, 10], [220, 100], [100, 150], [20, 100]]], np.int32)
 
 # # x = -1.1640362904134918
