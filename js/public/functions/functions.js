@@ -292,30 +292,30 @@ function searchReferences_asset_managers() {
 
 async function populateDropdown_asset_managers(data) {
 
-    const asset_manager_array = data.map(obj => obj.dmse_surveyor);
-    const assetManagerBox = document.getElementById('asset_manager_box');
-    new Awesomplete(assetManagerBox, {
-        list: asset_manager_array
-    });
-
-
-    // var menu = document.getElementById('myMenu_asset_manager'); //Gets the menu. Initially blank
-    // data.forEach(function(item) { 
-    //     //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
-    //     //then has onclick functionality to fly to the coordinates of the property.
-    //     var li = document.createElement('li');
-    //     li.className = 'searchable';
-    //     var a = document.createElement('a'); //these are called ANCHOR tags. 
-    //     a.href = '#'; //Link is blank. good for now.
-    //     a.textContent = item.dmse_surveyor; // Use the prop_ref property as the text
-
-    //     a.onclick = function() {
-    //         map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
-    //     }
-
-    //     li.appendChild(a);
-    //     menu.appendChild(li);
+    // const asset_manager_array = data.map(obj => obj.dmse_surveyor);
+    // const assetManagerBox = document.getElementById('asset_manager_box');
+    // new Awesomplete(assetManagerBox, {
+    //     list: asset_manager_array
     // });
+
+
+    var menu = document.getElementById('myMenu_asset_manager'); //Gets the menu. Initially blank
+    data.forEach(function(item) { 
+        //For each item in my data JSON containing property references, it will append a hidden list item to the menu.
+        //then has onclick functionality to fly to the coordinates of the property.
+        var li = document.createElement('li');
+        li.className = 'searchable';
+        var a = document.createElement('a'); //these are called ANCHOR tags. 
+        a.href = '#'; //Link is blank. good for now.
+        a.textContent = item.dmse_surveyor; // Use the prop_ref property as the text
+
+        a.onclick = function() {
+            map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
+        }
+
+        li.appendChild(a);
+        menu.appendChild(li);
+    });
 }
 
 document.getElementById('asset_manager_box').addEventListener('input', function () {

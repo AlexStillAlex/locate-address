@@ -208,9 +208,9 @@ async function goadMapTest(){
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Creating Circles on Map Zoom level > ()
-//Input should be taken from tenant-names coordinates. For now we will test on fictional example.
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //Creating Circles on Map Zoom level > ()
+// //Input should be taken from tenant-names coordinates. For now we will test on fictional example.
 const centroid_points = [
     {
         type: 'Feature',
@@ -220,6 +220,7 @@ const centroid_points = [
         },
         properties: {
             id: '17000891',
+            epc_rating_letter: "C"
         }
     },
     {
@@ -230,6 +231,7 @@ const centroid_points = [
         },
         properties: {
             id: '17000894',
+            epc_rating_letter: "C"
         }
     },
     {
@@ -240,6 +242,9 @@ const centroid_points = [
         },
         properties: {
             id: '17000895',
+            // epc_rating_letter : "NA"
+            epc_rating_letter: "NA"
+            // epc_rating_letter : null
         }
     },
     {
@@ -250,6 +255,7 @@ const centroid_points = [
         },
         properties: {
             id: '17000896',
+            epc_rating_letter: "C"
         }
     },
 
@@ -258,20 +264,22 @@ const centroid_points = [
         type: 'Feature',
         geometry:{
             type: 'Point',    
-            coordinates:  [-1.1315503209007147,52.61441423077889]
+            coordinates:  [-1.131515360354797,52.615013486934345]
         },
         properties: {
-            id: '17006874',
+            id: '17006871',
+            epc_rating_letter: "C"
         }
     },
     {
         type: 'Feature',
         geometry:{
             type: 'Point',    
-            coordinates:  [-1.131515360354797,52.615013486934345]
+            coordinates:  [-1.1315503209007147,52.61441423077889]
         },
         properties: {
-            id: '17006871',
+            id: '17006874',
+            epc_rating_letter: "D"
         }
     },
     {
@@ -282,6 +290,7 @@ const centroid_points = [
         },
         properties: {
             id: '17006875',
+            epc_rating_letter: "C"
         }
     }
 ]
@@ -342,7 +351,7 @@ map.addLayer({
 });
 
 map.addLayer({
-    id: 'unclustered-point',
+    id: 'unclustered-point-default',
     type: 'circle',
     source: 'centroid_polygon',
     filter: ['!', ['has', 'point_count']],
@@ -353,6 +362,11 @@ map.addLayer({
         'circle-stroke-color': '#fff'
     }
 });
+
+//don't show this layer when zoom level is < 15
+// const unclusteredPointLayer = map.getLayer('unclustered-point-default');
+const maxZoom = map.getMaxZoom();
+map.setLayerZoomRange('unclustered-point-default', maxZoom, 15);
 
 // inspect a cluster on click
 map.on('click', 'clusters', async (e) => {
@@ -373,29 +387,6 @@ map.on('mouseenter', 'clusters', () => {
 map.on('mouseleave', 'clusters', () => {
     map.getCanvas().style.cursor = '';
 });
-
-}
-
-
-
-
-
-
-
-
-// THIS SHOULD BE A NEW SCRIPT?
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //COLOURING IN BY ATTRUBUTE:
@@ -420,16 +411,38 @@ const epc_colors = [
     { value: "E", color: "#f0ba4d" },
     { value: "F", color: "#D76F35" },
     { value: "G", color: "#cd2e2b" },
-    { value: "No EPC Available", color: "#000000"} 
+    { value: "NA", color: "#000000"} 
 ]
 
 // Add event listener to select element
 const selectElement = document.getElementById('colour_by');
+
+// //let's remove any pie chart clusters that might be there from previous selection:
+// map.addLayer({
+//     id: 'unclustered-point',
+//     type: 'circle',
+//     source: {
+//         'type': 'geojson',
+//         'data': {
+//             'type': 'FeatureCollection',
+//             'features': [],
+//         'cluster': true,
+//         'clusterRadius': 80,
+//         }
+//     },
+// });
+
 selectElement.addEventListener('change', function () {
     //let's remove any legend that might be there from the previous selection:
     const colourLegendDiv = document.getElementById('colourlegend');
     colourLegendDiv.style.display = 'none';
     colourLegendDiv.innerHTML = '';
+
+    //hide pie-chart layers
+    if (map.getLayer('unclustered-point-epc')) {
+        // Hide the layer if it exists
+        map.setLayoutProperty('unclustered-point-epc', 'visibility', 'none');
+    }
 
     const selectedValue = selectElement.value;
     let colorExpression = defaultcolor; // Default color is red
@@ -489,7 +502,7 @@ selectElement.addEventListener('change', function () {
             colorBox.style.backgroundColor = item.color;
             legendItem.appendChild(colorBox);
 
-            // Create a label.
+            // Creete a label.
             let label = document.createTextNode(item.value);
             legendItem.appendChild(label);
 
@@ -497,6 +510,219 @@ selectElement.addEventListener('change', function () {
             colourlegend.appendChild(legendItem);
         }
         colourLegendDiv.style.display = 'block';
+
+        //let's make pie charts on high zoom level
+        //first, let's create filters as distinct variables
+        // Create an object to store the filters
+        const epcFilters = {};
+
+        // Iterate over epc_colors to create filters
+        epc_colors.forEach(item => {
+            epcFilters['epc_' + item.value] = ['==', ['string', ['get', 'epc_rating_letter']], item.value];
+        });
+
+        //Create an array of colors from epc_colors
+        const colors = epc_colors.map(item => item.color);
+
+        // Create clusterProperties dynamically
+        const clusterProperties = {};
+        Object.keys(epcFilters).forEach(key => {
+            clusterProperties[key] = ['+', ['case', epcFilters[key], 1, 0]];
+        });
+        
+        // Now you can use clusterProperties in your map source
+        map.addSource('epc_cluster_source', {
+            'type': 'geojson',
+            'data': {
+                type: 'FeatureCollection',
+                features: centroid_points
+                },
+            'cluster': true,
+            'clusterRadius': 80,
+            'clusterProperties': clusterProperties
+        });
+
+
+        // map.setClusterProperties('unclustered-point', clusterProperties)
+        // map.setData('unclustered-point', {
+        //     type: 'FeatureCollection',
+        //     features: centroid_points
+        // })
+        // // map.setSourceLayer('unclustered-point', 'epc_cluster_source');
+        // map.setFilter('unclustered-point', ['!', ['has', 'point_count']]);
+        // map.setPaintProperty('unclustered-point', {
+        //     'circle-color': colorExpression,
+        //     'circle-radius': 12,
+        //     'circle-stroke-width': 1,
+        //     'circle-stroke-color': '#fff'
+        // })
+
+
+        map.addLayer({
+            id: 'unclustered-point-epc',
+            type: 'circle',
+            source: 'epc_cluster_source',
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+                'circle-color': colorExpression,
+                'circle-radius': 12,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'
+            }
+        });
+
+        map.setLayoutProperty('unclustered-point-epc', 'visibility', 'visible');
+
+
+        // objects for caching and keeping track of HTML marker objects (for performance)
+        const markers = {};
+        let markersOnScreen = {};
+
+        function updateMarkers() {
+            const newMarkers = {};
+
+            const features = map.querySourceFeatures('epc_cluster_source');
+
+            // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+            // and add it to the map if it's not there already
+            for (let i = 0; i < features.length; i++) {
+                const coords = features[i].geometry.coordinates;
+                const props = features[i].properties;
+                
+                if (!props.cluster) continue;
+                const id = props.cluster_id;
+
+                let marker = markers[id];
+                if (!marker) {
+                    const el = createDonutChart(props);
+                    marker = markers[id] = new maplibregl.Marker({
+                        element: el
+                    }).setLngLat(coords);
+                }
+
+                newMarkers[id] = marker;
+
+                if (!markersOnScreen[id]) marker.addTo(map);
+            }
+            // for every marker we've added previously, remove those that are no longer visible
+            for (id in markersOnScreen) {
+                if (!newMarkers[id]) markersOnScreen[id].remove();
+            }
+            markersOnScreen = newMarkers;
+        }
+
+        // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
+        map.on('data', (e) => {
+            if (e.sourceId !== 'epc_cluster_source' || !e.isSourceLoaded) return;
+
+            map.on('move', updateMarkers);
+            map.on('moveend', updateMarkers);
+            updateMarkers();
+        });
+
+    // code for creating an SVG donut chart from feature properties
+    function createDonutChart(props) {
+        const offsets = [];
+
+        const counts = Object.keys(props)
+        .filter(key => key.startsWith("epc_"))
+        .map(key => props[key]);
+
+        let total = 0;
+        for (let i = 0; i < counts.length; i++) {
+            offsets.push(total);
+            total += counts[i];
+        }
+        const fontSize =
+        total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
+        const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
+        const r0 = Math.round(r * 0.6);
+        const w = r * 2;
+
+        let html =
+            `<div><svg width="${
+                w
+            }" height="${
+                w
+            }" viewbox="0 0 ${
+                w
+            } ${
+                w
+            }" text-anchor="middle" style="font: ${
+                fontSize
+            }px sans-serif; display: block">`;
+
+        for (i = 0; i < counts.length; i++) {
+            html += donutSegment(
+                offsets[i] / total,
+                (offsets[i] + counts[i]) / total,
+                r,
+                r0,
+                colors[i]
+            );
+        }
+        html +=
+            `<circle cx="${
+                r
+            }" cy="${
+                r
+            }" r="${
+                r0
+            }" fill="white" /><text dominant-baseline="central" transform="translate(${
+                r
+            }, ${
+                r
+            })">${
+                total.toLocaleString()
+            }</text></svg></div>`;
+
+        const el = document.createElement('div');
+        el.innerHTML = html;
+        return el.firstChild;
+    }
+
+    function donutSegment(start, end, r, r0, color) {
+        if (end - start === 1) end -= 0.00001;
+        const a0 = 2 * Math.PI * (start - 0.25);
+        const a1 = 2 * Math.PI * (end - 0.25);
+        const x0 = Math.cos(a0),
+            y0 = Math.sin(a0);
+        const x1 = Math.cos(a1),
+            y1 = Math.sin(a1);
+        const largeArc = end - start > 0.5 ? 1 : 0;
+
+        return [
+            '<path d="M',
+            r + r0 * x0,
+            r + r0 * y0,
+            'L',
+            r + r * x0,
+            r + r * y0,
+            'A',
+            r,
+            r,
+            0,
+            largeArc,
+            1,
+            r + r * x1,
+            r + r * y1,
+            'L',
+            r + r0 * x1,
+            r + r0 * y1,
+            'A',
+            r0,
+            r0,
+            0,
+            largeArc,
+            0,
+            r + r0 * x0,
+            r + r0 * y0,
+            `" fill="${color}" />`
+        ].join(' ');
+    }
+
+
+
     } if (selectedValue === 'passing_rent') {
         // colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 10000, '#02f7f7', 20000]
         colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to blue
@@ -644,4 +870,4 @@ selectElement.addEventListener('change', function () {
     //     }
     //   });
     }); 
-
+}
