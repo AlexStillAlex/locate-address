@@ -43,8 +43,7 @@ fetch('/dropdown-data')
 
       // Currently this is the blaby polygons but we can cange that
       // We chain fetch requests like this.
-      let testcoord = [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]]
-      // TESTING
+      let testcoord = [[[-1.1636723708311365,52.57585024916335], [-1.1635999511877344,52.57585432418023], [-1.1636254321734896,52.57593337943709], [-1.1636388432186777,52.575936639444876], [-1.1636455487407602,52.575956199484835], [-1.163695169607763,52.57595782948789], [-1.1636723708311365,52.57585024916335]]]
       // add an empty map source
       map.addSource('inscribed_rectangles_testing', {
         type: 'geojson',
@@ -54,8 +53,10 @@ fetch('/dropdown-data')
             ]
         }
     });  
-      let interior_polygon_source = map.getSource('blaby_leaseholds')
-
+      // Runs a python script to get the AXIS aligned rectangle.
+      let epsilon = 1;
+      let theta = 0;
+      // function getLIR(coords){
       return fetch('/get_rectangle_py', {
           method: 'POST',
           headers: {
@@ -63,30 +64,33 @@ fetch('/dropdown-data')
           },
           body: JSON.stringify({ "coords": testcoord }),  // Pass the coordinates in the request body
         })
+      // }
       }).then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-
-
         return response.json();  // This returns a Promise
     })
     .then(data => {
         //  [(x1,y1),(x2,y2),(x3,y3),(x4,y4)] --> [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+        console.log(data.data);
+
         let rawcoords = JSON.parse(data.data);
-        console.log(typeof(rawcoords))
-        
-        console.log(rawcoords[1])
+      
+        // Used to define axis of rotation for text
         let newcoords = rawcoords.map(tuple => Array.from(tuple));
-        //Create JSON
+        // Defines the centre of text placement.
+        let centreCoord = getCentroid(newcoords[0])
+
+        //Createa feature that is a point where the text will be added.
         let feature = {
           type: 'Feature',
           geometry: {
-              type: 'Polygon',
-              coordinates: newcoords
+              type: 'Point',
+              coordinates: centreCoord
           }
       };
-          // Get the current data from the source
+    // Get the current data from the source
     let sourceData = map.getSource('inscribed_rectangles_testing')._data;
 
     // Add the new feature to the features array
@@ -109,7 +113,20 @@ fetch('/dropdown-data')
             'text-color': '#000'
           }
         });
-    })
+        // Add a line layer
+    map.addLayer({
+      'id': 'testing',
+      'type': 'line',
+      'source': 'inscribed_rectangles_testing',
+      'layout': {},
+      'paint': {
+          'line-color': '#f0f',
+          'line-opacity': 1,
+          'line-width': 3
+      }
+  });
+})
+    
     .catch(error => {
         // Handle the error here
         console.error('There has been a problem with your fetch operation:', error);
