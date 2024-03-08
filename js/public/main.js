@@ -54,7 +54,6 @@ const map = new maplibregl.Map({
             // console.log(url)
         }
     }
-
 });
 
 // Add navigation control (excluding compass button) to the map.

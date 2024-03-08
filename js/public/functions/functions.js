@@ -856,18 +856,6 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
     
 
     }
-    function findIxy(coordinates) {
-        var x = 0;
-        var y = 0;
-        sum = 0;
-        for (var i = 0; i < coordinates.length; i++) {
-            x += coordinates[i][0];
-            y += coordinates[i][1];
-        }
-
-        return [x, y];
-    
-    }
  //text has to be located within the center of the largest rectangle fitted to the leasehold polygon
     //There is a rather simple algorithm that could be applied to convex polygons, but with concave polygons it is more difficult. With concave polygons the best we can get is an appoximation.
     //->finding largest rectangle that would fit inside a convex polygon:
@@ -926,3 +914,60 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
         // Return the coordinates of the rotated polygon
         return rotatedPolygon.geometry.coordinates[0];
     }
+    // Like np.linspace
+
+    function linSpace(startValue, stopValue, cardinality) {
+        var arr = [];
+        var step = (stopValue - startValue) / (cardinality - 1);
+        for (var i = 0; i < cardinality; i++) {
+          arr.push(startValue + (step * i));
+        }
+        return arr;
+      }
+
+      async function getLargestResult(testcoord, thetaValues) {
+        // Initialise blank variables
+        let largestArea = null;
+        let largestTheta = null;  
+        let finalcoords = null;
+        for (let theta of thetaValues) {
+            rotatedCoords = rotateCoordinates(testcoord, theta); //rotate our polygon. 
+            const response = await fetch('/get_rectangle_py', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ "coords": [rotatedCoords]}),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const data = await response.json();
+            let coords = JSON.parse(data.data);//Read data
+            let area = getArea(coords[0]); // Weird things with the arrays.
+            // console.log(area,coords)
+            // console.log(rotateCoordinates(coords,-theta))
+            newrectangle = rotateCoordinates(coords,-theta) //Undo our rotation
+            //Checks the largest area
+            if (largestArea === null || area > largestArea) {
+                largestArea = area;
+                largestTheta=theta;
+                finalcoords = rotateCoordinates(coords,-theta);
+            }
+            // Update the layer?
+            map.getSource('inscribed_rectangles_testing').setData({
+              type: 'FeatureCollection',
+              features: [{
+                  type: 'Feature',
+                  geometry: {
+                      type: 'Polygon',
+                      coordinates: [newrectangle]
+                  }
+              }]
+          });
+        }
+        console.log(largestArea,finalcoords,largestTheta)
+        return {largestArea,finalcoords,largestTheta};
+      }
