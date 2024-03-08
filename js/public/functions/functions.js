@@ -1232,3 +1232,23 @@ function create_default_pie_charts_on_high_zoom_level(centroid_points) {
         map.getCanvas().style.cursor = '';
     });
 }
+
+function rgbToHex(color) {
+    // Check if the color is in the correct format
+    const regex = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+    const match = color.match(regex);
+    
+    if (!match) {
+        throw new Error("Invalid RGB color format");
+    }
+    
+    // Parse the RGB values
+    const red = parseInt(match[1]);
+    const green = parseInt(match[2]);
+    const blue = parseInt(match[3]);
+    
+    // Convert to hexadecimal format
+    const hex = ((red << 16) | (green << 8) | blue).toString(16).padStart(6, '0');
+    
+    return '#' + hex;
+}

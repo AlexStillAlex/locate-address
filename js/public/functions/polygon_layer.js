@@ -424,18 +424,17 @@ document.getElementById('colour_by').addEventListener('change', function () {
         map.setLayoutProperty('unclustered-point-default', 'visibility', 'none');
         map.setLayoutProperty('clusters', 'visibility', 'none');
         map.setLayoutProperty('cluster-count', 'visibility', 'none');
+        
+        const minPassingRent = 0; // Smallest passing rent
+        const maxPassingRent = 100000; // Largest passing rent
+        const numSteps = 5; // Number of legend steps
+        const stepSize = (maxPassingRent - minPassingRent) / numSteps; // Calculate step size
 
         // colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 10000, '#02f7f7', 20000]
-        colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to blue
-
-        // Add legend for passing rent
-        const minPassingRent = 0; // Smallest passing rent
-        const maxPassingRent = 1000000; // Largest passing rent
-        const numSteps = 5; // Number of legend steps
-
-        // Calculate step size
-        const stepSize = (maxPassingRent - minPassingRent) / numSteps;
+        colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to yellow
         
+        passing_rate_colors = []
+
         // Create legend items
         for (let i = 0; i <= numSteps; i++) {
             let legendItem = document.createElement('div');
@@ -449,8 +448,11 @@ document.getElementById('colour_by').addEventListener('change', function () {
             colorBox.style.width = '20px';
             colorBox.style.height = '20px';
             colorBox.style.marginRight = '8px';
-            console.log(`rgb(255, 255, ${255 - (i * (255 / numSteps))})`);
-            colorBox.style.backgroundColor = `rgb(255, 255, ${255 - (i * (255 / numSteps))})`; // Calculate color based on step
+            console.log(passingRent)
+            console.log();
+
+            rgb_cololor = `rgb(255, 255, ${255 - (i * (255 / numSteps))})`
+            colorBox.style.backgroundColor = rgb_cololor; // Calculate color based on step
             legendItem.appendChild(colorBox);
 
             // Create a label.
@@ -459,7 +461,18 @@ document.getElementById('colour_by').addEventListener('change', function () {
 
             // Add the legend item to the legend.
             colourLegendDiv.appendChild(legendItem);
+
+            //convert rgb(_,_,_) to hex
+            hex_color = rgbToHex(rgb_cololor)
+
+            //populate passing_rate_colors object:
+            passing_rate_colors.push({ value: passingRent, color: hex_color })
         }
+
+        console.log(passing_rate_colors)
+
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
+        create_pie_charts(centroid_points, passing_rate_colors, "passing_rent", colorExpression)
 
         // Show the legend for passing rent when 'passing_rent' option is selected
         colourLegendDiv.style.display = 'block';
