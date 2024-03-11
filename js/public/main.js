@@ -12,8 +12,9 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 //Definining custom map styles
- const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
- const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;
+//  const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+    const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
+    const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
 
 // Initialise the map object.
 const style = {
