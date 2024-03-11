@@ -972,198 +972,240 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
         return {largestArea,finalcoords,largestTheta};
       }
 
-    function create_pie_charts (feature_points, color_categories, feature_property_categories, colorExpression) {
-            //First, let's create filters as distinct variables. Create an object to store the filters
-        const filter_categories = {};
+function create_pie_charts (feature_points, color_categories, feature_property_categories) {
+    //First, let's create filters as distinct variables. Create an object to store the filters
+    const filter_categories = {};
 
+    if (color_categories.every(obj => typeof obj.value === 'number')){
+        console.log("All values in epc_colors are numbers");
+
+        for (let i = 0; i < color_categories.length - 1; i++) {
+            const currentValue = color_categories[i].value;
+            const nextValue = color_categories[i + 1].value;
+        
+            const filterKey = `color_by_category_${nextValue}`;
+            const filterCondition = ['all', 
+                ['>=', ['get', 'feature_property_categories'], currentValue],
+                ['<', ['get', 'feature_property_categories'], nextValue]
+            ];
+        
+            filter_categories[filterKey] = filterCondition;
+        }
+    }
+
+    if (color_categories.every(obj => typeof obj.value === 'string')){
+        console.log("All values in passing_rent_colors are strings");
         // Iterate over (category) colour object to create filters
         color_categories.forEach(item => {
-            filter_categories['color_by_category_' + item.value] = ['==', ['string', ['get', feature_property_categories]], item.value];
+            filter_categories['color_by_category_' + item.value] = ['==', ['get', feature_property_categories], item.value];
         });
+    }
 
-        // Create clusterProperties dynamically
-        const clusterProperties = {};
-        Object.keys(filter_categories).forEach(key => {
-            clusterProperties[key] = ['+', ['case', filter_categories[key], 1, 0]];
-        });
-        
-        //PROBLEM__
-        // Now you can use clusterProperties in your map source
-        map.addSource('unclustered-point', {
-            'type': 'geojson',
-            'data': {
-                type: 'FeatureCollection',
-                features: feature_points
-                },
-            'cluster': true,
-            'clusterRadius': 80,
-            'clusterProperties': clusterProperties
-        });
+    console.log(filter_categories)
 
-        map.addLayer({
-            id: 'unclustered-point',
-            type: 'circle',
-            source: 'unclustered-point',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-                'circle-color': colorExpression,
-                'circle-radius': 12,
-                'circle-stroke-width': 1,
-                'circle-stroke-color': '#fff'
+    // Create clusterProperties dynamically
+    const clusterProperties = {};
+    Object.keys(filter_categories).forEach(key => {
+        clusterProperties[key] = ['+', ['case', filter_categories[key], 1, 0]];
+    });
+
+    console.log(JSON.stringify(clusterProperties))
+
+    console.log(clusterProperties)
+    // Now you can use clusterProperties in your map source
+    map.addSource('unclustered-point', {
+        'type': 'geojson',
+        'data': {
+            type: 'FeatureCollection',
+            features: feature_points
             },
-            maxzoom : 15 //don't show this layer when zoom level is < 15
-        });
+        'cluster': true,
+        'clusterRadius': 80,
+        'clusterProperties': clusterProperties
+    });
 
-        //Create an array of colors from color_categories
-        const colors = color_categories.map(item => item.color);
+    map.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'unclustered-point',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+            'circle-radius': 12,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+        },
+        maxzoom : 15 //don't show this layer when zoom level is < 15
+    });
 
-        // objects for caching and keeping track of HTML marker objects (for performance)
-        const markers = {};
-        let markersOnScreen = {};
+    console.log(map.getLayer('unclustered-point'));
+    console.log(map.getSource('unclustered-point'))
 
-        function updateMarkers() {
-            const newMarkers = {};
+    //Create an array of colors from color_categories
+    const colors = color_categories.map(item => item.color);
 
-            const features = map.querySourceFeatures('unclustered-point');
+    console.log(map.querySourceFeatures('unclustered-point'))
 
-            // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
-            // and add it to the map if it's not there already
-            for (let i = 0; i < features.length; i++) {
-                const coords = features[i].geometry.coordinates;
-                const props = features[i].properties;
-                
-                if (!props.cluster) continue;
-                const id = props.cluster_id;
+    // objects for caching and keeping track of HTML marker objects (for performance)
+    const markers = {};
+    let markersOnScreen = {};
 
-                let marker = markers[id];
-                if (!marker) {
-                    const el = createDonutChart(props);
-                    marker = markers[id] = new maplibregl.Marker({
-                        element: el
-                    }).setLngLat(coords);
-                }
+    function updateMarkers() {
+        const newMarkers = {};
 
-                newMarkers[id] = marker;
+        //PROBLEM: here; the features do not have properties color_by_category_20000, color_by_category_40000, etc.
+        const features = map.querySourceFeatures('unclustered-point');
 
-                if (!markersOnScreen[id]) marker.addTo(map);
+        console.log(features)
+
+        // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
+        // and add it to the map if it's not there already
+        for (let i = 0; i < features.length; i++) {
+            const coords = features[i].geometry.coordinates;
+            const props = features[i].properties;
+            
+            console.log(props)
+
+            if (!props.cluster) continue;
+            const id = props.cluster_id;
+
+            let marker = markers[id];
+
+            if (!marker) {
+                console.log(props)
+                const el = createDonutChart(props);
+                marker = markers[id] = new maplibregl.Marker({
+                    element: el
+                }).setLngLat(coords);
             }
-            // for every marker we've added previously, remove those that are no longer visible
-            for (id in markersOnScreen) {
-                if (!newMarkers[id]) markersOnScreen[id].remove();
-            }
-            markersOnScreen = newMarkers;
+
+            newMarkers[id] = marker;
+
+            if (!markersOnScreen[id]) marker.addTo(map);
+        }
+        // for every marker we've added previously, remove those that are no longer visible
+        for (id in markersOnScreen) {
+            if (!newMarkers[id]) markersOnScreen[id].remove();
+        }
+        markersOnScreen = newMarkers;
+    }
+
+    // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
+    map.on('data', (e) => {
+        if (e.sourceId !== 'unclustered-point' || !e.isSourceLoaded) return;
+
+        map.on('move', updateMarkers);
+        map.on('moveend', updateMarkers);
+        updateMarkers();
+    });
+
+    // code for creating an SVG donut chart from feature properties
+    function createDonutChart(props) {
+        const offsets = [];
+        
+        console.log(props)
+
+        const counts = Object.keys(props)
+        .filter(key => key.startsWith("color_by_category_"))
+        .map(key => props[key]);
+
+        console.log(counts)
+
+        let total = 0;
+        for (let i = 0; i < counts.length; i++) {
+            offsets.push(total);
+            total += counts[i];
         }
 
-        // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
-        map.on('data', (e) => {
-            if (e.sourceId !== 'unclustered-point' || !e.isSourceLoaded) return;
+        console.log(total)
 
-            map.on('move', updateMarkers);
-            map.on('moveend', updateMarkers);
-            updateMarkers();
-        });
+        const fontSize =
+        total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
+        const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
+        const r0 = Math.round(r * 0.6);
+        const w = r * 2;
 
-        // code for creating an SVG donut chart from feature properties
-        function createDonutChart(props) {
-            const offsets = [];
+        let html =
+            `<div><svg width="${
+                w
+            }" height="${
+                w
+            }" viewbox="0 0 ${
+                w
+            } ${
+                w
+            }" text-anchor="middle" style="font: ${
+                fontSize
+            }px sans-serif; display: block">`;
 
-            const counts = Object.keys(props)
-            .filter(key => key.startsWith("color_by_category_"))
-            .map(key => props[key]);
-
-            let total = 0;
-            for (let i = 0; i < counts.length; i++) {
-                offsets.push(total);
-                total += counts[i];
-            }
-            const fontSize =
-            total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;
-            const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
-            const r0 = Math.round(r * 0.6);
-            const w = r * 2;
-
-            let html =
-                `<div><svg width="${
-                    w
-                }" height="${
-                    w
-                }" viewbox="0 0 ${
-                    w
-                } ${
-                    w
-                }" text-anchor="middle" style="font: ${
-                    fontSize
-                }px sans-serif; display: block">`;
-
-            for (i = 0; i < counts.length; i++) {
-                html += donutSegment(
-                    offsets[i] / total,
-                    (offsets[i] + counts[i]) / total,
-                    r,
-                    r0,
-                    colors[i]
-                );
-            }
-            html +=
-                `<circle cx="${
-                    r
-                }" cy="${
-                    r
-                }" r="${
-                    r0
-                }" fill="white" /><text dominant-baseline="central" transform="translate(${
-                    r
-                }, ${
-                    r
-                })">${
-                    total.toLocaleString()
-                }</text></svg></div>`;
-
-            const el = document.createElement('div');
-            el.innerHTML = html;
-            return el.firstChild;
-        }
-
-        function donutSegment(start, end, r, r0, color) {
-            if (end - start === 1) end -= 0.00001;
-            const a0 = 2 * Math.PI * (start - 0.25);
-            const a1 = 2 * Math.PI * (end - 0.25);
-            const x0 = Math.cos(a0),
-                y0 = Math.sin(a0);
-            const x1 = Math.cos(a1),
-                y1 = Math.sin(a1);
-            const largeArc = end - start > 0.5 ? 1 : 0;
-
-            return [
-                '<path d="M',
-                r + r0 * x0,
-                r + r0 * y0,
-                'L',
-                r + r * x0,
-                r + r * y0,
-                'A',
+        for (i = 0; i < counts.length; i++) {
+            html += donutSegment(
+                offsets[i] / total,
+                (offsets[i] + counts[i]) / total,
                 r,
-                r,
-                0,
-                largeArc,
-                1,
-                r + r * x1,
-                r + r * y1,
-                'L',
-                r + r0 * x1,
-                r + r0 * y1,
-                'A',
                 r0,
-                r0,
-                0,
-                largeArc,
-                0,
-                r + r0 * x0,
-                r + r0 * y0,
-                `" fill="${color}" />`
-            ].join(' ');
+                colors[i]
+            );
         }
-        }
+        html +=
+            `<circle cx="${
+                r
+            }" cy="${
+                r
+            }" r="${
+                r0
+            }" fill="white" /><text dominant-baseline="central" transform="translate(${
+                r
+            }, ${
+                r
+            })">${
+                total.toLocaleString()
+            }</text></svg></div>`;
+
+        const el = document.createElement('div');
+        el.innerHTML = html;
+        return el.firstChild;
+    }
+
+    function donutSegment(start, end, r, r0, color) {
+        if (end - start === 1) end -= 0.00001;
+        const a0 = 2 * Math.PI * (start - 0.25);
+        const a1 = 2 * Math.PI * (end - 0.25);
+        const x0 = Math.cos(a0),
+            y0 = Math.sin(a0);
+        const x1 = Math.cos(a1),
+            y1 = Math.sin(a1);
+        const largeArc = end - start > 0.5 ? 1 : 0;
+
+        return [
+            '<path d="M',
+            r + r0 * x0,
+            r + r0 * y0,
+            'L',
+            r + r * x0,
+            r + r * y0,
+            'A',
+            r,
+            r,
+            0,
+            largeArc,
+            1,
+            r + r * x1,
+            r + r * y1,
+            'L',
+            r + r0 * x1,
+            r + r0 * y1,
+            'A',
+            r0,
+            r0,
+            0,
+            largeArc,
+            0,
+            r + r0 * x0,
+            r + r0 * y0,
+            `" fill="${color}" />`
+        ].join(' ');
+    }
+}
 
 // Add legend
 function color_by_legend(colors) {
@@ -1185,6 +1227,45 @@ function color_by_legend(colors) {
 
         // Add the legend item to the legend.
         colourlegend.appendChild(legendItem);
+    }
+}
+
+//Add continous number legend
+function color_by_legend_number(minPassingRent, maxPassingRent, numSteps) {
+    // Create legend items
+    const stepSize = (maxPassingRent - minPassingRent) / numSteps; // Calculate step size
+    passing_rate_colors = []
+
+    for (let i = 0; i <= numSteps; i++) {
+        let legendItem = document.createElement('div');
+
+        // Calculate passing rent value for this step
+        const passingRent = minPassingRent + (i * stepSize);
+
+        // Create a color box.
+        let colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.marginRight = '8px';
+
+        rgb_cololor = `rgb(255, 255, ${255 - (i * (255 / numSteps))})`
+        colorBox.style.backgroundColor = rgb_cololor; // Calculate color based on step
+        legendItem.appendChild(colorBox);
+
+        // Create a label.
+        let label = document.createTextNode(passingRent.toFixed(2)); // Round to 2 decimal places
+        legendItem.appendChild(label);
+
+        // Add the legend item to the legend.
+        //notice that before it was: "colourLegendDiv.appendChild(legendItem);"
+        colourlegend.appendChild(legendItem);
+
+        //convert rgb(_,_,_) to hex
+        hex_color = rgbToHex(rgb_cololor)
+
+        //populate passing_rate_colors object:
+        passing_rate_colors.push({ value: passingRent, color: hex_color })
     }
 }
 

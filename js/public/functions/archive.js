@@ -295,8 +295,6 @@
         // map.setLayoutProperty('unclustered-point-epc', 'visibility', 'visible');
 
 
-
-
 // //let's remove any pie chart clusters that might be there from previous selection:
 // map.addLayer({
 //     id: 'unclustered-point',
@@ -317,3 +315,19 @@
     //     // Hide the layer if it exists
     //     map.setLayoutProperty('unclustered-point-epc', 'visibility', 'none');
     // }
+
+
+    // function create_pie_charts (feature_points, color_categories, feature_property_categories, colorExpression) {
+        // map.addLayer({
+        //     id: 'unclustered-point',
+        //     type: 'circle',
+        //     source: 'unclustered-point',
+        //     filter: ['!', ['has', 'point_count']],
+        //     paint: {
+                    // 'circle-color': colorExpression,
+        //         'circle-radius': 12,
+        //         'circle-stroke-width': 1,
+        //         'circle-stroke-color': '#fff'
+        //     },
+        //     maxzoom : 15 //don't show this layer when zoom level is < 15
+        // });
