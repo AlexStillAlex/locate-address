@@ -173,11 +173,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
             'layout': {
                 "text-font": [ "Source Sans Pro Regular" ],
                 'text-field': tenant_name,
-                'text-size': 16,
+                'text-size': 13,
                 'text-rotate': rectangle.rotateFlag*90-rectangle.largestTheta ,
                 'text-max-width': 7, // Adjust this value as needed
                 'symbol-placement': 'point',
-                'text-anchor': 'left' // Right-align the text
+                'text-anchor': 'left', // Right-align the text (its weird because of geometry...).
+                'text-allow-overlap': false
+                // 'text-offset': [-1, 0] // Move the text 1em to the left.
             },
             'paint': {
                 'text-color': '#000'
