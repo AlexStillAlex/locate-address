@@ -987,6 +987,7 @@ function getArea(array,geod = geodesic.Geodesic.WGS84) {         //Default proje
             clusterProperties[key] = ['+', ['case', filter_categories[key], 1, 0]];
         });
         
+        //PROBLEM__
         // Now you can use clusterProperties in your map source
         map.addSource('unclustered-point', {
             'type': 'geojson',

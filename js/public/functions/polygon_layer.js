@@ -222,7 +222,8 @@ const centroid_points = [
             id: '17000891',
             epc_rating_letter: "C",
             dmse_type: "Retail",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 21000
         }
     },
     {
@@ -235,7 +236,8 @@ const centroid_points = [
             id: '17000894',
             epc_rating_letter: "C",
             dmse_type: "Retail",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 10000
         }
     },
     {
@@ -250,7 +252,8 @@ const centroid_points = [
             epc_rating_letter: "NA",
             // epc_rating_letter : null
             dmse_type: "Retail",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 40000
         }
     },
     {
@@ -263,7 +266,8 @@ const centroid_points = [
             id: '17000896',
             epc_rating_letter: "C",
             dmse_type: "Retail",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 19500
         }
     },
 
@@ -278,7 +282,8 @@ const centroid_points = [
             id: '17006871',
             epc_rating_letter: "C",
             dmse_type: "Industrial",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 70000
         }
     },
     {
@@ -291,7 +296,8 @@ const centroid_points = [
             id: '17006874',
             epc_rating_letter: "D",
             dmse_type: "Industrial",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 106750
         }
     },
     {
@@ -304,10 +310,13 @@ const centroid_points = [
             id: '17006875',
             epc_rating_letter: "C",
             dmse_type: "Industrial",
-            dmse_status: "Occupied"
+            dmse_status: "Occupied",
+            passing_rent: 62000
         }
     }
 ]
+
+console.log(centroid_points)
 
 create_default_pie_charts_on_high_zoom_level(centroid_points);
 
