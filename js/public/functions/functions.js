@@ -1052,8 +1052,10 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     function updateMarkers() {
         const newMarkers = {};
 
+        console.log("AAA")
         //PROBLEM: here; the features do not have properties color_by_category_20000, color_by_category_40000, etc.
         const features = map.querySourceFeatures('unclustered-point');
+        console.log("BBB")
 
         console.log(features)
 
@@ -1092,7 +1094,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
     map.on('data', (e) => {
         if (e.sourceId !== 'unclustered-point' || !e.isSourceLoaded) return;
-
         map.on('move', updateMarkers);
         map.on('moveend', updateMarkers);
         updateMarkers();

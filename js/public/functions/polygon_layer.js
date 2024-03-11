@@ -573,25 +573,25 @@ document.getElementById('colour_by').addEventListener('change', function () {
         // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories
         create_pie_charts(centroid_points, dmse_status_colors, "dmse_status")
     }
-    // Set paint property to update colors
-    map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-    map.addLayer({
-        'id': 'tenant-names',
-        'type': 'symbol',
-        'source': 'blaby_leaseholds', 
-        'layout': {
-        // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-          "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-          'text-field': ['get', 'tenant_name'],
-          'text-size': 12,
-          'text-rotate': getRotation(['get', 'coordinates']),
-        //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-        //   'text-radial-offset': 0.5,
-          'text-justify': 'center'
-        },
-        'paint': {
-          'text-color': '#000'
-        }
-    });
+    // // Set paint property to update colors
+    // map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
+    // map.addLayer({
+    //     'id': 'tenant-names',
+    //     'type': 'symbol',
+    //     'source': 'blaby_leaseholds', 
+    //     'layout': {
+    //     // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+    //       "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+    //       'text-field': ['get', 'tenant_name'],
+    //       'text-size': 12,
+    //       'text-rotate': getRotation(['get', 'coordinates']),
+    //     //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+    //     //   'text-radial-offset': 0.5,
+    //       'text-justify': 'center'
+    //     },
+    //     'paint': {
+    //       'text-color': '#000'
+    //     }
+    // });
 }); 
 }
