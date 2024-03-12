@@ -985,8 +985,8 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
         
             const filterKey = `color_by_category_${nextValue}`;
             const filterCondition = ['all', 
-                ['>=', ['get', 'feature_property_categories'], currentValue],
-                ['<', ['get', 'feature_property_categories'], nextValue]
+                ['>=', ['get', feature_property_categories], currentValue],
+                ['<', ['get', feature_property_categories], nextValue]
             ];
         
             filter_categories[filterKey] = filterCondition;
@@ -1000,8 +1000,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
             filter_categories['color_by_category_' + item.value] = ['==', ['get', feature_property_categories], item.value];
         });
     }
-
-    console.log(filter_categories)
 
     // Create clusterProperties dynamically
     const clusterProperties = {};
@@ -1042,8 +1040,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
 
     //Create an array of colors from color_categories
     const colors = color_categories.map(item => item.color);
-
-    console.log(map.querySourceFeatures('unclustered-point'))
 
     // objects for caching and keeping track of HTML marker objects (for performance)
     const markers = {};
@@ -1101,14 +1097,10 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     // code for creating an SVG donut chart from feature properties
     function createDonutChart(props) {
         const offsets = [];
-        
-        console.log(props)
 
         const counts = Object.keys(props)
         .filter(key => key.startsWith("color_by_category_"))
         .map(key => props[key]);
-
-        console.log(counts)
 
         let total = 0;
         for (let i = 0; i < counts.length; i++) {
