@@ -1372,3 +1372,17 @@ function rgbToHex(color) {
     
     return '#' + hex;
 }
+
+function addLayerToMap(id, type, source, color, opacity, width,layout={}) {
+    map.addLayer({
+        'id': id,
+        'type': type,
+        'source': source,
+        'layout': layout,
+        'paint': {
+            [`${type}-color`]: color,
+            [`${type}-opacity`]: opacity,
+            [`${type}-width`]: width
+        }
+    });
+}
