@@ -295,8 +295,6 @@
         // map.setLayoutProperty('unclustered-point-epc', 'visibility', 'visible');
 
 
-
-
 // //let's remove any pie chart clusters that might be there from previous selection:
 // map.addLayer({
 //     id: 'unclustered-point',
@@ -317,3 +315,61 @@
     //     // Hide the layer if it exists
     //     map.setLayoutProperty('unclustered-point-epc', 'visibility', 'none');
     // }
+
+
+    // function create_pie_charts (feature_points, color_categories, feature_property_categories, colorExpression) {
+        // map.addLayer({
+        //     id: 'unclustered-point',
+        //     type: 'circle',
+        //     source: 'unclustered-point',
+        //     filter: ['!', ['has', 'point_count']],
+        //     paint: {
+                    // 'circle-color': colorExpression,
+        //         'circle-radius': 12,
+        //         'circle-stroke-width': 1,
+        //         'circle-stroke-color': '#fff'
+        //     },
+        //     maxzoom : 15 //don't show this layer when zoom level is < 15
+        // });
+
+    // Adding the tenant names
+    // map.addLayer({
+    //     'id': 'tenant-names',
+    //     'type': 'symbol',
+    //     'source': 'blaby_leaseholds',
+    //     'layout': {
+    //     // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+    //       "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+    //       'text-field': ['get', 'tenant_name'],
+    //       'text-size': 12,
+    //       'text-rotate': getRotation(['get', 'coordinates']),
+    //     //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+    //     //   'text-radial-offset': 0.5,
+    //       'text-justify': 'center'
+    //     },
+    //     'paint': {
+    //       'text-color': '#000'
+    //     }
+    //   });
+
+      //should I make a fetch request here?
+
+
+        // map.addLayer({
+        //     'id': 'tenant-names',
+        //     'type': 'symbol',
+        //     'source': 'blaby_leaseholds', 
+        //     'layout': {
+        //     // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
+        //       "text-font": [ "Source Sans Pro Regular" ], //Testing here!
+        //       'text-field': ['get', 'tenant_name'],
+        //       'text-size': 12,
+        //       'text-rotate': getRotation(['get', 'coordinates']),
+        //     //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
+        //     //   'text-radial-offset': 0.5,
+        //       'text-justify': 'center'
+        //     },
+        //     'paint': {
+        //       'text-color': '#000'
+        //     }
+        // });

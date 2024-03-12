@@ -9,14 +9,15 @@ async function goadMapTest(){
     defaultcolor = '#FF0000'; // Default color
     // National Polygon Data will only have coordinates and title number. In this example, we have coordinates and dmse_ref
     const blaby_leasehold_polygons = [
+        //not in LM registry
         {
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates: [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]]
+                coordinates:  [[[-1.16408809,52.57602247],[-1.16404835,52.57582307],[-1.16390855,52.57583341],[-1.16394919,52.57603246],[-1.16406393,52.57602421],[-1.16407731,52.57602325],[-1.16408809,52.57602247]]]
             },
             properties: {
-                id: '17000891',
+                id: '17000890',
                 'color': defaultcolor
             }
         },
@@ -24,7 +25,42 @@ async function goadMapTest(){
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates: [[[-1.1636723708311365,52.57585024916335], [-1.1635999511877344,52.57585432418023], [-1.1636254321734896,52.57593337943709], [-1.1636388432186777,52.575936639444876], [-1.1636455487407602,52.575956199484835], [-1.163695169607763,52.57595782948789], [-1.1636723708311365,52.57585024916335]]]
+                coordinates: [[[-1.16390855,52.57583341],[-1.16382506,52.57583956],[-1.16386423,52.57603852],[-1.16394919,52.57603246],[-1.16390855,52.57583341]]]
+            },
+            properties: {
+                id: '17000891',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16382506,52.57583956],[-1.16374408,52.57584555],[-1.16376686,52.57595953],[-1.16379267,52.57596016],[-1.16380997,52.57596059],[-1.16382581,52.5760413],[-1.16386423,52.57603852],[-1.16382506,52.57583956]]]
+            },
+            properties: {
+                id: '170008902',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+         {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16376686,52.57595953],[-1.16374408,52.57584555],[-1.16367226,52.57585089],[-1.16369385,52.57595766],[-1.16376686,52.57595953]]]
+            },
+            properties: {
+                id: '170008903',
+                'color': defaultcolor
+            }
+        },
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16364143,52.57594864],[-1.16364296,52.5759564],[-1.16369385,52.57595766],[-1.16367226,52.57585089],[-1.1636006,52.57585614],[-1.16362005,52.57591947],[-1.16362366,52.57593126],[-1.16362507,52.5759358],[-1.1636388,52.57593542],[-1.16364143,52.57594864]]]
             },
             properties: {
                 id: '17000894',
@@ -35,7 +71,7 @@ async function goadMapTest(){
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates: [[[-1.1635999511877344,52.57585432418023], [-1.1634841917738186,52.575927864813195], [-1.1634855328784397,52.57602892494674], [-1.1637711881385258,52.576030554947124], [-1.1637658237200412,52.575967799893505], [-1.163615620015662,52.57596616989139], [-1.163615620015662,52.575935199830695],[-1.1636254321734896,52.57593337943709], [-1.1635999511877344,52.57585432418023]]]
+                coordinates: [[[-1.16359661,52.57585647],[-1.16348484,52.57592967],[-1.16348367,52.5760299],[-1.16377214,52.57603103],[-1.16377112,52.5759681],[-1.16363094,52.57596639],[-1.16361583,52.5759662],[-1.16361593,52.57593605],[-1.16362507,52.5759358],[-1.16362366,52.57593126],[-1.16362005,52.57591947],[-1.1636006,52.57585614],[-1.16359661,52.57585647]]]
             },
             properties: {
                 id: '17000895',
@@ -46,23 +82,84 @@ async function goadMapTest(){
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates:  [[[-1.1634862041582892,52.576029832545515], [-1.1634862041582892,52.57607791752608], [-1.1637866115681845,52.57607954752464], [-1.1637866115681845,52.57603064754568], [-1.1634862041582892,52.576029832545515]]]
+                coordinates: [[[-1.16377214,52.57603103],[-1.16348367,52.5760299],[-1.16348276,52.57607754],[-1.16378552,52.57608012],[-1.16378689,52.57603159],[-1.16377214,52.57603103]]]
             },
             properties: {
                 id: '17000896',
                 'color': defaultcolor
             }
         },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16378552,52.57608012],[-1.16348276,52.57607754],[-1.16348188,52.57612428],[-1.16378403,52.57612731],[-1.16378552,52.57608012]]]
+            },
+            properties: {
+                id: '17000897',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16348188,52.57612428],[-1.16348098,52.57617147],[-1.1637827,52.5761745],[-1.16378373,52.57613797],[-1.16378403,52.57612731],[-1.16348188,52.57612428]]]
+            },
+            properties: {
+                id: '17000898',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.16347845,52.57628113],[-1.16378062,52.57628398],[-1.16378153,52.57625135],[-1.16378186,52.57623933],[-1.16378293,52.57620102],[-1.16348048,52.57619754],[-1.16347845,52.57628113]]]
+            },
+            properties: {
+                id: '17000899',
+                'color': defaultcolor
+            }
+        },
+
 
         // industrial site: Oakhill Trading Estate, Leicester
         {
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates:  [[[-1.131841286097142,52.61494511216986], [-1.1312569221032618,52.614949660983285], [-1.1312606680265844,52.615161180288], [-1.1318450320204647,52.61517027786988], [-1.131841286097142,52.61494511216986]]]
+                coordinates: [[[-1.13125893,52.61494639],[-1.1312574,52.61516573],[-1.13184816,52.61516781],[-1.13184942,52.61494711],[-1.13125893,52.61494639]]]
             },
             properties: {
                 id: '17006871',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.13125893,52.61494639],[-1.13184942,52.61494711],[-1.13185056,52.61472507],[-1.13126035,52.61472524],[-1.13125893,52.61494639]]]
+            },
+            properties: {
+                id: '17006872',
+                'color': defaultcolor
+            }
+        },
+        //not in LM registry
+        {
+            type: 'Feature',
+            geometry:{
+                type: 'Polygon',    
+                coordinates: [[[-1.1312619,52.614505],[-1.13126035,52.61472524],[-1.13185056,52.61472507],[-1.1318518,52.61450527],[-1.1312619,52.614505]]]
+            },
+            properties: {
+                id: '17006873',
                 'color': defaultcolor
             }
         },
@@ -70,7 +167,7 @@ async function goadMapTest(){
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates: [[[-1.131841286097142,52.61428780365418], [-1.131586563330302,52.614280980330506], [-1.1315790714849072,52.61415588587724], [-1.1312681598732297,52.614151336981365], [-1.1312662869104315,52.61450387501583], [-1.1318525238659731,52.614507286660626], [-1.131841286097142,52.61428780365418]]]
+                coordinates: [[[-1.13150682,52.61414798],[-1.13141255,52.61414768],[-1.13140107,52.61414764],[-1.13140117,52.61413587],[-1.1314012,52.61413306],[-1.13137079,52.61413296],[-1.13137077,52.61413574],[-1.13137067,52.61414754],[-1.13126426,52.61414721],[-1.1312619,52.614505],[-1.1318518,52.61450527],[-1.13185307,52.61428413],[-1.13164473,52.61428371],[-1.13164473,52.61428365],[-1.13158428,52.61428351],[-1.13158458,52.61424939],[-1.13158548,52.61414822],[-1.13150682,52.61414798]]]
             },
             properties: {
                 id: '17006874',
@@ -81,7 +178,7 @@ async function goadMapTest(){
             type: 'Feature',
             geometry:{
                 type: 'Polygon',    
-                coordinates: [[[-1.1325584268997773, 52.61465934533422], [-1.1321896231603432,52.614656088206374], [-1.1321909642649644,52.61498994252298], [-1.1325557446896255,52.614989128247174], [-1.1325584268997773,52.61465934533422]]]
+                coordinates: [[[-1.13255909,52.61465654],[-1.13218986,52.61465563],[-1.13218843,52.6149896],[-1.13255766,52.6149905],[-1.13255909,52.61465654]]]
             },
             properties: {
                 id: '17006875',
@@ -96,7 +193,6 @@ async function goadMapTest(){
         const reference = feature.properties.id.toString();
         // add tenant_name and passing_rent from lease_tenant_table
         const tenant = lease_tenant_table.find(item => item.dmse_ref === reference);
-        console.log(tenant)
         if (tenant == undefined){
             console.log(`The demise reference ${reference} taken from the polygon is not in lease_tenant_table`)
             feature.properties.tenant_name = undefined;
@@ -184,28 +280,6 @@ async function goadMapTest(){
             "line-width": 3
         }
     });
-    // Adding the tenant names
-    // map.addLayer({
-    //     'id': 'tenant-names',
-    //     'type': 'symbol',
-    //     'source': 'blaby_leaseholds',
-    //     'layout': {
-    //     // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-    //       "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-    //       'text-field': ['get', 'tenant_name'],
-    //       'text-size': 12,
-    //       'text-rotate': getRotation(['get', 'coordinates']),
-    //     //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-    //     //   'text-radial-offset': 0.5,
-    //       'text-justify': 'center'
-    //     },
-    //     'paint': {
-    //       'text-color': '#000'
-    //     }
-    //   });
-
-      //should I make a fetch request here?
-
 
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,8 +466,8 @@ document.getElementById('colour_by').addEventListener('change', function () {
         color_by_legend(dmse_type_colors);
         colourLegendDiv.style.display = 'block';
 
-        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
-        create_pie_charts(centroid_points, dmse_type_colors, "dmse_type", colorExpression)
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories
+        create_pie_charts(centroid_points, dmse_type_colors, "dmse_type")
         
 
     } if (selectedValue === 'epc') {
@@ -418,8 +492,8 @@ document.getElementById('colour_by').addEventListener('change', function () {
         color_by_legend(epc_colors);
         colourLegendDiv.style.display = 'block';
         
-        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
-        create_pie_charts(centroid_points, epc_colors, "epc_rating_letter", colorExpression)
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories
+        create_pie_charts(centroid_points, epc_colors, "epc_rating_letter")
 
     } 
     if (selectedValue === 'passing_rent') {
@@ -434,54 +508,20 @@ document.getElementById('colour_by').addEventListener('change', function () {
         map.setLayoutProperty('clusters', 'visibility', 'none');
         map.setLayoutProperty('cluster-count', 'visibility', 'none');
         
+        //INPUTS into "color_by_legend_number" function to create a legend
         const minPassingRent = 0; // Smallest passing rent
-        const maxPassingRent = 100000; // Largest passing rent
+        const maxPassingRent = 120000; // Largest passing rent
         const numSteps = 5; // Number of legend steps
-        const stepSize = (maxPassingRent - minPassingRent) / numSteps; // Calculate step size
 
-        // colorExpression = ['step', ['get', 'passing_rent'], '#ffffff', 10000, '#02f7f7', 20000]
-        colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], 0, '#ffffff', 100000, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to yellow
-        
-        passing_rate_colors = []
+        colorExpression = ['interpolate', ['linear'], ['get', 'passing_rent'], minPassingRent, '#ffffff', maxPassingRent, '#fafa00']; // Smallest passing rent (0) to largest passing rent (1000000), from white to yellow
 
-        // Create legend items
-        for (let i = 0; i <= numSteps; i++) {
-            let legendItem = document.createElement('div');
-
-            // Calculate passing rent value for this step
-            const passingRent = minPassingRent + (i * stepSize);
-
-            // Create a color box.
-            let colorBox = document.createElement('span');
-            colorBox.style.display = 'inline-block';
-            colorBox.style.width = '20px';
-            colorBox.style.height = '20px';
-            colorBox.style.marginRight = '8px';
-            console.log(passingRent)
-            console.log();
-
-            rgb_cololor = `rgb(255, 255, ${255 - (i * (255 / numSteps))})`
-            colorBox.style.backgroundColor = rgb_cololor; // Calculate color based on step
-            legendItem.appendChild(colorBox);
-
-            // Create a label.
-            let label = document.createTextNode(passingRent.toFixed(2)); // Round to 2 decimal places
-            legendItem.appendChild(label);
-
-            // Add the legend item to the legend.
-            colourLegendDiv.appendChild(legendItem);
-
-            //convert rgb(_,_,_) to hex
-            hex_color = rgbToHex(rgb_cololor)
-
-            //populate passing_rate_colors object:
-            passing_rate_colors.push({ value: passingRent, color: hex_color })
-        }
+        //first argument: minValue. Second argument: maxValue. Third argument: number of steps.
+        color_by_legend_number(minPassingRent, maxPassingRent, numSteps)
 
         console.log(passing_rate_colors)
 
-        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
-        create_pie_charts(centroid_points, passing_rate_colors, "passing_rent", colorExpression)
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories
+        create_pie_charts(centroid_points, passing_rate_colors, "passing_rent")
 
         // Show the legend for passing rent when 'passing_rent' option is selected
         colourLegendDiv.style.display = 'block';
@@ -508,28 +548,10 @@ document.getElementById('colour_by').addEventListener('change', function () {
         color_by_legend(dmse_status_colors);
         colourLegendDiv.style.display = 'block';
 
-        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories, fourth_argument: colorExpression
-        create_pie_charts(centroid_points, dmse_status_colors, "dmse_status", colorExpression)
+        // first_argument: feature_points, second_argument: color_categories, third_argument: feature_property_categories
+        create_pie_charts(centroid_points, dmse_status_colors, "dmse_status")
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-    map.addLayer({
-        'id': 'tenant-names',
-        'type': 'symbol',
-        'source': 'blaby_leaseholds', 
-        'layout': {
-        // 'text-font' must be one that is from OS data fonts. More info about which fonts we can use: https://github.com/openmaptiles/fonts
-          "text-font": [ "Source Sans Pro Regular" ], //Testing here!
-          'text-field': ['get', 'tenant_name'],
-          'text-size': 12,
-          'text-rotate': getRotation(['get', 'coordinates']),
-        //   'text-variable-anchor': ['bottom', 'top', 'left', 'right'],
-        //   'text-radial-offset': 0.5,
-          'text-justify': 'center'
-        },
-        'paint': {
-          'text-color': '#000'
-        }
-    });
 }); 
 }
