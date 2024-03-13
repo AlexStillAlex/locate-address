@@ -43,14 +43,14 @@ radioButtons.forEach(button => {
 
             // map_layers = map.style._layers
 
-            layer_array.forEach(layer => {
-                map.removeLayer(layer.id);
-            });
+            // layer_array.forEach(layer => {
+            //     map.removeLayer(layer.id);
+            // });
             
-            source_array.forEach(layer => {
-                map.removeSource(layer.id);
-            });
-            
+            // source_array.forEach(source => {
+            //     map.removeSource(source.id);
+            // });
+
             console.log("layers removed")
 
             customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
@@ -58,18 +58,23 @@ radioButtons.forEach(button => {
 
             // map.style.layers = map_layers
 
-            source_array.forEach(layer => {
-                map.addSource(layer.id);
-            });
+            // source_array.forEach(source => {
+            //     map.addSource(source);
+            // });
             
             layer_array.forEach(layer => {
-                map.addLayer(layer.id);
+                map.addLayer(layer);
             });
         }
     });
 });
 
-
+// map.on('style.load', function () {
+//     // Triggered when `setStyle` is called.
+//     layer_array.forEach(layer => {
+//         map.addLayer(layer);
+//     });
+//   });
 
 
 
