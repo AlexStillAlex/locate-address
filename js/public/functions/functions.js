@@ -980,8 +980,8 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     //First, let's create filters as distinct variables. Create an object to store the filters
     const filter_categories = {};
 
+    //All values in epc_colors are numbers
     if (color_categories.every(obj => typeof obj.value === 'number')){
-        console.log("All values in epc_colors are numbers");
 
         for (let i = 0; i < color_categories.length - 1; i++) {
             const currentValue = color_categories[i].value;
@@ -996,9 +996,8 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
             filter_categories[filterKey] = filterCondition;
         }
     }
-
+    //All values in passing_rent_colors are strings
     if (color_categories.every(obj => typeof obj.value === 'string')){
-        console.log("All values in passing_rent_colors are strings");
         // Iterate over (category) colour object to create filters
         color_categories.forEach(item => {
             filter_categories['color_by_category_' + item.value] = ['==', ['get', feature_property_categories], item.value];
@@ -1010,8 +1009,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     Object.keys(filter_categories).forEach(key => {
         clusterProperties[key] = ['+', ['case', filter_categories[key], 1, 0]];
     });
-
-    console.log(JSON.stringify(clusterProperties))
 
     console.log(clusterProperties)
     // Now you can use clusterProperties in your map source
@@ -1039,9 +1036,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
         maxzoom : 15 //don't show this layer when zoom level is < 15
     });
 
-    console.log(map.getLayer('unclustered-point'));
-    console.log(map.getSource('unclustered-point'))
-
     //Create an array of colors from color_categories
     const colors = color_categories.map(item => item.color);
 
@@ -1052,20 +1046,14 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
     function updateMarkers() {
         const newMarkers = {};
 
-        console.log("AAA")
         //PROBLEM: here; the features do not have properties color_by_category_20000, color_by_category_40000, etc.
         const features = map.querySourceFeatures('unclustered-point');
-        console.log("BBB")
-
-        console.log(features)
 
         // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
         // and add it to the map if it's not there already
         for (let i = 0; i < features.length; i++) {
             const coords = features[i].geometry.coordinates;
             const props = features[i].properties;
-            
-            console.log(props)
 
             if (!props.cluster) continue;
             const id = props.cluster_id;
@@ -1073,7 +1061,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
             let marker = markers[id];
 
             if (!marker) {
-                console.log(props)
                 const el = createDonutChart(props);
                 marker = markers[id] = new maplibregl.Marker({
                     element: el
@@ -1112,8 +1099,6 @@ function create_pie_charts (feature_points, color_categories, feature_property_c
             offsets.push(total);
             total += counts[i];
         }
-
-        console.log(total)
 
         const fontSize =
         total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16;

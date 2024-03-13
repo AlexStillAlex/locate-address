@@ -373,3 +373,88 @@
         //       'text-color': '#000'
         //     }
         // });
+
+           // Extract query from the request body
+    // const queries = {
+    //   query_lease_tenant_table : req.body.query_lease_tenant_table,
+    //   query_dmse_table : req.body.query_dmse_table,
+    //   query_EPC_table : req.body.query_EPC_table,
+    //   query_distinct_asset_manager : req.body.query_distinct_asset_manager
+    // }
+
+    // check that all the queries are well recieved by the server
+    // console.log(queries)
+
+
+      //endpoint for "Filter By" section. When the client server loads it will ping this endpoint to populate the dropdown of each "Filter By"
+//when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
+//   app.get('/dropdown-data', async (req, res) => {
+//     const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
+//     from main.offies.property_table 
+//     left join main.intermediate.int_demise_table_decoded 
+//     on dmse_prop_ref = prop_ref
+//     where dmse_area is not null
+//     group by 1,2,3 order by prop_ref`; // Yikes!
+//     client.connect({
+//         token: token,
+//         host: server_hostname,
+//         path: http_path
+//     }).then(async client => {
+//         const session = await client.openSession();
+    
+//         const queryOperation = await session.executeStatement(
+//             query,
+//             { runAsync: true }
+//         );
+    
+//         await queryOperation.waitUntilReady();
+//         const result = await queryOperation.fetchAll();
+//         // console.log(result);
+//         await queryOperation.close();
+//         res.json(result); // Send the result back to the client
+//     }).catch(error => {
+//         console.log(error);
+//         res.status(500).send(error);
+//     });
+// });
+
+  // window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
+  // fetch('/dropdown-data')
+  //     .then(response => response.json())
+  //     .then(data => {
+  //         populateDropdown(data);
+  //         console.log(data)
+  //     });
+    // }
+
+
+ // <button id="testButton" class = "big-red-button">Test Query</button> 
+  //         <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select count(*) from main.intermediate.int_unit_table_decoded'></input>
+  //Get the Databricks query on Client side
+//   document.getElementById('testButton').addEventListener('click', function() {
+//     const query = document.getElementById('queryInput').value;
+//     fetch('/run-query', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         query: query // Send the user's input as a JSON'd query
+//       })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log(data);
+    
+//     })
+//     .catch((error) => {
+//       console.error('Error:', error);
+//     });
+//   });
+
+
+        // lease_tenant_table = data.lease_tenant_table;
+        // dmse_table = data.dmse_table;
+        // epc_table = data.epc_table;
+        // distinct_asset_manager = data.distinct_asset_manager;
+        // dropdown_data = data.dropdown_data

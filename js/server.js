@@ -75,24 +75,22 @@ app.post('/get_rectangle_py', (req, res) => {
 // fetches the results, logs the results to the console,
 // and sends the results back to the client.
 app.post('/run-query', async (req, res) => {
-  // Extract queries from the request body
-  const queries = {
-    query_lease_tenant_table : req.body.query_lease_tenant_table,
-    query_dmse_table : req.body.query_dmse_table,
-    query_EPC_table : req.body.query_EPC_table,
-    query_distinct_asset_manager : req.body.query_distinct_asset_manager
-  }
-
-  connectToDb().then(async client => {
+  //connect to Databricks client
+    client.connect({
+      token: token,
+      host: server_hostname,
+      path: http_path
+    }).then(async client => {
+      
     const queryResults = {};
-
+    
     // Execute each query sequentially
-    for (const [queryName, query] of Object.entries(queries)) {
-      const session = await client.openSession();
-      const queryOperation = await session.executeStatement(query);
-      const result = await queryOperation.fetchAll();
-      await queryOperation.close();
-      await session.close();
+    for (const [queryName, query] of Object.entries(req.body)) {
+    const session = await client.openSession();
+    const queryOperation = await session.executeStatement(query);
+    const result = await queryOperation.fetchAll();
+    await queryOperation.close();
+    await session.close();
 
       // Store the query result 
       queryResults[queryName] = result;

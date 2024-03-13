@@ -1,4 +1,9 @@
 // BACKEND INTERACTIONS
+//The sequesce of layer loading:
+// map layer -> polygons -> tenant names -> zoomed_out_pie_charts
+// So, the sequence of calling endpoints should also be the same.
+// dropdown data should be loaded as early as possible.
+
 document.addEventListener("DOMContentLoaded", (event) => {
   // map.on('load', function() {
   // window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
@@ -17,15 +22,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          'query_lease_tenant_table': 'select leas_dmse_ref as dmse_ref, tnnt_trade_name as tenant_name, leas_passing_rent from main.offies.lease_table left join main.intermediate.int_tenant_table_decoded on tnnt_ref = leas_tnnt_ref',
-          'query_dmse_table': 'select dmse_ref, dmse_desc, dmse_prop_ref, dmse_grop_name, dmse_status_desc, dmse_type_desc, dmse_surveyor from main.intermediate.int_demise_table_decoded',
-          'query_EPC_table': 'select depc_dmse_ref, depc_rating_letter from main.intermediate.int_epc_demise_table',
-          'query_distinct_asset_manager' : 'select distinct(dmse_surveyor) from main.intermediate.int_demise_table_decoded where dmse_surveyor is not null'
+          'lease_tenant_table': 'select leas_dmse_ref as dmse_ref, tnnt_trade_name as tenant_name, leas_passing_rent from main.offies.lease_table left join main.intermediate.int_tenant_table_decoded on tnnt_ref = leas_tnnt_ref',
+          'dmse_table': 'select dmse_ref, dmse_desc, dmse_prop_ref, dmse_grop_name, dmse_status_desc, dmse_type_desc, dmse_surveyor from main.intermediate.int_demise_table_decoded',
+          'epc_table': 'select depc_dmse_ref, depc_rating_letter from main.intermediate.int_epc_demise_table',
+          'distinct_asset_manager' : 'select distinct(dmse_surveyor) from main.intermediate.int_demise_table_decoded where dmse_surveyor is not null',
+          'dropdown_data': 'select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area from main.offies.property_table left join main.intermediate.int_demise_table_decoded on dmse_prop_ref = prop_ref where dmse_area is not null group by 1,2,3 order by prop_ref'
         })
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
+      
+          console.log(data);
+      
         // Global variables
         lease_tenant_table = data.query_lease_tenant_table;
         dmse_table = data.query_dmse_table;
@@ -40,6 +48,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
         goadMapTest().then(() => {
             populateDropdown_asset_managers(distinct_asset_manager);
       
+        for (const key in data) {
+              window[key] = data[key];
+        }
+    
+        goadMapTest().then(() => {
+            populateDropdown_asset_managers(distinct_asset_manager);
+            populateDropdown(dropdown_data)
+
+
+            // Return another fetch request here
+            // return fetch('/run-general-query', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({'query': 'select * from main.achudasama.exterior_names_testing'})
+            // });
         })
       
         fetch('/run-general-query', {
@@ -255,4 +280,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
       });
     });
   });
-  
+});
