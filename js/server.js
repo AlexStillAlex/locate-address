@@ -21,6 +21,22 @@ const cors = require("cors");
 app.use(cors());
 app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api request. 
 
+
+// A flag variable to check if we've already got a databricksconnection. 
+let dbClient;
+
+// tests if we've connected to databricks so we don't keep on reconnecting/creating over and over.
+async function connectToDb() {
+  if (!dbClient) {
+    dbClient = await client.connect({
+      token: token,
+      host: server_hostname,
+      path: http_path
+    });
+  }
+  return dbClient;
+}
+
 //Gets the inscribed rectangle from the python script.
 app.post('/get_rectangle_py', (req, res) => {
   // Define the Python script and arguments
@@ -76,20 +92,35 @@ app.post('/run-query', async (req, res) => {
     await queryOperation.close();
     await session.close();
 
-    // Store the query result in the queryResults object
-    queryResults[queryName] = result;
+      // Store the query result 
+      queryResults[queryName] = result;
     }
 
-    // console.log(queryResults);
-
     res.json(queryResults); // Send the result back to the client
+  }).catch(error => {
+    console.log(error);
+    res.status(500).json({ message: 'An error occurred' });
+  });
+});
 
-    await client.close();
-
-    }).catch(error => {
-      console.log(error);
-      res.status(500).json({ message: 'An error occurred' });
-    });
+app.post('/run-general-query', async (req, res) => {
+  const query = req.body.query; // Extract the query from the request body
+  connectToDb().then(async client => {
+    const session = await client.openSession();
+    const queryOperation = await session.executeStatement(
+      query, // Use the query from the request body
+      { runAsync: true }
+    );
+    await queryOperation.waitUntilReady();
+    const result = await queryOperation.fetchAll();
+    console.log(result);
+    await queryOperation.close();
+    res.json(result); // Send the result back to the client
+    await session.close();
+  }).catch(error => {
+    console.log(error);
+    res.status(500).json({ message: 'An error occurred' });
+  });
 });
 
 //endpoint called /get-data for the backend.
@@ -144,6 +175,9 @@ app.get('/get-data', (req, res) => {
         res.status(500).send(error);
     });
 });
+
+
+
 
 
 

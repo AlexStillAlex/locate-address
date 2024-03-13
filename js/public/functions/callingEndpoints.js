@@ -13,9 +13,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           console.log(data)
       });
     // }
-      
-    //lease_tenant_table
-    //select dmse_ref, tnnt_name from main.intermediate.int_leas_table_decoded
+
       fetch('/run-query', {
         method: 'POST',
         headers: {
@@ -37,33 +35,157 @@ document.addEventListener("DOMContentLoaded", (event) => {
         dmse_table = data.query_dmse_table;
         epc_table = data.query_EPC_table;
         distinct_asset_manager = data.query_distinct_asset_manager;
-        dropdown_data = data.query_dropdown_data;
-  
-        // This is the function in that other file. It just does some highlighting
-        goadMapTest().then(populateDropdown_asset_managers(distinct_asset_manager))
-
-        populateDropdown(data)
         
-        // Initialisie Sources!
-        map.addSource('inscribed_rectangles_testing', {
-          type: 'geojson',
-          data: {
-              type: 'FeatureCollection',
-              features: [
-              ]
-          }
-      });  
-        map.addLayer({
-        'id': 'testing',
-        'type': 'line',
-        'source': 'inscribed_rectangles_testing',
-        'layout': {},
-        'paint': {
-            'line-color': '#6ae',
-            'line-opacity': 1,
-            'line-width': 3
-          }
+        console.log(lease_tenant_table)
+        console.log(dmse_table)
+        console.log(epc_table)
+        console.log(distinct_asset_manager)
+        // This is the function in that other file. It just does some highlighting
+    
+        goadMapTest().then(() => {
+            populateDropdown_asset_managers(distinct_asset_manager);
+            // Return another fetch request here
+            // return fetch('/run-general-query', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({'query': 'select * from main.achudasama.exterior_names_testing'})
+            // });
+        })
+        // .then(response => response.json())
+        // .then(data => {
+        //   console.log(data);
+        //   polygon_data = data;    
+      //     // Add the TOID layers
+      //     map.addSource('external_polygons', {
+      //       'type': 'geojson',
+      //       'data': {
+      //           'type': 'FeatureCollection',
+      //           'features': []
+      //       }
+      //   });
+      //   // Add the inscribed rectangles
+      //   map.addSource('internal_rectangles', {
+      //     'type': 'geojson',
+      //     'data': {
+      //         'type': 'FeatureCollection',
+      //         'features': []
+      //     }
+      // });
+
+        //   for (let i = 0; i < data.length; i++) {
+        //     console.log(data[i]);
+
+        //     let polygon_feature = {
+        //       'type': 'Feature',
+        //       'geometry': {
+        //           'type': 'Polygon', 
+        //           'coordinates': [JSON.parse(data[i].coordinates)]
+        //       }
+        //   };
+
+        //   let inscribed_rectangle = {
+        //     'type': 'Feature',
+        //     'geometry': {
+        //         'type': 'Polygon', // Or 'Point', 'LineString', etc., depending on your data
+        //         'coordinates': JSON.parse(data[i]['Interior Rectangle'])
+        //     },    
+        //     'properties': {
+        //       'uprn': data[i].uprn,
+        //       'Rotation Angle': data[i]['Rotation Angle'],
+        //       'Rotation Flag': data[i]['Rotation Flag'],
+        //       'tenant_name': data[i].organisation_name
+        //   }
+            
+        // };
+        // map.getSource('external_polygons')._data.features.push(polygon_feature);
+        // map.getSource('internal_rectangles')._data.features.push(inscribed_rectangle);
+        
+      //   }
+        // });
+        // console.log(polygon_data);
+        let polygon_data;
+        fetch('/run-general-query', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({'query': 'select * from main.achudasama.exterior_names_testing'})
+          })
+          .then(response => response.json()) // Parse the response as JSON
+          .then(data => {
+            // polygon_data = data;
+            data.forEach((feature, index) => {
+              // Unique ID
+            let id = 'uprn_' + data[index].uprn;
+
+            //  These are strings.
+             feature['Interior Rectangle'] = JSON.parse(feature['Interior Rectangle']);
+             feature.coordinates = JSON.parse(feature.coordinates);
+             console.log(feature);
+             map.addSource(id, {
+              'type': 'geojson',
+              'data': {
+                  'type': 'Feature',
+                  'geometry': {
+                      'type': 'Polygon',
+                      'coordinates': [feature.coordinates]
+                  }
+              }
+          });
+          // Add a new layer with the unique ID. Will need to write it a bit better.
+          addLayerToMap( id, 'line', id, '#46E', 1, 3);
+
+          console.log(getCentroid(feature['Interior Rectangle']))
+          map.addLayer({
+            'id': 'interior_text' + feature.uprn,
+            'type': 'symbol',
+            'source': {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': getCentroid(feature['Interior Rectangle'])
+                    }
+                }
+            },
+            'layout': {
+                "text-font": [ "Source Sans Pro Regular" ],
+                'text-field': feature.organisation_name,
+                'text-size': 13,
+                'text-rotate': feature['Rotation Flag']*90+feature['Rotation Angle'] - 90, //Got the rotation flag the wrong way round lol.
+                'text-max-width': 7, // Adjust this value as needed
+                'symbol-placement': 'point',
+                // 'text-anchor': 'left', // Right-align the text (its weird because of geometry...).
+                'text-allow-overlap': false
+                // 'text-offset': [-1, 0] // Move the text 1em to the left.
+            },
+            'paint': {
+                'text-color': '#FFF'
+            }
         });
+          // Add a new layer with the unique ID. Will need to write it a bit better.
+          // addLayerToMap( id, 'line', id, '#46E', 0.0, 3);
+            
+            })
+          })
+          .catch(error => {
+              console.error('Error:', error); // Log any errors
+          });
+          console.log(polygon_data);
+        // Initialize Sources!
+        map.addSource('inscribed_rectangles_testing', {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: []
+            }
+        });
+      // Helper function
+        addLayerToMap('testing', 'line', 'inscribed_rectangles_testing', '#6ae', 1, 3);
+
         // Currently this is the blaby polygons but we can cange that
         // We chain fetch requests like this.
         //the big one. martincacoll
@@ -75,7 +197,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           // VAPES
         // let testcoord = [[[-1.163908171797857,52.575831712757434], [-1.1638277055276376,52.57583823278733], [-1.1638682013073094,52.57603631448853], [-1.1639510871427774,52.576030573234306], [-1.163908171797857,52.575831712757434]]]
           // COE MARK
-          let testcoord =  [[[-1.1634862041582892,52.576029832545515], [-1.1634862041582892,52.57607791752608], [-1.1637866115681845,52.57607954752464], [-1.1637866115681845,52.57603064754568], [-1.1634862041582892,52.576029832545515]]]
+          // let testcoord =  [[[-1.1634862041582892,52.576029832545515], [-1.1634862041582892,52.57607791752608], [-1.1637866115681845,52.57607954752464], [-1.1637866115681845,52.57603064754568], [-1.1634862041582892,52.576029832545515]]]
         // console.log(feature.geometry)
           // polygoncoords = feature.geometry.coordinates;
           const rectangles = [
@@ -150,17 +272,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
               }
           });
           
-          // Add a new layer with the unique ID
-          map.addLayer({
-              'id': id,
-              'type': 'line',
-              'source': id,
-              'paint': {
-                  'line-color': '#46E',
-                  'line-opacity': 0.0,
-                  'line-width': 3}
-          });
-
+          // Add a new layer with the unique ID. Will need to write it a bit better.
+          addLayerToMap( id, 'line', id, '#46E', 0.0, 3);
           map.addLayer({
             'id': 'label_' + index,
             'type': 'symbol',
@@ -181,7 +294,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 'text-rotate': rectangle.rotateFlag*90-rectangle.largestTheta ,
                 'text-max-width': 7, // Adjust this value as needed
                 'symbol-placement': 'point',
-                'text-anchor': 'left', // Right-align the text (its weird because of geometry...).
+                // 'text-anchor': 'left', // Right-align the text (its weird because of geometry...).
                 'text-allow-overlap': false
                 // 'text-offset': [-1, 0] // Move the text 1em to the left.
             },
