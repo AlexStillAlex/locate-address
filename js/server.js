@@ -180,7 +180,8 @@ app.post('/run-general-query', async (req, res) => {
 
 
 // runs the 'static' pages. I.e. the HTML and scripts that only depend on the client.
-app.use(express.static('js/public'));
+app.use(express.static('js/public/'));
+app.use('/', express.static('js/views'));
 //puts a link in the console for me to copy
 app.listen(3001, () => { //Changing this TEMPORARILY so I don't crash Mark's server
     console.log('Server running on http://localhost:3001');
