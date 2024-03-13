@@ -373,3 +373,14 @@
         //       'text-color': '#000'
         //     }
         // });
+
+           // Extract query from the request body
+    // const queries = {
+    //   query_lease_tenant_table : req.body.query_lease_tenant_table,
+    //   query_dmse_table : req.body.query_dmse_table,
+    //   query_EPC_table : req.body.query_EPC_table,
+    //   query_distinct_asset_manager : req.body.query_distinct_asset_manager
+    // }
+
+    // check that all the queries are well recieved by the server
+    // console.log(queries)

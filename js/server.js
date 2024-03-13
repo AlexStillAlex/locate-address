@@ -65,20 +65,11 @@ app.post('/run-query', async (req, res) => {
       host: server_hostname,
       path: http_path
     }).then(async client => {
-    // Extract query from the request body
-    const queries = {
-      query_lease_tenant_table : req.body.query_lease_tenant_table,
-      query_dmse_table : req.body.query_dmse_table,
-      query_EPC_table : req.body.query_EPC_table,
-      query_distinct_asset_manager : req.body.query_distinct_asset_manager
-    }
-
-    // check that all the queries are well recieved by the server
-    // console.log(queries)
+      
     const queryResults = {};
-
-     // Execute each query sequentially
-    for (const [queryName, query] of Object.entries(queries)) {
+    
+    // Execute each query sequentially
+    for (const [queryName, query] of Object.entries(req.body)) {
     const session = await client.openSession();
     const queryOperation = await session.executeStatement(query);
     const result = await queryOperation.fetchAll();

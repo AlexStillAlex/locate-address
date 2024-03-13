@@ -232,7 +232,7 @@ async function goadMapTest(){
     // console.log(map.getLayer('blaby_leaseholds'));
     // console.log(map.getSource('blaby_leaseholds'));
 
-    //creating map layer source
+    //creating leasehold layer source
     map.addSource('blaby_leaseholds', {
         type: 'geojson',
         data: {
@@ -240,7 +240,11 @@ async function goadMapTest(){
             features: blaby_leasehold_polygons
         }
     });
-    //creating map layer
+
+    source_array = []
+    source_array.push(map.getSource('blaby_leaseholds'));
+
+    //creating leasehold layer
     map.addLayer({
         id: 'blaby_leaseholds',
         type: 'fill',
@@ -250,7 +254,11 @@ async function goadMapTest(){
             'fill-opacity': 0.7
           }
     });
+    
+    layer_array = []
+    layer_array.push(map.getLayer('blaby_leaseholds'));
 
+    //add freehold source
     map.addSource('blaby_freeholds', {
         type: 'geojson',
         data: {
@@ -269,7 +277,7 @@ async function goadMapTest(){
             ]
         }
     });
-    //creating map layer
+    //add freehold layer
     map.addLayer({
         id: 'blaby_freeholds',
         type: 'line',
@@ -389,8 +397,6 @@ const centroid_points = [
         }
     }
 ]
-
-console.log(centroid_points)
 
 create_default_pie_charts_on_high_zoom_level(centroid_points);
 

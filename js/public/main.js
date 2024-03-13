@@ -12,9 +12,69 @@ const endpoints = {
     vectorTile: 'https://api.os.uk/maps/vector/v1/vts'
 };
 //Definining custom map styles
-//  const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
-    const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
-    const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
+//normal map style
+
+// const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+//dark-mode style
+// const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
+
+
+
+
+let customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+
+// const customStyleJsonGOAD = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
+
+const radioButtons = document.querySelectorAll('input[type="radio"][name="toggle"]');
+radioButtons.forEach(button => {
+    button.addEventListener('change', function() {
+        if (this.value === "Standard") {
+            console.log("Standard")
+            customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
+
+            map.setStyle(customStyleJson)
+
+            layer_array.forEach(layer => {
+                map.addLayer(layer);
+            });
+
+        } else if (this.value === "GOAD") {
+            console.log("GOAD")
+
+            // map_layers = map.style._layers
+
+            layer_array.forEach(layer => {
+                map.removeLayer(layer.id);
+            });
+            
+            source_array.forEach(layer => {
+                map.removeSource(layer.id);
+            });
+            
+            console.log("layers removed")
+
+            customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
+            map.setStyle(customStyleJson)
+
+            // map.style.layers = map_layers
+
+            source_array.forEach(layer => {
+                map.addSource(layer.id);
+            });
+            
+            layer_array.forEach(layer => {
+                map.addLayer(layer.id);
+            });
+        }
+    });
+});
+
+
+
+
+
+
+const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
 
 // Initialise the map object.
 const style = {

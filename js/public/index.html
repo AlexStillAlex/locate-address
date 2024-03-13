@@ -69,10 +69,10 @@
         <!-- Radio Buttons at the Top Representing Map Layer Choice -->
         <input id="Standard" type="radio" name="toggle" value="Standard" checked="checked">
         <label for="Standard">Standard</label>
-        <input id="Images" type="radio" name="toggle" value="Images">
-        <label for="Images">Images</label> 
-        <input id="Chloropleth" type="radio" name="toggle" value="Chloropleth">
-        <label for="Chloropleth">Chloropleth</label> <!-- Corrected here -->
+        <input id="GOAD" type="radio" name="toggle" value="GOAD">
+        <label for="GOAD">GOAD</label> 
+        <input id="Satellite" type="radio" name="toggle" value="Satellite">
+        <label for="Satellite">Satellite</label> <!-- Corrected here -->
         </div>
 
         <!-- The Sidebar Medu Box -->
@@ -138,11 +138,12 @@
           <p>Name of the Property</p>
           <p>Property Reference</p>
         </div>
-        <button id = "showOther" type="button" class="collapsible"onclick="toggleCollapsible(event)">Dev Testing</button>
+
+        <!-- <button id = "showOther" type="button" class="collapsible"onclick="toggleCollapsible(event)">Dev Testing</button>
         <div class="sections" style = "display:none">
-          <button id="testButton" class = "big-red-button">Test Query</button> <!-- Submits an SQL query -->
+          <button id="testButton" class = "big-red-button">Test Query</button> 
           <input type="text" id="queryInput" placeholder="Write a correct SQL query" value = 'select count(*) from main.intermediate.int_unit_table_decoded'>
-          <button id="testPensnett" class = "big-red-button">Test Pensnett</button> <!-- Highlighting buildings within PENSNETT polygon -->
+          <button id="testPensnett" class = "big-red-button">Test Pensnett</button> 
           <div id="areaDisplay">
             <p id="totalArea">Total Area: </p>
             <p id="internalArea">Internal Area: </p>
@@ -153,9 +154,10 @@
             <input type="checkbox">
             <span class="slider round"></span>
           </label>
-          <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button> <!-- Highlights buildings for general polygon. -->
-          <div id="legend"></div> <!--  Legend Container -->
-        </div>            
+          <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button>
+          <div id="legend"></div>
+        </div>    -->
+                 
     </div>
     </div>
     </body>
