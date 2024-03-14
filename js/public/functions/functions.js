@@ -78,9 +78,13 @@ function getFeatures(coord) {
                 .setLngLat(coord)
                 .setHTML(content)
                 .addTo(map);
-            popup.on('close', function() {
-                map.getSource('topographic-areas').setData(geoJson);
-            });
+                popup.on('close', function() {
+                    // When popup close sets the source to an empty GeoJSON feature collection
+                    map.getSource('topographic-areas').setData({
+                        type: 'FeatureCollection',
+                        features: []
+                    });
+                });
         });
 }
 
@@ -1368,6 +1372,185 @@ function addLayerToMap(id, type, source, color, opacity, width,layout={}) {
             [`${type}-color`]: color,
             [`${type}-opacity`]: opacity,
             [`${type}-width`]: width
+        }
+    });
+}
+// Object will be a dictionary.
+//This is something to deal with later. But useful refractor.
+function addPolygonLayers(map, id, object, index) {
+    map.addSource(id, {
+        'type': 'geojson',
+        'data': {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Polygon',
+                'coordinates': [object.coordinates]
+            }
+        }
+    });
+    // Add a new layer with the unique ID.
+    addLayerToMap(id, 'line', id, '#46E', 0.0, 3);
+
+    map.addLayer({
+        'id': 'label_' + index,
+        'type': 'symbol',
+        'source': {
+            'type': 'geojson',
+            'data': {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': getCentroid(object.coordinates)
+                }
+            }
+        },
+        'layout': {
+            "text-font": ["Source Sans Pro Regular"],
+            'text-field': tenant_name,
+            'text-size': 13,
+            'text-rotate': object.rotateFlag * 90 - object.largestTheta,
+            'text-max-width': 7,
+            'symbol-placement': 'point',
+            'text-allow-overlap': false
+        },
+        'paint': {
+            'text-color': '#000'
+        }
+    });
+}
+// should take in a coordinate array
+// of a rectangle  and get the pixel width of that rectangle????
+function calculatePixelWidth(feature=map.getSource('interior_text_100032071986')._data.properties.rect_coordinates) {
+    let rectangle = feature;
+    let sw = map.project(rectangle[0]); // southwest corner
+    let ne = map.project(rectangle[1]); // northeast corner
+
+    let pixelWidth = Math.abs(ne.x - sw.x);
+
+    console.log('Pixel width:', pixelWidth);
+    return pixelWidth;
+}
+
+function calculateTextWidth(text= 'TAMMY THE VILLAGE BARBERS', fontSize= 13, fontFamily = 'Source Sans Pro Regular') {
+    let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
+    context.font = `${fontSize}px ${fontFamily}`; // Set the font size and family
+
+    let sum = 0;
+    for (let i = 0; i < text.length; i++) {
+        let metrics = context.measureText(text[i]);
+        sum += metrics.width;
+        console.log('Character:', text[i], 'Width:', metrics.width, 'Sum:', sum);
+    }
+    // stop using the same ID
+    if (canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+    }
+    return sum;
+}
+
+function getLongestSide(rectangle) {
+    // Assume rectangle is an array of points: [[x1, y1], [x2, y2], [x3, y3], [x4, y4], [x1, y1]]
+    let sides = [
+        {coords: [rectangle[0], rectangle[1]], length: turf.distance(rectangle[0], rectangle[1])},
+        {coords: [rectangle[1], rectangle[2]], length: turf.distance(rectangle[1], rectangle[2])},
+    ];
+
+    let longestSide = sides.reduce((prev, current) => (prev.length > current.length) ? prev : current);
+
+    return longestSide.coords;
+}
+
+function calculateRectanglePixels(rectangle){
+    let rectLeft = map.project(rectangle[0]); // Left side
+    let rectRight = map.project(rectangle[1]); //Right side
+    return Math.abs(rectLeft.x - rectRight.x);
+}
+// Allows for calculation of fonts without needing to rerender the map.
+function calculateExtremeFontSizes(object_id='interior_text_100032071986') {
+    // Map zoom levels
+    let maxZoom = map.getMaxZoom();
+    let minZoom = map.getMinZoom();
+    //Get coordinates of longest side of textbox
+    let rectCoordinates = getLongestSide(map.getSource(object_id)._data.properties.rect_coordinates);
+    //Project these into pixels
+    let rectLeft = map.project(rectCoordinates[0]); // Left side
+    let rectRight = map.project(rectCoordinates[1]); //Right side
+    //Calculate the pixel width
+    let currentPixelWidth =  Math.abs(rectLeft.x - rectRight.x);
+    // Pixel width = currentPixelWidth/(2^(currentZoom - targetZoom))
+    let minPixelWidth = currentPixelWidth/(Math.pow(2,map.getZoom()-minZoom));
+    let maxPixelWidth = currentPixelWidth/(Math.pow(2,map.getZoom()-maxZoom));
+    // Get the length of the tennant name string
+    let fontScale = map.getSource(object_id)._data.properties.organisation_name.length;
+    //Returns the minimum and maximum font sizes
+    return [minPixelWidth/fontScale,maxPixelWidth/fontScale];
+
+}
+
+function adjustFontSize(object_id, fontFamily = 'Source Sans Pro Regular') {
+    let fontSize = 1; // start from 1
+    let textWidth;
+    let text = map.getSource(object_id)._data.properties.organisation_name;
+    // gotta rotate the object to
+    let maxWidth = calculatePixelWidth(rotateCoordinates([map.getSource(object_id)._data.properties.rect_coordinates], -map.getSource(object_id)._data.properties.rotation_angle))
+    // let testwidth = calculatePixelWidth(map.getSource(object_id)._data.properties.rect_coordinates)
+    // console.log('Max width', maxWidth,'testwidth',testwidth)
+    do {
+        fontSize++; // increase the font size
+        textWidth = calculateTextWidth(text, fontSize, fontFamily);
+    } while (textWidth <= maxWidth);
+
+    return fontSize - 1; // subtract 1 because the loop overshot by 1
+}
+//Get a circular bounding box based off a map centre. It isn't actually circular.
+function getCircleBoundingBox(center, radiusInDegrees) {
+    let Circlebbox = [
+        center.lng - radiusInDegrees,
+        center.lat - radiusInDegrees,
+        center.lng + radiusInDegrees,
+        center.lat + radiusInDegrees
+    ].join(',');
+    return Circlebbox;
+}
+
+//highlights features with box defined by coords. Initially the 'circular' box.
+async function getFeaturesHighlighted(filterValue, color,bbox = getCircleBoundingBox(map.getCenter(), 200 / 1000 / 111.325)) {
+    let offset = 0;
+    let allFeatures = [];
+    let limit = 100;
+    let filter = `oslandusetiera eq '${filterValue}'`;
+
+    while (true) {
+        let url = `${baseUrl}?filter=${encodeURIComponent(filter)}&bbox=${bbox}&key=${key}&limit=${limit}&offset=${offset}`;
+        // Fetch the features.
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(url);
+        allFeatures.push(...data.features);
+
+        // If the number of features in the response is less than the limit, we've reached the last page.
+        if (data.features.length < limit) {
+            break;
+        }
+        // Otherwise, increment the offset by the limit to fetch the next page of results.
+        offset += limit;
+    }
+    // Add a new layer with all fetched features.
+    map.addLayer({
+        "id": `highlighted-buildings-${filterValue}`,
+        "type": "fill",
+        "source": {
+            "type": "geojson",
+            "data": {
+                "type": "FeatureCollection",
+                "features": allFeatures
+            }
+        },
+        "layout": {},
+        "paint": {
+            "fill-color": color,
+            "fill-opacity": 0.3 //CHANGE TO 0.8 WHEN NOT TESTING
         }
     });
 }

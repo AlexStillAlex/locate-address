@@ -123,50 +123,65 @@ app.post('/run-general-query', async (req, res) => {
   });
 });
 
-//endpoint called /get-data for the backend.
-app.get('/get-data', (req, res) => {
-    const url = 'https://use-land-property-data.service.gov.uk/api/v1/datasets/history/ccod';
+// //endpoint called /get-data for the backend.
+// app.get('/get-data', (req, res) => {
+//     const url = 'https://use-land-property-data.service.gov.uk/api/v1/datasets/history/ccod';
   
-    fetch(url, {
-        headers: {
-          'Authorization': `${HMapikey}`,
-          'Cache-Control': 'no-cache' // Sometimes the server will load an old response. Have it on when testing.
-         }
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data); // log data on server
-        res.json(data); // send data to client
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ message: 'An error occurred' });
-      });
-  });
+//     fetch(url, {
+//         headers: {
+//           'Authorization': `${HMapikey}`,
+//           'Cache-Control': 'no-cache' // Sometimes the server will load an old response. Have it on when testing.
+//          }
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         console.log(data); // log data on server
+//         res.json(data); // send data to client
+//       })
+//       .catch(error => {
+//         console.log(error);
+//         res.status(500).json({ message: 'An error occurred' });
+//       });
+//   });
 
-//endpoint called /wfsproxy for the backend.
-app.post('/wfs-proxy', (req, res) => {
-    const url = 'https://api.os.uk/features/v1/wfs' //?key=IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh&service=wfs&request=GetFeature&version=2.0.0&typeNames=Topography_TopographicArea'
-  console.log(req.body);
-  fetch(url, { // Pass the URL as the first argument to fetch
-    method: 'POST',
-    headers: {
-      'Authorization': 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh',
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: req.body // Pass the request body as the second argument to fetch
-  })
-  .then(res => res.json())
-  .then(data => {
-      console.log(data);
-  })
-  .catch(error => {
-      console.log(error);
-  });
+//endpoint for "Filter By" section. When the client server loads it will ping this endpoint to populate the dropdown of each "Filter By"
+//when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
+  app.get('/dropdown-data', async (req, res) => {
+    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
+    from main.offies.property_table 
+    left join main.intermediate.int_demise_table_decoded 
+    on dmse_prop_ref = prop_ref
+    where dmse_area is not null
+    group by 1,2,3 order by prop_ref`; // Yikes!
+    client.connect({
+        token: token,
+        host: server_hostname,
+        path: http_path
+    }).then(async client => {
+        const session = await client.openSession();
+    
+        const queryOperation = await session.executeStatement(
+            query,
+            { runAsync: true }
+        );
+    
+        await queryOperation.waitUntilReady();
+        const result = await queryOperation.fetchAll();
+        // console.log(result);
+        await queryOperation.close();
+        res.json(result); // Send the result back to the client
+    }).catch(error => {
+        console.log(error);
+        res.status(500).send(error);
+    });
 });
 
+
+
+
 // runs the 'static' pages. I.e. the HTML and scripts that only depend on the client.
-app.use(express.static('js/public'));
+app.use(express.static('js/public/'));
+app.use('/', express.static('js/views'));
 //puts a link in the console for me to copy
 app.listen(3001, () => { //Changing this TEMPORARILY so I don't crash Mark's server
     console.log('Server running on http://localhost:3001');

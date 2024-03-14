@@ -5,7 +5,6 @@ var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled s
 var config = {
     apikey: apikey 
 };
-
 // Endpoints
 const endpoints = {
     places: 'https://api.os.uk/search/places/v1',
@@ -136,7 +135,6 @@ const map = new maplibregl.Map({
 });
 
 // Add navigation control (excluding compass button) to the map.
-
     map.addControl(new maplibregl.NavigationControl({
         showCompass: true
     }));
@@ -148,10 +146,7 @@ const map = new maplibregl.Map({
     }));
 
  // Create an empty GeoJSON FeatureCollection.
- const geoJson = {
-    "type": "FeatureCollection",
-    "features": []
-};
+//  const geoJson = 
 
 // Add event which waits for the map to be loaded.
 map.on('load', function() {
@@ -161,7 +156,10 @@ map.on('load', function() {
         "type": "fill",
         "source": {
             "type": "geojson",
-            "data": geoJson
+            "data": {
+                "type": "FeatureCollection",
+                "features": []
+            }
         },
         "layout": {},
         "paint": {
@@ -169,7 +167,6 @@ map.on('load', function() {
             "fill-opacity": 0.3 //Don't even need to highlight htis
         }
     });
-
     // Add click event handler.
     map.on('click', function(e) {
         let coord = e.lngLat;

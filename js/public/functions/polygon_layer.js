@@ -2,8 +2,6 @@
 
 async function goadMapTest(){
 
-// map.on('load', function() {
-// Possible conflict because map is called twice
 
 //We have three map layers: leasehold_polygon layer (polygon), freehold_polygon layer (polygon), and tenant_names_layer (symbol; i.e. point)
     defaultcolor = '#FF0000'; // Default color
