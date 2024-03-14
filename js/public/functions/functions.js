@@ -1259,7 +1259,7 @@ function create_default_pie_charts_on_high_zoom_level(centroid_points) {
             features: centroid_points
         },
         cluster: true,
-        clusterMaxZoom: 14, // Max zoom to cluster points on
+        clusterMaxZoom: 15, // Max zoom to cluster points on
         clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
     });
     
@@ -1344,7 +1344,9 @@ function create_default_pie_charts_on_high_zoom_level(centroid_points) {
 
 function rgbToHex(color) {
     // Check if the color is in the correct format
-    const regex = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+    const regex = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/; 
+    //fuck regex 
+    //me and my homies hate regex
     const match = color.match(regex);
     
     if (!match) {

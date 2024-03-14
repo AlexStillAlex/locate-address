@@ -246,6 +246,7 @@ async function goadMapTest(){
     map.addLayer({
         id: 'blaby_leaseholds',
         type: 'fill',
+        "minzoom": 16,
         source: 'blaby_leaseholds',
         'paint': {
             'fill-color': ['get', 'color'],
@@ -279,6 +280,7 @@ async function goadMapTest(){
     map.addLayer({
         id: 'blaby_freeholds',
         type: 'line',
+        "minzoom": 16,
         source: 'blaby_freeholds',
         'paint': {
             "line-color": "black",

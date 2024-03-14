@@ -156,19 +156,19 @@ def coordinates_to_polygon(coordinates):
 #     ],
 #     "largestTheta": 0
 # }
-if __name__ == "__main__":
-    #Gets the script inputs (coord)
-    # Also converts the json string to a python object (list of lists)
-    sysinput = sys.argv[1]#produces acsv string
+# if __name__ == "__main__":
+#     #Gets the script inputs (coord)
+#     # Also converts the json string to a python object (list of lists)
+#     sysinput = sys.argv[1]#produces acsv string
 
-    # Split the string into a list of strings
-    coords_str = sysinput.split(',')
-    # Convert the strings to floats and group them into pairs
-    coords = [(float(coords_str[i]), float(coords_str[i+1])) for i in range(0, len(coords_str), 2)]
+#     # Split the string into a list of strings
+#     coords_str = sysinput.split(',')
+#     # Convert the strings to floats and group them into pairs
+#     coords = [(float(coords_str[i]), float(coords_str[i+1])) for i in range(0, len(coords_str), 2)]
 
-    # basically csv of coords x1,y1,x2,y2,x3,y3,x4,y4 --> [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
-    # dealing with the tuple in the list is done elsewhere
-    result = coordinates_to_polygon(coords)
+#     # basically csv of coords x1,y1,x2,y2,x3,y3,x4,y4 --> [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
+#     # dealing with the tuple in the list is done elsewhere
+#     result = coordinates_to_polygon(coords)
 
-    print(json.dumps(result))
+#     print(json.dumps(result))
 
