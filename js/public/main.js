@@ -39,7 +39,7 @@ radioButtons.forEach(button => {
 
         } else if (this.value === "GOAD") {
             console.log("GOAD")
-
+            
             // map_layers = map.style._layers
 
             // layer_array.forEach(layer => {
@@ -50,10 +50,23 @@ radioButtons.forEach(button => {
             //     map.removeSource(source.id);
             // });
 
-            console.log("layers removed")
+            // console.log("layers removed")
 
-            customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
-            map.setStyle(customStyleJson)
+            //Name of Layer with buildings (OS/TopographicArea_1/Building/1)
+            map.setStyle("goadstyle.json")
+
+            // map.setStyle("https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json")
+
+            // map.setStyle(customStyleJson)
+            // layer_array.forEach(function(newLayer){
+            //     customStyleJson.layers.push(newLayer);
+            // })
+            
+            // customStyleJson.layers.push(newLayer);
+
+            // layer_array.forEach(function(newLayer){
+            //     map.style._layers.push(newLayer);
+            // })
 
             // map.style.layers = map_layers
 
@@ -61,9 +74,9 @@ radioButtons.forEach(button => {
             //     map.addSource(source);
             // });
             
-            layer_array.forEach(layer => {
-                map.addLayer(layer);
-            });
+            // layer_array.forEach(layer => {
+            //     map.addLayer(layer);
+            // });
         }
     });
 });
