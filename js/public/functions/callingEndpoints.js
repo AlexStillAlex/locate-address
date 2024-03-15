@@ -90,12 +90,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }
         });
           // Add a new layer with the unique ID. Will need to write it a bit better.
-          addLayerToMap( id, 'line', id, '#46E', 1, 3);
-          let interpolateFonts = calculateExtremeFontSizes(rect_id);
+          // addLayerToMap( id, 'line', id, '#46E', 1, 3);
+          map.addLayer({
+            'id': id,
+            'type': 'line',
+            'source': id, // Use the ID of the source
+            "minzoom": 16,
+            'paint': {
+                'line-color': '#46E',
+                'line-opacity': 1,
+                'line-width': 3
+            }
+        });
+          // let interpolateFonts = calculateExtremeFontSizes(rect_id);
           map.addLayer({
             'id': rect_id + '_layer',
             'type': 'symbol',
             'source': rect_id, // Use the ID of the source
+            "minzoom": 16, //Don't show obvs
             'layout': {
                 "text-font": ["Source Sans Pro Regular"],
                 'text-field': feature.organisation_name,
@@ -103,7 +115,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 'text-size': 13,
                 // 'text-size': adjustFontSize(rect_id),
                 'text-rotate': feature['Rotation Flag'] * 90 + feature['Rotation Angle'] - 90,
-                'text-max-width': 4, //
+                'text-max-width': 6, //
+
                 'symbol-placement': 'point',
             },
             'paint': {
@@ -201,10 +214,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
           });
           
           // Add a new layer with the unique ID. Will need to write it a bit better.
-          addLayerToMap( id, 'line', id, '#46E', 0.0, 3);
+          addLayerToMap( id + '1', 'line', id, '#46E', 1, 3);
           map.addLayer({
             'id': 'label_' + index,
             'type': 'symbol',
+            "minzoom": 16,
             'source': {
                 'type': 'geojson',
                 'data': {
@@ -217,10 +231,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
             },
             'layout': {
                 "text-font": [ "Source Sans Pro Regular" ],
-                'text-field': tenant_name,
+                'text-field': tenant_name.toUpperCase(),
                 'text-size': 13,
                 'text-rotate': rectangle.rotateFlag*90-rectangle.largestTheta ,
-                // 'text-max-width': 7, // Adjust this value as needed
+                'text-max-width': 7, // Measured in ems. 1em = font size in pixels
                 'symbol-placement': 'point',
                 // 'text-anchor': 'left', // Right-align the text (its weird because of geometry...).
                 'text-allow-overlap': false
