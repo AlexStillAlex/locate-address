@@ -1616,8 +1616,8 @@ function put_tenant_labels () {
       'layout': {
           "text-font": ["Source Sans Pro Regular"],
           'text-field': feature.organisation_name,
-          // 'text-size': ['interpolate', ['linear'], ['zoom'], map.getMinZoom(), interpolateFonts[0], map.getMaxZoom(), interpolateFonts[1]],
-          'text-size': 13,
+          'text-size': ['interpolate', ['linear'], ['zoom'],16, 2, 19, 13],
+        //   'text-size': 13,
           // 'text-size': adjustFontSize(rect_id),
           'text-rotate': feature['Rotation Flag'] * 90 + feature['Rotation Angle'] - 90,
           'text-max-width': 6, //

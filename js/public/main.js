@@ -162,7 +162,7 @@ map.on('load', function() {
 
     });
 });
-
+// Testing shit
 
 
 // Function to get features of the clicked point

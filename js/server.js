@@ -126,37 +126,49 @@ app.post('/run-general-query', async (req, res) => {
   });
 });
 
-app.get('/intersecting-geometries', async (req, res) => {
+app.post('/intersecting-geometries', async (req, res) => {
   // Define the bounding box
   // A general query.
-  // const bbox = turflbboxPolygon(req.body.bbox);
-  const bbox = turf.bboxPolygon([-1.1733597516877217, 52.566268792104374, -1.1533597516877216, 52.58626879210437]);
+  console.log(req.body.bounds);
+  const bbox = turf.bboxPolygon(req.body.bounds);
+  // const bbox = turf.bboxPolygon([-1.1641002123868134, 52.57436145749756, -1.1632955496821467, 52.57759864165229]);
   //General appraoch for now itshardcoded
   // const query = req.body.query; 
-  // Run the SQL query to get the data
-  const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_line WHERE descriptiveGroup like '%uildin%'`;
+ // Run the SQL query to get the data
+  const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
   connectToDb().then(async client => {
     const session = await client.openSession();
     const queryOperation = await session.executeStatement(
       query, // Use the query from the request body
       { runAsync: true }
     );
-  
-      await queryOperation.waitUntilReady();
-      const data = await queryOperation.fetchAll();
 
-      // Convert the WKT data to GeoJSON and check for intersections
-      const intersectData = data.filter(row => {
-          const polyline = wkx.Geometry.parse(row.polyline).toGeoJSON();
-          return turf.booleanIntersects(bbox, polyline);
-      });
+    await queryOperation.waitUntilReady();
+    const data = await queryOperation.fetchAll();
 
-      await queryOperation.close();
-      res.json(intersectData); // Send the intersecting data to the client
+    // Convert all the WKT data to GeoJSON
+    const geojsonData = data.map(row => {
+      const polygon = wkx.Geometry.parse(row.polygon).toGeoJSON();
+      return { ...row, polygon };
+    });
+
+    // Filter the GeoJSON data for intersections
+    const intersectData = geojsonData.filter(row => {
+      const intersects = turf.booleanIntersects(bbox, row.polygon);
+
+      // Log the polygon and whether it intersects with the bounding box
+      console.log(`Polygon: ${JSON.stringify(row.polygon)}`);
+      console.log(`Intersects: ${intersects}`);
+
+      return intersects; // Return the result of the intersection check
+    });
+
+    await queryOperation.close();
+    res.json(intersectData); // Send the intersecting data to the client
   }).catch(error => {
-      console.log(error);
-      res.status(500).json({ message: 'An error occurred' });
-  });
+    console.log(error);
+    res.status(500).json({ message: 'An error occurred' });
+    })
 });
 
 // //endpoint called /get-data for the backend.
