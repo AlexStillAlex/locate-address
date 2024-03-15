@@ -604,3 +604,15 @@
 
           //     map.setStyle(json)
           // });
+
+
+          // map.on('load', function() {
+          // window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
+          // fetch('/dropdown-data')
+          //     .then(response => response.json())
+          //     .then(data => {
+          //       // console.log(data); // log data on server
+          //         populateDropdown(data);
+          //         console.log(data)
+          //     });
+          //   // }

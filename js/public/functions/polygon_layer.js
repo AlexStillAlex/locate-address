@@ -304,8 +304,6 @@ async function goadMapTest(){
             "line-width": 3
         }
     });
-
-
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // //Creating Circles on Map Zoom level > ()
 // //Input should be taken from tenant-names coordinates. For now we will test on fictional example.
@@ -413,6 +411,8 @@ const centroid_points = [
         }
     }
 ]
+
+put_tenant_labels()
 
 create_default_pie_charts_on_high_zoom_level(centroid_points);
 
@@ -575,5 +575,5 @@ document.getElementById('colour_by').addEventListener('change', function () {
     }
     // Set paint property to update colors
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
-}); 
+});
 }
