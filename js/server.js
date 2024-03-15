@@ -9,6 +9,9 @@ const path = require('path'); //find my static files
 const { DBSQLClient } = require('@databricks/sql'); //databricks connect; we want to only import DBSQLClient and not other functions/classes from '@databricks/sql' module. Thus, object destructring syntax.
 const { spawn } = require('child_process'); //to run a python script
 
+const wkx = require('wkx'); // Used to parse WKT data i.e. things like POLYGON ((coords))
+const turf = require('@turf/turf'); // Used to check for intersections
+
 var token = process.env.DBSQL_TOKEN; //DBT access token will last until 29th/February
 var server_hostname = process.env.SERVER_HOSTNAME;
 var http_path = process.env.HTTP_PATH;
@@ -120,6 +123,39 @@ app.post('/run-general-query', async (req, res) => {
   }).catch(error => {
     console.log(error);
     res.status(500).json({ message: 'An error occurred' });
+  });
+});
+
+app.get('/intersecting-geometries', async (req, res) => {
+  // Define the bounding box
+  // A general query.
+  // const bbox = turflbboxPolygon(req.body.bbox);
+  const bbox = turf.bboxPolygon([-1.1733597516877217, 52.566268792104374, -1.1533597516877216, 52.58626879210437]);
+  //General appraoch for now itshardcoded
+  // const query = req.body.query; 
+  // Run the SQL query to get the data
+  const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_line WHERE descriptiveGroup like '%uildin%'`;
+  connectToDb().then(async client => {
+    const session = await client.openSession();
+    const queryOperation = await session.executeStatement(
+      query, // Use the query from the request body
+      { runAsync: true }
+    );
+  
+      await queryOperation.waitUntilReady();
+      const data = await queryOperation.fetchAll();
+
+      // Convert the WKT data to GeoJSON and check for intersections
+      const intersectData = data.filter(row => {
+          const polyline = wkx.Geometry.parse(row.polyline).toGeoJSON();
+          return turf.booleanIntersects(bbox, polyline);
+      });
+
+      await queryOperation.close();
+      res.json(intersectData); // Send the intersecting data to the client
+  }).catch(error => {
+      console.log(error);
+      res.status(500).json({ message: 'An error occurred' });
   });
 });
 
