@@ -2,9 +2,8 @@
 
 async function goadMapTest(){
 
-
 //We have three map layers: leasehold_polygon layer (polygon), freehold_polygon layer (polygon), and tenant_names_layer (symbol; i.e. point)
-    defaultcolor = '#FF0000'; // Default color
+    defaultcolor = 'rgb(143, 190, 226)'; // Default color
     // National Polygon Data will only have coordinates and title number. In this example, we have coordinates and dmse_ref
     const blaby_leasehold_polygons = [
         //not in LM registry
@@ -185,8 +184,6 @@ async function goadMapTest(){
         }
     ]
 
-
-    
     //add properties to 'blaby_leasehold_polygons'
     blaby_leasehold_polygons.forEach(feature => {
         //take the demise reference from a particular feature
@@ -232,31 +229,48 @@ async function goadMapTest(){
     // console.log(map.getLayer('blaby_leaseholds'));
     // console.log(map.getSource('blaby_leaseholds'));
 
-    //creating leasehold layer source
-    map.addSource('blaby_leaseholds', {
-        type: 'geojson',
-        data: {
-            type: 'FeatureCollection',
-            features: blaby_leasehold_polygons
-        }
-    });
+    // //creating leasehold layer source
+    // map.addSource('blaby_leaseholds', {
+    //     type: 'geojson',
+    //     data: {
+    //         type: 'FeatureCollection',
+    //         features: blaby_leasehold_polygons
+    //     }
+    // });
 
-    source_array = []
-    source_array.push(map.getSource('blaby_leaseholds'));
+    // //creating leasehold layer
+    // map.addLayer({
+    //     id: 'blaby_leaseholds',
+    //     type: 'fill',
+    //     source: 'blaby_leaseholds',
+    //     'paint': {
+    //         'fill-color': ['get', 'color'],
+    //         'fill-opacity': 0.7
+    //       }
+    // });
 
-    //creating leasehold layer
-    map.addLayer({
+    layers_array = []
+
+   const blaby_polygons = {
         id: 'blaby_leaseholds',
         type: 'fill',
-        source: 'blaby_leaseholds',
+        source: {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: blaby_leasehold_polygons
+            }
+        },
         'paint': {
             'fill-color': ['get', 'color'],
             'fill-opacity': 0.7
           }
-    });
-    
-    layer_array = []
-    layer_array.push(map.getLayer('blaby_leaseholds'));
+    }
+
+    layers_array.push(blaby_polygons);
+    // map.addSource("blaby_leaseholds", blaby_polygons.source);
+    map.addLayer(blaby_polygons);
+
 
     //add freehold source
     map.addSource('blaby_freeholds', {
@@ -277,6 +291,7 @@ async function goadMapTest(){
             ]
         }
     });
+    
     //add freehold layer
     map.addLayer({
         id: 'blaby_freeholds',

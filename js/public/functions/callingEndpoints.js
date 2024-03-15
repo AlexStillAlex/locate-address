@@ -29,10 +29,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then(data => {
         console.log(data);
         // Global variables
-        lease_tenant_table = data.query_lease_tenant_table;
-        dmse_table = data.query_dmse_table;
-        epc_table = data.query_EPC_table;
-        distinct_asset_manager = data.query_distinct_asset_manager;
+        for (const key in data){
+          window[key] = data[key]
+        }
         
         console.log(lease_tenant_table)
         console.log(dmse_table)
