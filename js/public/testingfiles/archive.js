@@ -458,3 +458,161 @@
         // epc_table = data.epc_table;
         // distinct_asset_manager = data.distinct_asset_manager;
         // dropdown_data = data.dropdown_data
+
+
+
+
+
+
+
+
+
+
+
+
+        // console.log("GOAD")
+            
+            // map_layers = map.style._layers
+
+            // layer_array.forEach(layer => {
+            //     map.removeLayer(layer.id);
+            // });
+            
+            // source_array.forEach(source => {
+            //     map.removeSource(source.id);
+            // });
+
+            // console.log("layers removed")
+
+            // map.removeLayer('blaby_leaseholds')
+            // map.removeSource('blaby_leaseholds')
+            
+           
+            // removeAllLayers().then(map.setStyle("goadstyle.json")).then(goadMapTest())
+
+
+
+            // fetch("goadstyle.json")
+            //     .then(response => {
+            //         if (!response.ok) {
+            //             throw new Error('Network response was not ok');
+            //         }
+            //         return response.json(); // Parse JSON from the response
+            //     })
+            //     .then(data => {
+            //         // Modify the data as needed
+                    
+                    // Example: Log the modified data
+                    // goad_json = data;
+            //         console.log(goad_json);
+
+
+                    
+            //         layers_array.forEach(function(layer){
+            //             map.addSource('blaby_leaseholds', {
+            //                 type: 'geojson',
+            //                 data: {
+            //                     type: 'FeatureCollection',
+            //                     features: layer
+            //                 }
+            //             });
+        
+            //             //creating leasehold layer
+            //             map.addLayer({
+            //                 id: 'blaby_leaseholds',
+            //                 type: 'fill',
+            //                 source: 'blaby_leaseholds',
+            //                 'paint': {
+            //                     'fill-color': ['get', 'color'],
+            //                     'fill-opacity': 0.7
+            //                 }
+            //             });
+            //             the_layer = map.getLayer("blaby_leaseholds")         
+            //         })
+            //     })
+                
+            // map.setStyle("goadstyle.json")
+            // //Name of Layer with buildings (OS/TopographicArea_1/Building/1)
+            
+            // // map.addLayer("blaby_leaseholds")
+            // // Function to remove all layers from the map
+            
+
+            // map.setStyle("https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json")
+
+            
+
+            // customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
+            // map.setStyle(customStyleJson)
+            // layer_array.forEach(function(newLayer){
+            //     customStyleJson.layers.push(newLayer);
+            // })
+            
+            // customStyleJson.layers.push(newLayer);
+
+            // layer_array.forEach(function(newLayer){
+            //     map.style._layers.push(newLayer);
+            // })
+
+            // map.style.layers = map_layers
+
+            // source_array.forEach(source => {
+            //     map.addSource(source);
+            // });
+            
+            // layer_array.forEach(layer => {
+            //     map.addLayer(layer);
+            // });
+
+             // layers_array.forEach(function(layer){
+            //     map.removeLayer(layer.id);
+            //     console.log("one")
+            //     map.removeSource(layer.id);
+            // })
+
+            // map.setStyle("goadstyle.json")
+
+            // layers_array.forEach(function(layer){
+            //     // map.addSource(layer.id, layer.source);
+            //     console.log("two")
+            //     map.addLayer(layer);
+     
+            // })
+
+
+
+
+          //   //solution 2: add our added layers to style.JSON
+          //   // Function to load JSON file asynchronously using fetch API
+          //   function loadJSON(callback) {
+          //     fetch('goadstyle.json')
+          //         .then(response => response.json())
+          //         .then(json => callback(json))
+          //         .catch(error => console.error('Error loading JSON:', error));
+          // }
+
+          // loadJSON(function(json) {
+          //     console.log(json); // This will log the JSON data to the console
+
+          //     layers_array.forEach(layer => {
+          //         // json.sources.push(layer);
+          //         json.layers.push(layer);
+          //     })
+              
+          //     console.log(json)
+          //     // console.log(json.layers.blaby_polygons.source)
+
+          //     map.setStyle(json)
+          // });
+
+
+          // map.on('load', function() {
+          // window.onload = function() { //When the server loads ping a request to the backend to populate the dropdown with property references.
+          // fetch('/dropdown-data')
+          //     .then(response => response.json())
+          //     .then(data => {
+          //       // console.log(data); // log data on server
+          //         populateDropdown(data);
+          //         console.log(data)
+          //     });
+          //   // }

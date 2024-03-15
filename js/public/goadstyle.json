@@ -1582,7 +1582,7 @@
         "maxzoom": 12,
         "layout": {},
         "paint": {
-          "fill-color": "rgb(255,255,255)"
+          "fill-color": "#8F00FF"
         }
       },
       {

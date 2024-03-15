@@ -5,6 +5,7 @@ var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled s
 var config = {
     apikey: apikey 
 };
+
 // Endpoints
 const endpoints = {
     places: 'https://api.os.uk/search/places/v1',
@@ -28,56 +29,41 @@ const styles = {
 const radioButtons = document.querySelectorAll('input[type="radio"][name="toggle"]');
 radioButtons.forEach(button => {
     button.addEventListener('change', function() {
+
+        //solution 1: repaint the colours by using "map.setPaintProperty(layer_name, property_to_set_witin_paint_property, color)"
+        let fillLayers = map.getStyle().layers.filter(layer => {
+            return layer.type === 'fill'
+            //list all user-defined layers that should not be painted white
+            && layer.id !== "blaby_leaseholds";
+        });
+
+        var savedColors = fillLayers.map(item => ({id: item.id, color: item.paint["fill-color"] }));
+
         if (this.value === "Standard") {
             console.log("Standard")
-            customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
-
-            map.setStyle(customStyleJson)
-
-            layer_array.forEach(layer => {
-                map.addLayer(layer);
+            
+            savedColors.forEach(savedColor => {
+                let itemToUpdate = fillLayers.find(item => item.id === savedColor.id);
+                if (itemToUpdate) {
+                    map.setPaintProperty(itemToUpdate.id, 'fill-color', savedColor.color);
+                    // itemToUpdate.paint["fill-color"] = savedColor.color;
+                }
             });
 
         } else if (this.value === "GOAD") {
             console.log("GOAD")
-            
-            // map_layers = map.style._layers
 
-            // layer_array.forEach(layer => {
-            //     map.removeLayer(layer.id);
-            // });
-            
-            // source_array.forEach(source => {
-            //     map.removeSource(source.id);
-            // });
+            fillLayers.forEach(layer => {
+                map.setPaintProperty(layer.id, 'fill-color', '#ffffff');
+            });
 
-            // console.log("layers removed")
+            map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');
 
-            //Name of Layer with buildings (OS/TopographicArea_1/Building/1)
-            map.setStyle("goadstyle.json")
 
-            // map.setStyle("https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json")
 
-            // map.setStyle(customStyleJson)
-            // layer_array.forEach(function(newLayer){
-            //     customStyleJson.layers.push(newLayer);
-            // })
-            
-            // customStyleJson.layers.push(newLayer);
 
-            // layer_array.forEach(function(newLayer){
-            //     map.style._layers.push(newLayer);
-            // })
 
-            // map.style.layers = map_layers
-
-            // source_array.forEach(source => {
-            //     map.addSource(source);
-            // });
-            
-            // layer_array.forEach(layer => {
-            //     map.addLayer(layer);
-            // });
+           
         }
     });
 });
@@ -88,9 +74,6 @@ radioButtons.forEach(button => {
 //         map.addLayer(layer);
 //     });
 //   });
-
-
-
 
 const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
 
@@ -136,6 +119,7 @@ const map = new maplibregl.Map({
 });
 
 // Add navigation control (excluding compass button) to the map.
+
     map.addControl(new maplibregl.NavigationControl({
         showCompass: true
     }));
@@ -147,7 +131,10 @@ const map = new maplibregl.Map({
     }));
 
  // Create an empty GeoJSON FeatureCollection.
-//  const geoJson = 
+ const geoJson = {
+    "type": "FeatureCollection",
+    "features": []
+};
 
 // Add event which waits for the map to be loaded.
 map.on('load', function() {
@@ -157,10 +144,7 @@ map.on('load', function() {
         "type": "fill",
         "source": {
             "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": []
-            }
+            "data": geoJson
         },
         "layout": {},
         "paint": {
@@ -168,6 +152,7 @@ map.on('load', function() {
             "fill-opacity": 0.3 //Don't even need to highlight htis
         }
     });
+
     // Add click event handler.
     map.on('click', function(e) {
         let coord = e.lngLat;
