@@ -30,21 +30,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
             populateDropdown_asset_managers(distinct_asset_manager);
             populateDropdown(dropdown_data)
         })
-      
-        // fetch('/run-general-query', {
-        //       method: 'POST',
-        //       headers: {
-        //           'Content-Type': 'application/json',
-        //       },
-        //       body: JSON.stringify({'query': 'select * from main.achudasama.exterior_names_testing'})
-        //   })
-        //   .then(response => response.json()) // Parse the response as JSON
-        //   .then(data => {
-            // polygon_data = data;
-            // data.forEach((feature) => {
-            
-            
-    //end of then
     });
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////

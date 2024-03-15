@@ -1632,12 +1632,6 @@ function put_tenant_labels () {
     // addLayerToMap( id, 'line', id, '#46E', 0.0, 3);
       
       })
-    // })
-    // .catch(error => {
-    //     console.error('Error:', error); // Log any errors
-    // });
-
-
 
   // Initialize Sources!
   map.addSource('inscribed_rectangles_testing', {
