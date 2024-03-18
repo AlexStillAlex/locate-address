@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           'distinct_asset_manager' : 'select distinct(dmse_surveyor) from main.intermediate.int_demise_table_decoded where dmse_surveyor is not null',
           'dropdown_data': 'select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area from main.offies.property_table left join main.intermediate.int_demise_table_decoded on dmse_prop_ref = prop_ref where dmse_area is not null group by 1,2,3 order by prop_ref',
           // tenant_labels
+          'blaby_square' : 'select * from main.msivolap.blaby_square',
           'tenant_labels': 'select * from main.achudasama.exterior_names_testing'
         })
       })
