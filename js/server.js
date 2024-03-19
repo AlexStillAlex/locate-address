@@ -135,13 +135,16 @@ app.post('/intersecting-geometries', async (req, res) => {
   //General appraoch for now itshardcoded
   // const query = req.body.query; 
  // Run the SQL query to get the data
-  const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
+  // const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
+  const query = 'select * from main.msivolap.blaby_square';
   connectToDb().then(async client => {
     const session = await client.openSession();
     const queryOperation = await session.executeStatement(
       query, // Use the query from the request body
       { runAsync: true }
     );
+
+    
 
     await queryOperation.waitUntilReady();
     const data = await queryOperation.fetchAll();
