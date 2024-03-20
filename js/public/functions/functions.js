@@ -1754,3 +1754,80 @@ function put_tenant_labels () {
   }); //No error handling lol
 })
 }
+// Queries databricks to get all the building features outlined in the mpa veiw
+function getSpatialFeatures(){
+
+    const bounds = map.getBounds();
+    const bbox = [
+      bounds.getSouthWest().lng, // min longitude
+      bounds.getSouthWest().lat, // min latitude
+      bounds.getNorthEast().lng, // max longitude
+      bounds.getNorthEast().lat  // max latitude
+  ];
+    fetch('/intersecting-geometries', {
+      method: 'POST', // Specify the method
+      headers: {
+          'Content-Type': 'application/json', // Set the content type
+      },
+      body: JSON.stringify({
+          // Include the data you want to send here
+          'bounds': bbox
+      }),
+  })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the data here
+            console.log(data);
+  
+            // Add an empty data source
+            map.addSource('databricksSpatialFeatures', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': []
+                }
+            });
+  
+    // Create an array to hold the features
+    let features = [];
+  
+    // Iterate through the data and create a feature for each item
+    for (let i = 0; i < data.length; i++) {
+        features.push({
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Polygon',
+                'coordinates': data[i].polygon.coordinates
+            }
+        });
+    }
+  
+  // Set the data in the source
+  map.getSource('databricksSpatialFeatures').setData({
+      'type': 'FeatureCollection',
+      'features': features
+  });
+  
+            // Add a new layer to the map with the GeoJSON data
+            map.addLayer({
+                'id': 'spatialBuildingLine',
+                'type': 'line',
+                'source': 'databricksSpatialFeatures',
+                'layout': {},
+                'paint': {
+                    'line-color': '#088',
+                    'line-opacity': 0.8,
+                    'line-width': 3
+                }
+            });
+  
+            map.moveLayer('spatialBuildingLine');
+  
+  
+        
+        })
+        .catch(error => {
+            // Handle the error here
+            console.error('Error:', error);
+        });
+}

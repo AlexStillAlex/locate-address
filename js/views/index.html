@@ -17,7 +17,10 @@
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-geodesic.min.js"></script> <!-- Geodesic calculations -->
     <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
     <script src="https://unpkg.com/konva@9/konva.min.js"></script> <!--WE WILL BE USING KONVA TO DRAW ON OUR MAP.-->
-
+    <!-- <script src="https://js.arcgis.com/calcite-components/2.6.0/calcite.esm.js" type="module"></script> -->
+    <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.6.0/calcite.css" /> 
+    <!-- <script src="https://js.arcgis.com/4.27/"></script> -->
+   
     <!-- this is needed for autocomplete -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script> -->
     <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.css" rel="stylesheet"> -->
@@ -59,13 +62,11 @@
 
     <div id="map"></div>
 
-    <!-- used to see coordinates of where the mouse is -->
-    <pre id="info"></pre>
-
-    <div class="map-overlay">
+        <!-- Hidden whilst im testing lol -->
+        <div class="map-overlay" style = "display:none">
         <div id="mapSelect"></div>
         <div id="mapOverlay">
-        
+         
         <!-- Radio Buttons at the Top Representing Map Layer Choice -->
         <input id="Standard" type="radio" name="toggle" value="Standard" checked="checked">
         <label for="Standard">Standard</label>
