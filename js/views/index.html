@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LCP Address location</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- Imports -->
+    <link href="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.5/alasql.min.js" integrity="sha512-LuljkOQKcaogetQCtJCXiXK++nbzCQiXw7lOBBKCQk+yIRXjafpl8SFU0ogFOck13XbQ04TN/96pWNSvzSkTkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <!-- SQL editing on CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script> <!-- OpenLayers mapping API -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> <!-- Leaflet mapping API -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> <!-- Axios api -->
+    <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script> <!-- Turf JS for spatial analysis -->
+    <script src="https://labs.os.uk/public/os-api-branding/v0.3.1/os-api-branding.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@1.14.0/dist/maplibre-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script> <!-- Allows different projections. -->
+    <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-geodesic.min.js"></script> <!-- Geodesic calculations -->
+    <script type="text/javascript" src="https://geographiclib.sourceforge.io/scripts/geographiclib-dms.min.js"></script>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script> <!--WE WILL BE USING KONVA TO DRAW ON OUR MAP.-->
+    <!-- <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.6.0/calcite.css" />  -->
+    <!-- Calcite Maps Bootstrap -->
+    <link rel="stylesheet" href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-bootstrap.min-v0.10.css">
+    <!-- Calcite Maps -->
+    <link rel="stylesheet" href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.10.css">
+    <!-- ArcGIS JS 4 -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+    <!-- this is needed for autocomplete -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script> -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="/stylesheets/layout.css">
+    <!-- used to see the coordinates of a mouse move -->
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js'></script>
+    <!-- used for selecting colour of polygons -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- import 'amCharts 4' needed for populating polygons with labels-->
+    <script src="//cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="//cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="//cdn.amcharts.com/lib/4/maps.js"></script>
+</head>
+<!-- <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"> -->
+<!-- Map Layer options template. -->
+<!-- <body> -->
+  
+  <body class="calcite-maps calcite-nav-top">
+
+    
+    <!-- Navbar -->
+  
+    <nav class="navbar calcite-navbar navbar-fixed-top calcite-text-light calcite-bg-dark">
+      <!-- Menu -->
+      <div class="dropdown calcite-dropdown calcite-text-dark calcite-bg-light" role="presentation">
+        <a class="dropdown-toggle" role="menubutton" aria-haspopup="true" aria-expanded="false" tabindex="0">
+          <div class="calcite-dropdown-toggle">
+            <span class="sr-only">Toggle dropdown menu</span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-info-sign"></span> About</a></li>
+          <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-filter"></span> Filtering</a></li>
+          <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-pencil"></span> Colouring</a></li>
+          <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-print"></span> Printing</a></li>
+          <li><a role="menuitem" tabindex="0" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
+          
+          <li><a role="menuitem" tabindex="0" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-alert"></span> Testing</a></li>
+          <!-- <li><a role="menuitem" tabindex="0" href="#" data-target="#panelLegend" aria-haspopup="true"><span class="glyphicon glyphicon-list-alt"></span> Legend</a></li> -->
+          <li><a role="menuitem" tabindex="0" href="#" id="calciteToggleNavbar" aria-haspopup="true"><span class="glyphicon glyphicon-fullscreen"></span> Full Map</a></li>
+        </ul>
+      </div>
+      <!-- Title -->
+      <div class="calcite-title calcite-overflow-hidden">
+        <span class="calcite-title-main">LCP Maps</span>
+        <span class="calcite-title-divider hidden-xs"></span>
+        <span class="calcite-title-sub hidden-xs">Automating the Boring Stuff since November 2023</span>
+      </div>
+      <!-- Nav -->
+      <ul class="nav navbar-nav calcite-nav">
+        <li>
+          <div class="calcite-navbar-search calcite-search-expander">
+            <div id="searchWidgetDiv"></div>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  
+    <!--/.calcite-navbar -->
+  
+    <!-- Map  -->
+  
+    <div class="calcite-map calcite-map-absolute">
+      <div id="map"></div>
+    </div>
+  
+    <!-- /.calcite-map -->
+  
+    <!-- Panels -->
+  
+    <div class="calcite-panels calcite-panels-right calcite-text-light calcite-bg-dark panel-group">
+  
+      <!-- Panel - Basemaps -->
+      <div id="panelInfo" class="panel collapse ">
+        <div id="headingInfo" class="panel-heading" role="tab">
+          <div class="panel-title">
+            <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo"  aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="panel-label">About</span></a> 
+            <a class="panel-close" role="button" data-toggle="collapse" tabindex="0" href="#panelInfo"><span class="esri-icon esri-icon-close" aria-hidden="true"></span></a>  
+          </div>
+        </div>
+        <div id="collapseInfo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingInfo">
+          <div class="panel-body">
+            <p>Welcome! Change layers and enjoy some free range mapping.</p>
+          </div>
+       </div>
+      </div>
+  
+      <!-- Panel - Legend -->
+      <div id="panelLegend" class="panel collapse">
+        <div id="headingLegend" class="panel-heading" role="tab">
+          <div class="panel-title">
+            <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseLegend" aria-expanded="false" aria-controls="collapseLegend"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span><span class="panel-label">Legend</span></a> 
+            <a class="panel-close" role="button" data-toggle="collapse" tabindex="0" href="#panelLegend"><span class="esri-icon esri-icon-close" aria-hidden="true"></span></a> 
+          </div>
+        </div>
+        <div id="collapseLegend" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingLegend">
+          <div class="panel-body">            
+            <div id="legendDiv"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  
+
+  <!-- used to see coordinates of where the mouse is -->
+  <style type="text/css">
+    #info {
+        display: block;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translate(-50%);
+        width: 50%;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        color: #222;
+        background: #fff;
+    }
+</style>
+
+    <div id="map"></div>
+
+        <!-- Hidden whilst im testing lol -->
+        <div class="map-overlay" style = "display: block;">
+        <div id="mapSelect"></div>
+        <div id="mapOverlay">
+         
+        <!-- Radio Buttons at the Top Representing Map Layer Choice -->
+        <input id="Standard" type="radio" name="toggle" value="Standard" checked="checked">
+        <label for="Standard">Standard</label>
+        <input id="GOAD" type="radio" name="toggle" value="GOAD">
+        <label for="GOAD">GOAD</label> 
+        <input id="Satellite" type="radio" name="toggle" value="Satellite">
+        <label for="Satellite">Satellite</label>
+        </div>
+
+        <!-- The Sidebar Medu Box -->
+    <div class="map-overlay-inner">
+        <button id = "showFilter" type="button" class="collapsible"onclick="toggleCollapsible(event)">Filter By</button>
+        <div class="sections" style = "display:none">
+
+          <h2>Find:</h2>
+          <!-- Address (search by) -->
+          <p>Address:</p>
+            <form id="the-form">
+                <textarea id="address-text" placeholder="Enter addresses here, one per line..."></textarea>
+                <input id="address-field" type="submit"> 
+                <i id="spinner" class="c-inline-spinner"></i>
+            </form>
+          <!-- Property Reference (search by) -->
+          <div class="row">
+              <div class="left" >
+                <p>Property Reference</p>
+                <input type="text" id="mySearch" onkeyup="searchReferences()" placeholder="Type a number" title="Type in a category">
+                <ul id="myMenu">
+                </ul>
+              </div>
+          <div id="address-info"><!-- Address information will be displayed here --></div>
+          <p>Demise Reference</p>
+        
+          <h2>Select:</h2>
+          <p>Asset Manager</p>
+          <input type="text" id="asset_manager_box" onkeyup="searchReferences_asset_managers()" placeholder="Type an Asset Manager">
+                <ul id="myMenu_asset_manager">
+                </ul> 
+          <p>Group Name</p>
+          <p>Demise Type</p>
+          <p>Tenant Name</p>
+          </div>
+        </div>
+        <!-- <div id="canvas-container" style="display: none;"></div> EMPTY DIV TO STOP THROWING ERRORS -->
+        <button id = "showColour"  type="button" class="collapsible" onclick="toggleCollapsible(event)">Colour By</button>
+        <div class="sections" style = "display:none">
+          <h2>Select Color:</h2>
+          <input type="color" id="colorPicker">
+          <h2>By Attribute</h2>
+          <select name="colour_by" id="colour_by">
+            <option value="default_value">Default (no colour)</option>
+            <option value="dmse_type">Demise Type</option>
+            <option value="dmse_status">Demise Status</option>
+            <option value="epc">EPC</option>
+            <option value="passing_rent">Passing Rent</option>
+          </select>
+          <br><br>
+          <div id="colourlegend"></div> <!--  Legend Container -->
+        </div>
+
+        <button id = "showPrint" type="button" class="collapsible"onclick="toggleCollapsible(event)">Print</button>
+        <div class="sections" style = "display:none">
+          <button class ="big-red-button" id="exportMap">Image Export</button>
+          <h2>Drawing Tools</h2>
+          <p>Arrow</p>
+          <p>Text</p>
+          <p>Legend</p>
+          <h2>Bezel Content</h2>
+          <p>MCore Logo</p>
+          <p>Name of the Property</p>
+          <p>Property Reference</p>
+        </div>
+
+        <button id = "showOther" type="button" class="collapsible"onclick="toggleCollapsible(event)">Dev Testing</button>
+        <div class="sections" style = "display:none">
+          <button class ="big-red-button" id="testGeometry">TEST GEOMETRY</button>
+
+          <button id="testPensnett" class = "big-red-button">Test Pensnett</button> 
+          <div id="areaDisplay">
+            <p id="totalArea">Total Area: </p>
+            <p id="internalArea">Internal Area: </p>
+            <p id="externalArea">External Area: </p>
+          </div>
+          <h2>Drawing Mode</h2>
+          <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label>
+          <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button>
+          <div id="legend"></div>
+        </div>   
+                 
+    </div>
+    </div>
+    </body>
+
+    <!-- These scripts have to go here. Arises due to the pageload query -->
+    <script src="/main.js"></script>
+        <!-- /.calcite-panels -->
+        <script type="text/javascript">
+          var dojoConfig = {
+            packages: [{
+              name: "bootstrap",
+              location: "https://esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap"
+            },
+            {
+              name: "calcite-maps",
+              location: "https://esri.github.io/calcite-maps/dist/js/dojo"
+            }]
+          };
+        </script>
+      
+        <!-- ArcGIS JS 4 -->
+        <script src="https://js.arcgis.com/4.10/"></script>
+         <script>
+          require([
+            // // ArcGIS
+            "esri/WebMap",
+            "esri/views/MapView",
+            // Bootstrap
+            "bootstrap/Collapse",
+            "bootstrap/Dropdown",
+            // Calcite Maps
+            "calcite-maps/calcitemaps-v0.10",
+            // Calcite Maps ArcGIS Support
+            "calcite-maps/calcitemaps-arcgis-support-v0.10",
+      
+            "dojo/domReady!"
+          ])
+        </script>
+      
+    <script defer src="/functions/searching.js"></script>
+    <script defer src="/functions/selecting.js"></script>
+    <script defer src="/functions/features.js"></script>
+    <script defer src="/functions/functions.js"></script>
+    <!-- <script defer src="../public/testingfiles/test.js"></script> -->
+    <script defer src="/functions/module.js" type = "module"></script>
+    <script defer src="/functions/drawing.js"></script>
+    <script defer src="/functions/polygon_layer.js"></script>
+    <script defer src="/functions/colouring_in_polygons.js"></script>
+    <script defer src="/functions/callingEndpoints.js"></script>
+    <!-- <script defer type="module">
+      import { LatLon } from 'https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js';
+      const wgs84 = new LatLon(52.2, 0.12);
+      const gridref = wgs84.toOsGrid();
+      console.log(gridref.toString()); // 'TL 44982 57869'
+  </script> -->
+</body>
+
+</html>
+

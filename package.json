@@ -1,14 +1,22 @@
 {
   "dependencies": {
     "@databricks/sql": "^1.7.1",
+    "@turf/turf": "^6.5.0",
+    "awesomplete": "^1.1.5",
     "axios": "^1.6.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "geodesy": "^2.4.0",
     "http-proxy-middleware": "^2.0.6",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.3",
     "path": "^0.12.7",
-    "process": "^0.11.10"
+    "process": "^0.11.10",
+    "request": "^2.88.2",
+    "wkx": "^0.5.0"
+  },
+  "devDependencies": {
+    "dotenv-webpack": "^8.0.1"
   }
 }
