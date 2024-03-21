@@ -35,81 +35,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     });
 
 //Testing shit
-// document.getElementById('testGeometry').addEventListener('click', function() {
-
-  const bounds = map.getBounds();
-  const bbox = [
-    bounds.getSouthWest().lng, // min longitude
-    bounds.getSouthWest().lat, // min latitude
-    bounds.getNorthEast().lng, // max longitude
-    bounds.getNorthEast().lat  // max latitude
-];
-  fetch('/intersecting-geometries', {
-    method: 'POST', // Specify the method
-    headers: {
-        'Content-Type': 'application/json', // Set the content type
-    },
-    body: JSON.stringify({
-        // Include the data you want to send here
-        'bounds': bbox
-    }),
+document.getElementById('testGeometry').addEventListener('click', function() {
+getSpatialFeatures()
 })
-      .then(response => response.json())
-      .then(data => {
-          // Handle the data here
-          console.log(data);
-
-          // Add an empty data source
-          map.addSource('randompolygonshit', {
-              'type': 'geojson',
-              'data': {
-                  'type': 'FeatureCollection',
-                  'features': []
-              }
-          });
-
-  // Create an array to hold the features
-  let features = [];
-
-  // Iterate through the data and create a feature for each item
-  for (let i = 0; i < data.length; i++) {
-      features.push({
-          'type': 'Feature',
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': data[i].polygon.coordinates
-          }
-      });
-  }
-
-// Set the data in the source
-map.getSource('randompolygonshit').setData({
-    'type': 'FeatureCollection',
-    'features': features
-});
-
-          // Add a new layer to the map with the GeoJSON data
-          map.addLayer({
-              'id': 'fuckyoulayers',
-              'type': 'line',
-              'source': 'randompolygonshit',
-              'layout': {},
-              'paint': {
-                  'line-color': '#088',
-                  'line-opacity': 0.8,
-                  'line-width': 3
-              }
-          });
-
-          map.moveLayer('fuckyoulayers');
-
-
-      
-      })
-      .catch(error => {
-          // Handle the error here
-          console.error('Error:', error);
-      });
   });
 
 // });

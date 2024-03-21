@@ -3,12 +3,19 @@ console.log(process.env); // Check the environment variables
 //This shit deals with all the backend
 //Like actual backend. All the other Js files are static pages that are interacted with by users client side.
 //Imports
+// const LatLon = require('geodesy');
+// console.log(LatLon)
+
+// const wgs84 = new LatLon(52.2, 0.12);
+// const gridref = wgs84.toOsGrid();
+// console.log(gridref.toString()); // 'TL 44982 57869'
+
 const express = require('express');//The server
 const bodyParser = require('body-parser'); //Read my post requests
 const path = require('path'); //find my static files
 const { DBSQLClient } = require('@databricks/sql'); //databricks connect; we want to only import DBSQLClient and not other functions/classes from '@databricks/sql' module. Thus, object destructring syntax.
 const { spawn } = require('child_process'); //to run a python script
-
+const request = require('request'); //Allows us to get scripts externally
 const wkx = require('wkx'); // Used to parse WKT data i.e. things like POLYGON ((coords))
 const turf = require('@turf/turf'); // Used to check for intersections
 
@@ -24,7 +31,6 @@ const cors = require("cors");
 app.use(cors());
 app.use(bodyParser.json()); //Middleware. Stuff we do before processing the api request. 
 
-
 // A flag variable to check if we've already got a databricksconnection. 
 let dbClient;
 
@@ -39,6 +45,15 @@ async function connectToDb() {
   }
   return dbClient;
 }
+// A way to get urls that are blocked by CORS
+app.get('/proxy', (req, res) => {
+  const url = req.query.url
+  if (!url) {
+    res.status(400).send('Missing URL parameter');
+    return;
+  }
+  req.pipe(request(url)).pipe(res);
+});
 
 //Gets the inscribed rectangle from the python script.
 app.post('/get_rectangle_py', (req, res) => {
@@ -128,15 +143,11 @@ app.post('/run-general-query', async (req, res) => {
 
 app.post('/intersecting-geometries', async (req, res) => {
   // Define the bounding box
-  // A general query.
-  console.log(req.body.bounds);
   const bbox = turf.bboxPolygon(req.body.bounds);
-  // const bbox = turf.bboxPolygon([-1.1641002123868134, 52.57436145749756, -1.1632955496821467, 52.57759864165229]);
-  //General appraoch for now itshardcoded
-  // const query = req.body.query; 
- // Run the SQL query to get the data
-  // const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
-  const query = 'select * from main.msivolap.blaby_square';
+  // Defines some tables we will be using
+  // const query = req.body.query;
+  const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
+
   connectToDb().then(async client => {
     const session = await client.openSession();
     const queryOperation = await session.executeStatement(
@@ -150,8 +161,8 @@ app.post('/intersecting-geometries', async (req, res) => {
     const data = await queryOperation.fetchAll();
 
     // Convert all the WKT data to GeoJSON
-    const geojsonData = data.map(row => {
-      const polygon = wkx.Geometry.parse(row.polygon).toGeoJSON();
+      const geojsonData = data.map(row => {
+        const polygon = wkx.Geometry.parse(row.polygon).toGeoJSON();
       return { ...row, polygon };
     });
 
