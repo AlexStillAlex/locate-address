@@ -108,6 +108,16 @@
           <p>Demise Type</p>
           <p>Tenant Name</p>
           </div>
+
+          <!--Make sure the form has the autocomplete function switched off:-->
+        <form autocomplete="off" action="/action_page.php">
+          <div class="autocomplete" style="width:300px;">
+            <input id="myInput" type="text" name="myCountry" placeholder="Asset Manager">
+          </div>
+          <input type="submit">
+        </form>
+
+
         </div>
         <!-- <div id="canvas-container" style="display: none;"></div> EMPTY DIV TO STOP THROWING ERRORS -->
         <button id = "showColour"  type="button" class="collapsible" onclick="toggleCollapsible(event)">Colour By</button>

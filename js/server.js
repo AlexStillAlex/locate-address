@@ -195,38 +195,6 @@ app.post('/intersecting-geometries', async (req, res) => {
 //       });
 //   });
 
-//endpoint for "Filter By" section. When the client server loads it will ping this endpoint to populate the dropdown of each "Filter By"
-//when the client server loads it will ping this rendpoint to populate the dropdown with our property references.
-  app.get('/dropdown-data', async (req, res) => {
-    const query = `select prop_ref,prop_latitude,prop_longitude,sum(dmse_area) as prop_area
-    from main.offies.property_table 
-    left join main.intermediate.int_demise_table_decoded 
-    on dmse_prop_ref = prop_ref
-    where dmse_area is not null
-    group by 1,2,3 order by prop_ref`; // Yikes!
-    client.connect({
-        token: token,
-        host: server_hostname,
-        path: http_path
-    }).then(async client => {
-        const session = await client.openSession();
-    
-        const queryOperation = await session.executeStatement(
-            query,
-            { runAsync: true }
-        );
-    
-        await queryOperation.waitUntilReady();
-        const result = await queryOperation.fetchAll();
-        // console.log(result);
-        await queryOperation.close();
-        res.json(result); // Send the result back to the client
-    }).catch(error => {
-        console.log(error);
-        res.status(500).send(error);
-    });
-});
-
 
 
 

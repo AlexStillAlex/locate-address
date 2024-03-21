@@ -229,26 +229,6 @@ async function goadMapTest(){
     // console.log(map.getLayer('blaby_leaseholds'));
     // console.log(map.getSource('blaby_leaseholds'));
 
-    // //creating leasehold layer source
-    // map.addSource('blaby_leaseholds', {
-    //     type: 'geojson',
-    //     data: {
-    //         type: 'FeatureCollection',
-    //         features: blaby_leasehold_polygons
-    //     }
-    // });
-
-    // //creating leasehold layer
-    // map.addLayer({
-    //     id: 'blaby_leaseholds',
-    //     type: 'fill',
-    //     source: 'blaby_leaseholds',
-    //     'paint': {
-    //         'fill-color': ['get', 'color'],
-    //         'fill-opacity': 0.7
-    //       }
-    // });
-
     layers_array = []
 
    const blaby_polygons = {
@@ -268,7 +248,7 @@ async function goadMapTest(){
     }
 
     layers_array.push(blaby_polygons);
-    // map.addSource("blaby_leaseholds", blaby_polygons.source);
+    map.addSource("blaby_leaseholds", blaby_polygons.source);
     map.addLayer(blaby_polygons);
 
 
@@ -577,3 +557,30 @@ document.getElementById('colour_by').addEventListener('change', function () {
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
 });
 }
+
+
+
+
+// the final input table should have:
+// coordinates of the building
+// organisation name
+// (largest) rectangle (within polygon) coordinates.
+// (largest) rectangle (within polygon) centroid.
+// UPRN
+// TOID
+// dmse_reference
+
+// Tables we require:
+// OS MasterMap features (TOID, UPRN, coordinates of the building)
+// OS Address database (Organisation name, UPRN)
+// toid_dmse_ref table (TOID, DMSE_REF)
+
+// After the three tables are merged, we need to run the Python script to add: (largest) rectangle (within polygon) coordinates and (largest) rectangle (within polygon) centroid to it.
+
+// from this table we can create three layers:
+// FILL layer: our polygons
+// SYMBOL layer: tenant names
+// SYMBOL layer: centroid of the largest rectangle within our polygon (used for zoomed our pie charts)
+
+
+// Other layers: leasehold layer taken from the Land Registry

@@ -30,7 +30,7 @@ const radioButtons = document.querySelectorAll('input[type="radio"][name="toggle
 radioButtons.forEach(button => {
     button.addEventListener('change', function() {
 
-        //solution 1: repaint the colours by using "map.setPaintProperty(layer_name, property_to_set_witin_paint_property, color)"
+        
         let fillLayers = map.getStyle().layers.filter(layer => {
             return layer.type === 'fill'
             //list all user-defined layers that should not be painted white
@@ -53,27 +53,16 @@ radioButtons.forEach(button => {
         } else if (this.value === "GOAD") {
             console.log("GOAD")
 
+            //all fill layers (except for blaby_leaseholds) should be white
             fillLayers.forEach(layer => {
                 map.setPaintProperty(layer.id, 'fill-color', '#ffffff');
             });
 
-            map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');
-
-
-
-
-
-           
+            // buildings should be yellow
+            map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');  
         }
     });
 });
-
-// map.on('style.load', function () {
-//     // Triggered when `setStyle` is called.
-//     layer_array.forEach(layer => {
-//         map.addLayer(layer);
-//     });
-//   });
 
 const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
 
@@ -149,7 +138,7 @@ map.on('load', function() {
         "layout": {},
         "paint": {
             "fill-color": "#38f", //BLUE
-            "fill-opacity": 0.3 //Don't even need to highlight htis
+            "fill-opacity": 0.3 //Don't even need to highlight this
         }
     });
 
