@@ -170,10 +170,17 @@
     <script defer src="/functions/features.js"></script>
     <script defer src="/functions/functions.js"></script>
     <!-- <script defer src="../public/testingfiles/test.js"></script> -->
+    <script defer src="/functions/module.js" type = "module"></script>
     <script defer src="/functions/drawing.js"></script>
     <script defer src="/functions/polygon_layer.js"></script>
     <script defer src="/functions/colouring_in_polygons.js"></script>
     <script defer src="/functions/callingEndpoints.js"></script>
+    <!-- <script defer type="module">
+      import { LatLon } from 'https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js';
+      const wgs84 = new LatLon(52.2, 0.12);
+      const gridref = wgs84.toOsGrid();
+      console.log(gridref.toString()); // 'TL 44982 57869'
+  </script> -->
 </body>
 
 </html>

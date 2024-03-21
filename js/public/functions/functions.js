@@ -1,5 +1,6 @@
-
-
+// Causes an error??? Why is it here.
+// Keeping for posterity
+// const { getGeom } = require("@turf/turf");
 //CONSTANTS
 var form = document.getElementById("the-form");
 // var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled so I don't care if this is exposed.
@@ -1764,7 +1765,7 @@ function getSpatialFeatures(){
           'Content-Type': 'application/json', // Set the content type
       },
       body: JSON.stringify({
-          // Include the data you want to send here
+          'query' : Json.stringify(formatSpatialQuery()),
           'bounds': bbox
       }),
   })
@@ -1824,4 +1825,27 @@ function getSpatialFeatures(){
             // Handle the error here
             console.error('Error:', error);
         });
+}
+// bbox gives southwest and north east coords
+function bboxToRectangle(southWest, northEast) {
+    const northWest = { lng: southWest.lng, lat: northEast.lat };
+    const southEast = { lng: northEast.lng, lat: southWest.lat };
+    return {
+        southWest,
+        northWest,
+        northEast,
+        southEast
+    };
+}
+// Helper Function to take osGridReferences and format them into a string which will form a request body.
+function formatSpatialQuery(){
+    // Gets first two letters of grid ref from bbox coords
+    let osGridReferences = window.convertGridRef();
+    const schema = 'main.achudasama';
+    // 
+    let subQueries = osGridReferences.map(item => `(SELECT * FROM ${schema}.${item}_all)`);
+    // Unions the tables together for querying
+    let query = subQueries.join(' UNION ALL ');
+
+    return query;
 }

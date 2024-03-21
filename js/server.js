@@ -3,6 +3,13 @@ console.log(process.env); // Check the environment variables
 //This shit deals with all the backend
 //Like actual backend. All the other Js files are static pages that are interacted with by users client side.
 //Imports
+// const LatLon = require('geodesy');
+// console.log(LatLon)
+
+// const wgs84 = new LatLon(52.2, 0.12);
+// const gridref = wgs84.toOsGrid();
+// console.log(gridref.toString()); // 'TL 44982 57869'
+
 const express = require('express');//The server
 const bodyParser = require('body-parser'); //Read my post requests
 const path = require('path'); //find my static files
@@ -137,8 +144,10 @@ app.post('/run-general-query', async (req, res) => {
 app.post('/intersecting-geometries', async (req, res) => {
   // Define the bounding box
   const bbox = turf.bboxPolygon(req.body.bounds);
-
+  // Defines some tables we will be using
+  // const query = req.body.query;
   const query = `SELECT * FROM main.achudasama.blaby_staging_topographic_area WHERE descriptiveGroup like '%uildin%'`;
+
   connectToDb().then(async client => {
     const session = await client.openSession();
     const queryOperation = await session.executeStatement(
@@ -150,8 +159,8 @@ app.post('/intersecting-geometries', async (req, res) => {
     const data = await queryOperation.fetchAll();
 
     // Convert all the WKT data to GeoJSON
-    const geojsonData = data.map(row => {
-      const polygon = wkx.Geometry.parse(row.polygon).toGeoJSON();
+      const geojsonData = data.map(row => {
+        const polygon = wkx.Geometry.parse(row.polygon).toGeoJSON();
       return { ...row, polygon };
     });
 
