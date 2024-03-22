@@ -577,3 +577,4 @@ document.getElementById('colour_by').addEventListener('change', function () {
     map.setPaintProperty('blaby_leaseholds', 'fill-color', colorExpression);
 });
 }
+

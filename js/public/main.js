@@ -28,52 +28,11 @@ const styles = {
 };
 const radioButtons = document.querySelectorAll('input[type="radio"][name="toggle"]');
 radioButtons.forEach(button => {
-    button.addEventListener('change', function() {
-
-        //solution 1: repaint the colours by using "map.setPaintProperty(layer_name, property_to_set_witin_paint_property, color)"
-        let fillLayers = map.getStyle().layers.filter(layer => {
-            return layer.type === 'fill'
-            //list all user-defined layers that should not be painted white
-            && layer.id !== "blaby_leaseholds";
-        });
-
-        var savedColors = fillLayers.map(item => ({id: item.id, color: item.paint["fill-color"] }));
-
-        if (this.value === "Standard") {
-            console.log("Standard")
-            
-            savedColors.forEach(savedColor => {
-                let itemToUpdate = fillLayers.find(item => item.id === savedColor.id);
-                if (itemToUpdate) {
-                    map.setPaintProperty(itemToUpdate.id, 'fill-color', savedColor.color);
-                    // itemToUpdate.paint["fill-color"] = savedColor.color;
-                }
-            });
-
-        } else if (this.value === "GOAD") {
-            console.log("GOAD")
-
-            fillLayers.forEach(layer => {
-                map.setPaintProperty(layer.id, 'fill-color', '#ffffff');
-            });
-
-            map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');
-
-
-
-
-
-           
-        }
+    button.addEventListener('change', () => {
+        console.log('change event triggered');
+        updateMapStyle(button.value);
     });
 });
-
-// map.on('style.load', function () {
-//     // Triggered when `setStyle` is called.
-//     layer_array.forEach(layer => {
-//         map.addLayer(layer);
-//     });
-//   });
 
 const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
 
@@ -120,9 +79,9 @@ const map = new maplibregl.Map({
 
 // Add navigation control (excluding compass button) to the map.
 
-    map.addControl(new maplibregl.NavigationControl({
-        showCompass: true
-    }));
+    // map.addControl(new maplibregl.NavigationControl({
+    //     showCompass: true
+    // }));
 
 //Add scale control.
     map.addControl(new maplibregl.ScaleControl({
