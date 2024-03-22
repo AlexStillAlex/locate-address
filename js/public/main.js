@@ -5,7 +5,6 @@ var apikey = 'IGHgaIQgXa42gv7aa4oV5b4LyVGjCwUh' //My calls are being throttled s
 var config = {
     apikey: apikey 
 };
-
 // Endpoints
 const endpoints = {
     places: 'https://api.os.uk/search/places/v1',
@@ -13,12 +12,9 @@ const endpoints = {
 };
 //Definining custom map styles
 //normal map style
-
 // const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 //dark-mode style
 // const customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
-
-
 let customStyleJson = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Road.json';
 const customStyleJsonGOAD = 'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_27700_Dark.json';
 
@@ -33,9 +29,7 @@ radioButtons.forEach(button => {
         updateMapStyle(button.value);
     });
 });
-
 const style2 = 'https://api.os.uk/maps/vector/v1/vts/resources/styles?key=' + apikey;  
-
 // Initialise the map object.
 const style = {
     "version": 8,
@@ -76,6 +70,17 @@ const map = new maplibregl.Map({
         }
     }
 });
+
+// This is the map control for printing.
+map.addControl(new MaplibreExportControl.MaplibreExportControl({
+    PageSize: MaplibreExportControl.Size.A4,
+    PageOrientation: MaplibreExportControl.PageOrientation.Landscape,
+    Format: MaplibreExportControl.Format.PNG,
+    DPI: MaplibreExportControl.DPI[300],
+    Crosshair: true,
+    PrintableArea: true,
+    Local: 'fr'
+  }), 'bottom-right');
 
 // Add navigation control (excluding compass button) to the map.
 

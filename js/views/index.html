@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/stylesheets/dist/css/calcite-maps-bootstrap.min-v0.10.css">
     <link rel="stylesheet" href="/stylesheets/dist/css/calcite-maps-arcgis-4.x.min-v0.10.css">
     <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
-    <link href='https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.css' rel='stylesheet' />
+    <link href="https://www.unpkg.com/@watergis/maplibre-gl-export@3.0.1/dist/maplibre-gl-export.css" rel="stylesheet" />
 
   <!-- JavaScript Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.5/alasql.min.js"></script>
@@ -30,8 +30,9 @@
   <script src="https://unpkg.com/konva@9/konva.min.js"></script>
   <script src='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js'></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js'></script>
-  <script src="https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.js"></script>
+
+  <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
+  <script src="https://www.unpkg.com/@watergis/maplibre-gl-export@3.0.1/dist/maplibre-gl-export.umd.js"></script>
     <!-- import 'amCharts 4' needed for populating polygons with labels-->
     <script src="//cdn.amcharts.com/lib/4/core.js"></script>
     <script src="//cdn.amcharts.com/lib/4/charts.js"></script>
@@ -73,6 +74,7 @@
         <li><a role="menuitem" tabindex="0" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
         <li><a role="menuitem" tabindex="0" data-target="#panelFilter" aria-haspopup="true"><span class="glyphicon glyphicon-filter"></span> Filter</a></li>
         <li><a role="menuitem" tabindex="0" data-target="#panelColouring" aria-haspopup="true"><span class="glyphicon glyphicon-pencil"></span> Colouring</a></li>
+        <li><a role="menuitem" tabindex="0"  aria-haspopup="true"><span class="glyphicon glyphicon-print"></span> Printing</a></li>
         <li><a role="menuitem" tabindex="0" data-target="#panelDevTesting" aria-haspopup="true"><span class="glyphicon glyphicon-fire"></span> Dev Testing</a></li>
         <li><a role="menuitem" tabindex="0" id="calciteToggleNavbar" aria-haspopup="true"><span class="glyphicon glyphicon-fullscreen"></span> Full Map</a></li>
       </ul>
@@ -95,9 +97,6 @@
     </ul>
 
   </nav><!--/.navbar -->
-
-
-
   <!-- Panel Container -->
 
   <div class="calcite-panels calcite-panels-right calcite-bg-custom calcite-text-light calcite-bgcolor-dark-blue panel-group" role="tablist" aria-multiselectable="true">
@@ -278,7 +277,7 @@
         </div> -->
 
         <!-- The Sidebar Medu Box -->
-    <div class="map-overlay-inner" style="display: block">
+    <div class="map-overlay-inner" style="display: none">
         <button id = "showFilter" type="button" class="collapsible"onclick="toggleCollapsible(event)">Filter By</button>
         <div class="sections" style = "display:none">
 
