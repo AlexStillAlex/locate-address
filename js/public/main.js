@@ -108,7 +108,7 @@ map.on('load', function() {
         "layout": {},
         "paint": {
             "fill-color": "#38f", //BLUE
-            "fill-opacity": 0.3 //Don't even need to highlight htis
+            "fill-opacity": 0.3 //Don't even need to highlight this
         }
     });
 
