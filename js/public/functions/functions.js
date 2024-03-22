@@ -259,7 +259,7 @@ function searchReferences() {
     for (i = 0; i < li.length; i++) {
         a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
         if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            if (visibleCount < 1) { //Only show 3 items at a time. Change this to one
+            if (visibleCount < 3) { //Only show 3 items at a time. Change this to one
                 li[i].style.display = "block"; //Show vertically
                 visibleCount++;
             } else {
@@ -283,7 +283,7 @@ function searchReferences_asset_managers() {
     for (i = 0; i < li.length; i++) {
         a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
         if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            if (visibleCount < 1) { //Only show 3 items at a time
+            if (visibleCount < 3) { //Only show 3 items at a time
                 li[i].style.display = "block"; //Show vertically
                 visibleCount++;
             } else {

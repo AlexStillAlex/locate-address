@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/stylesheets/dist/css/calcite-maps-bootstrap.min-v0.10.css">
     <link rel="stylesheet" href="/stylesheets/dist/css/calcite-maps-arcgis-4.x.min-v0.10.css">
     <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+    <link href='https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.css' rel='stylesheet' />
 
   <!-- JavaScript Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.5/alasql.min.js"></script>
@@ -29,6 +30,8 @@
   <script src="https://unpkg.com/konva@9/konva.min.js"></script>
   <script src='https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js'></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js'></script>
+  <script src="https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.js"></script>
     <!-- import 'amCharts 4' needed for populating polygons with labels-->
     <script src="//cdn.amcharts.com/lib/4/core.js"></script>
     <script src="//cdn.amcharts.com/lib/4/charts.js"></script>
@@ -275,7 +278,7 @@
         </div> -->
 
         <!-- The Sidebar Medu Box -->
-    <div class="map-overlay-inner" style="display: none;">
+    <div class="map-overlay-inner" style="display: block">
         <button id = "showFilter" type="button" class="collapsible"onclick="toggleCollapsible(event)">Filter By</button>
         <div class="sections" style = "display:none">
 
@@ -366,7 +369,6 @@
           <button id="highlightFeatures" class = "big-red-button">Highlight Buildings</button>
           <!-- <div id="legend"></div> -->
         </div>   
-                 
     </div>
     </div>
     </body>

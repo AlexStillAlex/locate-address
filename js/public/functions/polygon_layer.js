@@ -248,7 +248,7 @@ async function goadMapTest(){
     }
 
     layers_array.push(blaby_polygons);
-    map.addSource("blaby_leaseholds", blaby_polygons.source);
+    // map.addSource("blaby_leaseholds", blaby_polygons.source);
     map.addLayer(blaby_polygons);
 
 
