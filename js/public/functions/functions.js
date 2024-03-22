@@ -259,7 +259,7 @@ function searchReferences() {
     for (i = 0; i < li.length; i++) {
         a = li[i].getElementsByTagName("a")[0]; //Each list element has a tag called 'a'. These are called anchor tags.
         if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            if (visibleCount < 3) { //Only show 3 items at a time
+            if (visibleCount < 3) { //Only show 3 items at a time. Change this to one
                 li[i].style.display = "block"; //Show vertically
                 visibleCount++;
             } else {
@@ -1963,3 +1963,30 @@ function autocomplete(inp, arr) {
 // a.onclick = function() {
 //     map.setFilter('blaby_leaseholds', ['==', ['string', ['get', 'dmse_surveyor']], item.dmse_surveyor]);
 // }
+async function updateMapStyle(value){
+    // Don't overwrite users
+    let fillLayers = map.getStyle().layers.filter(layer => {
+        return layer.type === 'fill'
+        && layer.id !== "blaby_leaseholds";
+    });
+    // User defined layers to be saved
+    var savedColors = fillLayers.map(item => ({id: item.id, color: item.paint["fill-color"] }));
+    // Button name
+    if (value === "Standard") {
+        console.log("Standard")
+        // start painting bro
+        savedColors.forEach(savedColor => {
+            let itemToUpdate = fillLayers.find(item => item.id === savedColor.id);
+            if (itemToUpdate) {
+                map.setPaintProperty(itemToUpdate.id, 'fill-color', savedColor.color);
+            }
+        });
+    } else if (value === "GOAD") {
+        console.log("GOAD")
+        fillLayers.forEach(layer => {
+            map.setPaintProperty(layer.id, 'fill-color', '#ffffff');
+        });
+        map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');
+    }
+}
+

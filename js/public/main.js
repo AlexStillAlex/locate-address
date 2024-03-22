@@ -28,39 +28,9 @@ const styles = {
 };
 const radioButtons = document.querySelectorAll('input[type="radio"][name="toggle"]');
 radioButtons.forEach(button => {
-    button.addEventListener('change', function() {
-
-        
-        let fillLayers = map.getStyle().layers.filter(layer => {
-            return layer.type === 'fill'
-            //list all user-defined layers that should not be painted white
-            && layer.id !== "blaby_leaseholds";
-        });
-
-        var savedColors = fillLayers.map(item => ({id: item.id, color: item.paint["fill-color"] }));
-
-        if (this.value === "Standard") {
-            console.log("Standard")
-            
-            savedColors.forEach(savedColor => {
-                let itemToUpdate = fillLayers.find(item => item.id === savedColor.id);
-                if (itemToUpdate) {
-                    map.setPaintProperty(itemToUpdate.id, 'fill-color', savedColor.color);
-                    // itemToUpdate.paint["fill-color"] = savedColor.color;
-                }
-            });
-
-        } else if (this.value === "GOAD") {
-            console.log("GOAD")
-
-            //all fill layers (except for blaby_leaseholds) should be white
-            fillLayers.forEach(layer => {
-                map.setPaintProperty(layer.id, 'fill-color', '#ffffff');
-            });
-
-            // buildings should be yellow
-            map.setPaintProperty('OS/TopographicArea_1/Building/1', 'fill-color', 'rgb(255,255,205)');  
-        }
+    button.addEventListener('change', () => {
+        console.log('change event triggered');
+        updateMapStyle(button.value);
     });
 });
 
@@ -109,9 +79,9 @@ const map = new maplibregl.Map({
 
 // Add navigation control (excluding compass button) to the map.
 
-    map.addControl(new maplibregl.NavigationControl({
-        showCompass: true
-    }));
+    // map.addControl(new maplibregl.NavigationControl({
+    //     showCompass: true
+    // }));
 
 //Add scale control.
     map.addControl(new maplibregl.ScaleControl({
